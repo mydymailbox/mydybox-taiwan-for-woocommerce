@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Rule_Engine;
+namespace Mydyma_TCS\Rule_Engine;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -43,23 +43,23 @@ class Rule_Engine {
 		require_once __DIR__ . '/conditions/class-category.php';
 		require_once __DIR__ . '/conditions/class-product.php';
 
-		$this->register_condition( new \Taiwan_Store_Core\Rule_Engine\Conditions\Address() );
-		$this->register_condition( new \Taiwan_Store_Core\Rule_Engine\Conditions\Cart_Total() );
-		$this->register_condition( new \Taiwan_Store_Core\Rule_Engine\Conditions\Max_Qty() );
-		$this->register_condition( new \Taiwan_Store_Core\Rule_Engine\Conditions\Category() );
-		$this->register_condition( new \Taiwan_Store_Core\Rule_Engine\Conditions\Product() );
+		$this->register_condition( new \Mydyma_TCS\Rule_Engine\Conditions\Address() );
+		$this->register_condition( new \Mydyma_TCS\Rule_Engine\Conditions\Cart_Total() );
+		$this->register_condition( new \Mydyma_TCS\Rule_Engine\Conditions\Max_Qty() );
+		$this->register_condition( new \Mydyma_TCS\Rule_Engine\Conditions\Category() );
+		$this->register_condition( new \Mydyma_TCS\Rule_Engine\Conditions\Product() );
 
 		// Load common actions
 		require_once __DIR__ . '/actions/class-hide-payment.php';
 		require_once __DIR__ . '/actions/class-hide-shipping.php';
 		require_once __DIR__ . '/actions/class-block-checkout.php';
 
-		$this->register_action( new \Taiwan_Store_Core\Rule_Engine\Actions\Hide_Payment() );
-		$this->register_action( new \Taiwan_Store_Core\Rule_Engine\Actions\Hide_Shipping() );
-		$this->register_action( new \Taiwan_Store_Core\Rule_Engine\Actions\Block_Checkout() );
+		$this->register_action( new \Mydyma_TCS\Rule_Engine\Actions\Hide_Payment() );
+		$this->register_action( new \Mydyma_TCS\Rule_Engine\Actions\Hide_Shipping() );
+		$this->register_action( new \Mydyma_TCS\Rule_Engine\Actions\Block_Checkout() );
 
 		// Allow other modules to register components
-		do_action( 'taiwan_store_core_register_rule_components', $this );
+		do_action( 'mydyma_tcs_register_rule_components', $this );
 	}
 
 	public function register_condition( Condition $condition ): void {
@@ -107,9 +107,9 @@ class Rule_Engine {
 			return $this->rules_cache[ $hook ];
 		}
 
-		$rules = get_option( "taiwan_store_core_rules_{$hook}" );
+		$rules = get_option( "mydyma_tcs_rules_{$hook}" );
 		if ( false === $rules ) {
-			$rules = get_option( "wc_tw_core_rules_{$hook}" );
+			$rules = get_option( "mydyma_tcs_rules_{$hook}" );
 		}
 
 		$this->rules_cache[ $hook ] = is_array( $rules ) ? $rules : [];

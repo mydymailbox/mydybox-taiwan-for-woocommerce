@@ -1,4 +1,4 @@
-/* taiwan-store-core: checkout-tw.js */
+/* mydyma-taiwan-commerce-suite: checkout-tw.js */
 jQuery(document).ready(function ($) {
 
 	/* ── 0. Checkout progress steps ── */
@@ -57,7 +57,7 @@ jQuery(document).ready(function ($) {
 	});
 
 	/* ── 2a. Invoice type description (below select2, not inside dropdown) ── */
-	var $invoiceField = $('#billing_taiwan_store_core_invoice_type_field');
+	var $invoiceField = $('#billing_mydyma_tcs_invoice_type_field');
 	if ($invoiceField.length) {
 		$invoiceField.append(
 			'<span class="ts-invoice-desc" style="display:block;margin-top:5px;font-size:12px;color:#666;line-height:1.5;">' +
@@ -68,22 +68,22 @@ jQuery(document).ready(function ($) {
 
 	/* ── 2. Invoice type field visibility ── */
 	function toggleFields() {
-		var type = $('#billing_taiwan_store_core_invoice_type').val();
+		var type = $('#billing_mydyma_tcs_invoice_type').val();
 
 		if (type === 'company') {
-			$('.taiwan-store-core-company-field').show();
+			$('.mydyma-taiwan-commerce-suite-company-field').show();
 		} else {
-			$('.taiwan-store-core-company-field').hide();
+			$('.mydyma-taiwan-commerce-suite-company-field').hide();
 		}
 
 		if (['carrier_phone', 'carrier_cert', 'donate'].indexOf(type) !== -1) {
-			$('.taiwan-store-core-carrier-field').show();
+			$('.mydyma-taiwan-commerce-suite-carrier-field').show();
 		} else {
-			$('.taiwan-store-core-carrier-field').hide();
+			$('.mydyma-taiwan-commerce-suite-carrier-field').hide();
 		}
 	}
 
-	$('body').on('change', '#billing_taiwan_store_core_invoice_type', toggleFields);
+	$('body').on('change', '#billing_mydyma_tcs_invoice_type', toggleFields);
 	toggleFields();
 
 	/* ── 3. Phone number masking (09xx-xxx-xxx) ── */
@@ -123,7 +123,7 @@ jQuery(document).ready(function ($) {
 	});
 
 	/* ── 4. Tax ID auto-lookup ── */
-	if (wcTwCheckout.lookupEnabled !== 'yes') return;
+	if (mydymaTcsCheckout.lookupEnabled !== 'yes') return;
 
 	var taxLookupTimer = null;
 
@@ -131,7 +131,7 @@ jQuery(document).ready(function ($) {
 		var tax_id = $field.val().replace(/\D/g, '');
 		if (tax_id.length !== 8) return;
 
-		var $title = $('#billing_taiwan_store_core_company_title');
+		var $title = $('#billing_mydyma_tcs_company_title');
 		if ($title.data('looked-up') === tax_id) return;
 
 		var original_val = $title.val();
@@ -139,13 +139,13 @@ jQuery(document).ready(function ($) {
 		// Show spinner
 		var $wrap = $title.closest('.form-row');
 		$wrap.find('.ts-lookup-spinner').remove();
-		$wrap.append('<span class="ts-lookup-spinner" style="display:inline-block;margin-left:8px;color:#64748b;font-size:12px;">⏳ ' + wcTwCheckout.lookingUp + '</span>');
+		$wrap.append('<span class="ts-lookup-spinner" style="display:inline-block;margin-left:8px;color:#64748b;font-size:12px;">⏳ ' + mydymaTcsCheckout.lookingUp + '</span>');
 		$title.prop('disabled', true);
 
-		$.post(wcTwCheckout.ajaxUrl, {
-			action: 'ts_lookup_tax_id',
+		$.post(mydymaTcsCheckout.ajaxUrl, {
+			action: 'mydyma_tcs_lookup_tax_id',
 			tax_id: tax_id,
-			nonce:  wcTwCheckout.nonce,
+			nonce:  mydymaTcsCheckout.nonce,
 			_t:     Date.now()
 		}, function (response) {
 			$wrap.find('.ts-lookup-spinner').remove();
@@ -155,11 +155,11 @@ jQuery(document).ready(function ($) {
 				$title.val(response.data.name).data('looked-up', tax_id);
 				// Show success hint
 				$wrap.find('.ts-lookup-msg').remove();
-				$wrap.append('<span class="ts-lookup-msg" style="display:block;margin-top:4px;color:#16a34a;font-size:12px;">✓ ' + wcTwCheckout.found + '</span>');
+				$wrap.append('<span class="ts-lookup-msg" style="display:block;margin-top:4px;color:#16a34a;font-size:12px;">✓ ' + mydymaTcsCheckout.found + '</span>');
 				setTimeout(function () { $wrap.find('.ts-lookup-msg').fadeOut(400, function () { $(this).remove(); }); }, 3000);
 			} else {
-				var errMsg = (typeof response.data === 'object' ? response.data.message : response.data) || wcTwCheckout.notFound;
-				$title.val('').attr('placeholder', wcTwCheckout.notFound);
+				var errMsg = (typeof response.data === 'object' ? response.data.message : response.data) || mydymaTcsCheckout.notFound;
+				$title.val('').attr('placeholder', mydymaTcsCheckout.notFound);
 				// Show error below field
 				$wrap.find('.ts-lookup-msg').remove();
 				$wrap.append('<span class="ts-lookup-msg" style="display:block;margin-top:4px;color:#dc2626;font-size:12px;">✗ ' + errMsg + '</span>');
@@ -170,7 +170,7 @@ jQuery(document).ready(function ($) {
 		});
 	}
 
-	$('body').on('input', '#billing_taiwan_store_core_company_tax_id', function () {
+	$('body').on('input', '#billing_mydyma_tcs_company_tax_id', function () {
 		clearTimeout(taxLookupTimer);
 		var $f = $(this);
 		if ($f.val().replace(/\D/g, '').length === 8) {
@@ -178,7 +178,7 @@ jQuery(document).ready(function ($) {
 		}
 	});
 
-	$('body').on('change blur', '#billing_taiwan_store_core_company_tax_id', function () {
+	$('body').on('change blur', '#billing_mydyma_tcs_company_tax_id', function () {
 		clearTimeout(taxLookupTimer);
 		doTaxLookup($(this));
 	});

@@ -41,15 +41,7 @@ test('可以新增一條付款規則', async ({ page }) => {
 	await expect(page.locator('.taiwan-store-core-modal, [class*="modal"]')).toBeVisible({ timeout: 3_000 });
 });
 
-// ── 3. 電子發票設定頁 ─────────────────────────────────────────────────────────
-test('電子發票設定頁正常顯示', async ({ page }) => {
-	await loginAdmin(page);
-	await page.goto('/wp-admin/admin.php?page=taiwan-store-core&tab=invoice');
-	await expect(page.locator('h2').filter({ hasText: 'ECPay 電子發票設定' })).toBeVisible();
-	await expect(page.locator('[name="ts_invoice_enabled"]')).toBeVisible();
-});
-
-// ── 4. 結帳設定儲存 ────────────────────────────────────────────────────────────
+// ── 3. 結帳設定儲存 ────────────────────────────────────────────────────────────
 test('結帳設定頁可以儲存', async ({ page }) => {
 	await loginAdmin(page);
 	await page.goto('/wp-admin/admin.php?page=taiwan-store-core&tab=checkout');

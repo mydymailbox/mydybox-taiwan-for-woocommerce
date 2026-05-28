@@ -8,15 +8,15 @@
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 // Cleanup options
-$taiwan_store_core_options = [
-	'taiwan_store_core_license_key',
-	'taiwan_store_core_enabled_modules',
-	'taiwan_store_core_settings',
+$mydyma_tcs_options = [
+	'mydyma_tcs_license_key',
+	'mydyma_tcs_enabled_modules',
+	'mydyma_tcs_settings',
 ];
 
-foreach ( $taiwan_store_core_options as $taiwan_store_core_option ) {
-	delete_option( $taiwan_store_core_option );
+foreach ( $mydyma_tcs_options as $mydyma_tcs_option ) {
+	delete_option( $mydyma_tcs_option );
 }
 
 // Cleanup transients
-delete_transient( 'taiwan_store_core_activated' );
+delete_transient( 'mydyma_tcs_activated' );

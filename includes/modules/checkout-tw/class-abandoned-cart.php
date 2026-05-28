@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Modules\Checkout_Tw;
+namespace Mydyma_TCS\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -8,27 +8,27 @@ defined( 'ABSPATH' ) || exit;
  */
 class Abandoned_Cart {
 
-	private const META_KEY = '_taiwan_store_core_last_cart_activity';
+	private const META_KEY = '_mydyma_tcs_last_cart_activity';
 
 	public function boot(): void {
-		if ( 'yes' !== get_option( 'ts_checkout_abandoned_cart', 'no' ) ) {
+		if ( 'yes' !== get_option( 'mydyma_tcs_checkout_abandoned_cart', 'no' ) ) {
 			return;
 		}
 
 		add_action( 'woocommerce_add_to_cart', [ $this, 'update_cart_activity' ] );
 		add_action( 'woocommerce_cart_item_removed', [ $this, 'update_cart_activity' ] );
 
-		if ( ! wp_next_scheduled( 'taiwan_store_core_check_abandoned_carts' ) ) {
-			wp_schedule_event( time(), 'hourly', 'taiwan_store_core_check_abandoned_carts' );
+		if ( ! wp_next_scheduled( 'mydyma_tcs_check_abandoned_carts' ) ) {
+			wp_schedule_event( time(), 'hourly', 'mydyma_tcs_check_abandoned_carts' );
 		}
-		add_action( 'taiwan_store_core_check_abandoned_carts', [ $this, 'process_abandoned_carts' ] );
+		add_action( 'mydyma_tcs_check_abandoned_carts', [ $this, 'process_abandoned_carts' ] );
 	}
 
 	public function update_cart_activity(): void {
 		$user_id = get_current_user_id();
 		if ( ! $user_id ) return;
 
-		$line_user_id = get_user_meta( $user_id, '_taiwan_store_core_line_user_id', true );
+		$line_user_id = get_user_meta( $user_id, '_mydyma_tcs_line_user_id', true );
 		if ( ! $line_user_id ) return;
 
 		update_user_meta( $user_id, self::META_KEY, time() );
@@ -48,11 +48,11 @@ class Abandoned_Cart {
 					'type'    => 'NUMERIC',
 				],
 				[
-					'key'     => '_taiwan_store_core_line_user_id',
+					'key'     => '_mydyma_tcs_line_user_id',
 					'compare' => 'EXISTS',
 				],
 				[
-					'key'     => '_taiwan_store_core_abandoned_notified',
+					'key'     => '_mydyma_tcs_abandoned_notified',
 					'compare' => 'NOT EXISTS',
 				],
 			],
@@ -62,12 +62,12 @@ class Abandoned_Cart {
 
 		foreach ( $users as $user ) {
 			$this->send_recovery_message( $user );
-			update_user_meta( $user->ID, '_taiwan_store_core_abandoned_notified', time() );
+			update_user_meta( $user->ID, '_mydyma_tcs_abandoned_notified', time() );
 		}
 	}
 
 	private function send_recovery_message( \WP_User $user ): void {
-		$line_user_id = get_user_meta( $user->ID, '_taiwan_store_core_line_user_id', true );
+		$line_user_id = get_user_meta( $user->ID, '_mydyma_tcs_line_user_id', true );
 		if ( ! $line_user_id ) return;
 
 		$checkout_url = wc_get_checkout_url();
@@ -76,8 +76,8 @@ class Abandoned_Cart {
 		$message = sprintf(
 			"Hi %s,\n\n%s\n\n%s\n%s",
 			$user->display_name,
-			__( 'You still have items left in your cart!', 'taiwan-store-core' ),
-			__( 'Complete your purchase now:', 'taiwan-store-core' ),
+			__( 'You still have items left in your cart!', 'mydyma-taiwan-commerce-suite' ),
+			__( 'Complete your purchase now:', 'mydyma-taiwan-commerce-suite' ),
 			$checkout_url
 		);
 
@@ -85,7 +85,7 @@ class Abandoned_Cart {
 	}
 
 	private function trigger_line_notification( string $to, string $message ): void {
-		$token = get_option( 'ts_social_line_token' );
+		$token = get_option( 'mydyma_tcs_social_line_token' );
 		if ( ! $token ) return;
 
 		wp_remote_post( 'https://api.line.me/v2/bot/message/push', [

@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Helpers; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
+namespace Mydyma_TCS\Helpers; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydyma_TCS is the plugin prefix
 
 defined( 'ABSPATH' ) || exit;
 

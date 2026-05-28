@@ -1,8 +1,8 @@
 <?php
-namespace Taiwan_Store_Core\Rule_Engine\Conditions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
+namespace Mydyma_TCS\Rule_Engine\Conditions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydyma_TCS is the plugin prefix
 
-use Taiwan_Store_Core\Rule_Engine\Condition;
-use Taiwan_Store_Core\Rule_Engine\Context;
+use Mydyma_TCS\Rule_Engine\Condition;
+use Mydyma_TCS\Rule_Engine\Context;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,7 +21,7 @@ class Max_Qty implements Condition {
 	}
 
 	public function label(): string {
-		return __( 'Maximum Quantity per Product', 'taiwan-store-core' );
+		return __( 'Maximum Quantity per Product', 'mydyma-taiwan-commerce-suite' );
 	}
 
 	public function type(): string {
@@ -30,7 +30,7 @@ class Max_Qty implements Condition {
 
 	public function operators(): array {
 		return [
-			[ 'id' => 'gt', 'label' => __( 'Quantity is greater than (>)', 'taiwan-store-core' ) ],
+			[ 'id' => 'gt', 'label' => __( 'Quantity is greater than (>)', 'mydyma-taiwan-commerce-suite' ) ],
 		];
 	}
 

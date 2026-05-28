@@ -1,9 +1,9 @@
 <?php
-namespace Taiwan_Store_Core\Modules\Payment_Gateway;
+namespace Mydyma_TCS\Modules\Payment_Gateway;
 
 defined( 'ABSPATH' ) || exit;
 
-class Module implements \Taiwan_Store_Core\Module {
+class Module implements \Mydyma_TCS\Module {
 
 	public function id(): string {
 		return 'payment_gateway';
@@ -15,7 +15,7 @@ class Module implements \Taiwan_Store_Core\Module {
 
 	public function register_gateway( array $gateways ): array {
 		require_once __DIR__ . '/class-ecpay-gateway.php';
-		$gateways[] = '\Taiwan_Store_Core\Modules\Payment_Gateway\ECPay_Gateway';
+		$gateways[] = '\Mydyma_TCS\Modules\Payment_Gateway\ECPay_Gateway';
 		return $gateways;
 	}
 

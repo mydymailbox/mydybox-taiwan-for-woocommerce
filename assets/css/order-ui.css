@@ -1,0 +1,24 @@
+.mydyma-taiwan-commerce-suite-order-timeline-wrap { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; margin-bottom: 35px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+.mydyma-taiwan-commerce-suite-order-timeline-wrap h3 { margin-top: 0; font-size: 1.25rem; color: #1e293b; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+.mydyma-taiwan-commerce-suite-order-timeline-wrap h3 .dashicons { color: #2563eb; font-size: 24px; width: 24px; height: 24px; }
+
+.mydyma-taiwan-commerce-suite-timeline { display: flex; justify-content: space-between; position: relative; margin-bottom: 20px; }
+.mydyma-taiwan-commerce-suite-timeline::before { content: ''; position: absolute; top: 22px; left: 8%; right: 8%; height: 3px; background: #f1f5f9; z-index: 1; }
+
+.mydyma-taiwan-commerce-suite-step { position: relative; z-index: 2; text-align: center; flex: 1; }
+.mydyma-taiwan-commerce-suite-step-icon { width: 45px; height: 45px; background: #fff; border: 2px solid #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.mydyma-taiwan-commerce-suite-step-icon .dashicons { font-size: 20px; color: #94a3b8; width: 20px; height: 20px; }
+
+.mydyma-taiwan-commerce-suite-step-label { font-size: 14px; color: #94a3b8; font-weight: 500; }
+
+.mydyma-taiwan-commerce-suite-step.is-active .mydyma-taiwan-commerce-suite-step-icon { background: #f0f7ff; border-color: #2563eb; }
+.mydyma-taiwan-commerce-suite-step.is-active .mydyma-taiwan-commerce-suite-step-icon .dashicons { color: #2563eb; }
+.mydyma-taiwan-commerce-suite-step.is-active .mydyma-taiwan-commerce-suite-step-label { color: #1e293b; font-weight: 600; }
+
+.mydyma-taiwan-commerce-suite-tracking-info-card { background: #f8fafc; border-radius: 12px; padding: 20px; margin-top: 25px; border: 1px solid #e2e8f0; }
+@media (max-width: 767px) {
+	.mydyma-taiwan-commerce-suite-timeline::before { display: none; }
+	.mydyma-taiwan-commerce-suite-timeline { flex-direction: column; gap: 20px; }
+	.mydyma-taiwan-commerce-suite-step { display: flex; align-items: center; gap: 20px; text-align: left; }
+	.mydyma-taiwan-commerce-suite-step-icon { margin: 0; }
+}

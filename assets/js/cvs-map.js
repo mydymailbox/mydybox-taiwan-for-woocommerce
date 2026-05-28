@@ -1,7 +1,7 @@
-/* taiwan-store-core: cvs-map.js */
+/* mydyma-taiwan-commerce-suite: cvs-map.js */
 jQuery(document).ready(function ($) {
 
-	var CVS_ECPAY_ID   = 'taiwan_store_core_cvs';
+	var CVS_ECPAY_ID   = 'mydyma_tcs_cvs';
 	var CVS_NEWEBPAY_ID = 'taiwan_store_newebpay_cvs';
 	var mapWindow = null;
 
@@ -27,10 +27,10 @@ jQuery(document).ready(function ($) {
 	checkShippingMethod();
 
 	/* ── Restore stored session data if exists ── */
-	var $storeId   = $('#ts_cvs_store_id');
-	var $storeName = $('#ts_cvs_store_name');
-	var $storeAddr = $('#ts_cvs_store_addr');
-	var $storeType = $('#ts_cvs_store_type');
+	var $storeId   = $('#mydyma_tcs_cvs_store_id');
+	var $storeName = $('#mydyma_tcs_cvs_store_name');
+	var $storeAddr = $('#mydyma_tcs_cvs_store_addr');
+	var $storeType = $('#mydyma_tcs_cvs_store_type');
 
 	if ( $storeId.val() ) {
 		updateStoreDisplay({
@@ -50,25 +50,28 @@ jQuery(document).ready(function ($) {
 
 		var $method = $('input[name="shipping_method[0]"]:checked');
 		var cvsType = $method.data('cvs-type') || ( provider === 'ecpay' ? 'UNIMART' : 'SEVEN' );
-		var action  = provider === 'ecpay' ? 'ts_open_cvs_map' : 'ts_open_newebpay_cvs_map';
+		var action  = provider === 'ecpay' ? 'mydyma_tcs_open_cvs_map' : 'mydyma_tcs_open_newebpay_cvs_map';
 
-		$.post( wcTwCvs.ajaxUrl, {
+		$.post( mydymaTcsCvs.ajaxUrl, {
 			action:   action,
-			nonce:    wcTwCvs.nonce,
+			nonce:    mydymaTcsCvs.nonce,
 			cvs_type: cvsType,
 		}, function (res) {
 			if ( ! res.success ) return;
-			var popup = window.open('', 'ts_cvs_map', 'width=1000,height=680,scrollbars=yes');
+			var popup = window.open('', 'mydyma_tcs_cvs_map', 'width=1000,height=680,scrollbars=yes');
 			popup.document.open();
 			popup.document.write( res.data.form );
 			popup.document.close();
+			// Submit the redirect form from the parent: the server-rendered form intentionally
+			// contains no inline <script> tag (wp.org guideline) so we trigger the submit here.
+			try { popup.document.forms[0].submit(); } catch ( e ) {}
 			mapWindow = popup;
 		});
 	});
 
 	/* ── Receive postMessage callback from popup ── */
 	window.addEventListener('message', function (e) {
-		if ( ! e.data || e.data.type !== 'ts_cvs_store' ) return;
+		if ( ! e.data || e.data.type !== 'mydyma_tcs_cvs_store' ) return;
 		var store = e.data.store;
 		if ( ! store || ! store.id ) return;
 
@@ -93,7 +96,7 @@ jQuery(document).ready(function ($) {
 
 		$('#ts-cvs-store-text').html( html );
 		$('#ts-cvs-store-info').css({ background: '#f0fdf4', borderColor: '#86efac', color: '#166534' });
-		$('#ts-cvs-select-btn').text('🔄 ' + wcTwCvs.changeStore);
+		$('#ts-cvs-select-btn').text('🔄 ' + mydymaTcsCvs.changeStore);
 	}
 
 	function getCvsLabel(type) {
@@ -118,7 +121,7 @@ jQuery(document).ready(function ($) {
 	$('body').on('checkout_place_order', function () {
 		var provider = getActiveProvider();
 		if ( provider && ! $storeId.val() ) {
-			alert( wcTwCvs.noStoreSelected );
+			alert( mydymaTcsCvs.noStoreSelected );
 			$('#ts-cvs-select-btn').focus();
 			return false;
 		}

@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Modules\Payment_Gateway;
+namespace Mydyma_TCS\Modules\Payment_Gateway;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -16,61 +16,79 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 	const QUERY_LIVE  = 'https://payment.ecpay.com.tw/Cashier/QueryTradeInfo/V5';
 
 	public function __construct() {
-		$this->id                 = 'taiwan_store_core_ecpay';
-		$this->method_title       = __( 'ECPay 綠界金流', 'taiwan-store-core' );
-		$this->method_description = __( '支援信用卡、ATM、超商代碼、WebATM、TWQR（LINE Pay）', 'taiwan-store-core' );
+		$this->id                 = 'mydyma_tcs_ecpay';
+		$this->method_title       = __( 'ECPay 綠界金流', 'mydyma-taiwan-commerce-suite' );
+		$this->method_description = __( '支援信用卡、ATM、超商代碼、WebATM、TWQR（LINE Pay）', 'mydyma-taiwan-commerce-suite' );
 		$this->has_fields         = false;
 		$this->supports           = [ 'products', 'refunds' ];
 
 		$this->init_form_fields();
 		$this->init_settings();
 
-		$this->title       = $this->get_option( 'title', __( 'ECPay 綠界金流', 'taiwan-store-core' ) );
+		$this->title       = $this->get_option( 'title', __( 'ECPay 綠界金流', 'mydyma-taiwan-commerce-suite' ) );
 		$this->description = $this->get_option( 'description', '' );
 
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, [ $this, 'process_admin_options' ] );
-		add_action( 'woocommerce_api_taiwan_store_core_ecpay', [ $this, 'handle_callback' ] );
+		add_action( 'woocommerce_api_mydyma_tcs_ecpay', [ $this, 'handle_callback' ] );
 		add_action( 'woocommerce_receipt_' . $this->id, [ $this, 'render_payment_form' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_redirect_script' ] );
+	}
+
+	/**
+	 * Enqueue the generic auto-submit helper on the order-pay endpoint so the receipt
+	 * page can redirect to ECPay without an inline script block.
+	 */
+	public function enqueue_redirect_script(): void {
+		if ( ! function_exists( 'is_wc_endpoint_url' ) || ! is_wc_endpoint_url( 'order-pay' ) ) {
+			return;
+		}
+		wp_enqueue_script(
+			'mydyma-tcs-form-auto-submit',
+			MYDYMA_TCS_URL . 'assets/js/form-auto-submit.js',
+			[],
+			MYDYMA_TCS_VERSION,
+			true
+		);
 	}
 
 	public function init_form_fields(): void {
 		$this->form_fields = [
 			'enabled' => [
-				'title'   => __( '啟用', 'taiwan-store-core' ),
+				'title'   => __( '啟用', 'mydyma-taiwan-commerce-suite' ),
 				'type'    => 'checkbox',
 				'default' => 'no',
 			],
 			'title' => [
-				'title'   => __( '付款方式名稱', 'taiwan-store-core' ),
+				'title'   => __( '付款方式名稱', 'mydyma-taiwan-commerce-suite' ),
 				'type'    => 'text',
 				'default' => 'ECPay 綠界金流',
 			],
 			'description' => [
-				'title'   => __( '說明文字', 'taiwan-store-core' ),
+				'title'   => __( '說明文字', 'mydyma-taiwan-commerce-suite' ),
 				'type'    => 'textarea',
 				'default' => '支援信用卡、ATM 轉帳、超商代碼繳費',
 			],
 			'test_mode' => [
-				'title'   => __( '測試模式', 'taiwan-store-core' ),
+				'title'   => __( '測試模式', 'mydyma-taiwan-commerce-suite' ),
 				'type'    => 'checkbox',
 				'default' => 'yes',
-				'description' => __( '開啟時使用 ECPay Staging（MerchantID: 3002607）', 'taiwan-store-core' ),
+				'description' => __( '開啟時使用 ECPay Staging（MerchantID: 3002607）', 'mydyma-taiwan-commerce-suite' ),
 			],
 			'merchant_id' => [
-				'title'       => __( '正式 MerchantID', 'taiwan-store-core' ),
+				'title'       => __( '正式 MerchantID', 'mydyma-taiwan-commerce-suite' ),
 				'type'        => 'text',
-				'description' => __( '測試模式時無需填寫', 'taiwan-store-core' ),
+				'description' => __( '測試模式時無需填寫', 'mydyma-taiwan-commerce-suite' ),
 			],
 			'hash_key' => [
-				'title' => __( '正式 HashKey', 'taiwan-store-core' ),
+				'title' => __( '正式 HashKey', 'mydyma-taiwan-commerce-suite' ),
 				'type'  => 'password',
 			],
 			'hash_iv' => [
-				'title' => __( '正式 HashIV', 'taiwan-store-core' ),
+				'title' => __( '正式 HashIV', 'mydyma-taiwan-commerce-suite' ),
 				'type'  => 'password',
 			],
 			'choose_payment' => [
-				'title'   => __( '預設付款方式', 'taiwan-store-core' ),
+				'title'   => __( '預設付款方式', 'mydyma-taiwan-commerce-suite' ),
 				'type'    => 'select',
 				'default' => 'ALL',
 				'options' => [
@@ -83,17 +101,17 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 				],
 			],
 			'installment' => [
-				'title'       => __( '信用卡分期', 'taiwan-store-core' ),
+				'title'       => __( '信用卡分期', 'mydyma-taiwan-commerce-suite' ),
 				'type'        => 'text',
 				'default'     => '',
-				'description' => __( '填入可分期期數，逗號分隔，例如：3,6,12。空白表示不啟用分期。', 'taiwan-store-core' ),
+				'description' => __( '填入可分期期數，逗號分隔，例如：3,6,12。空白表示不啟用分期。', 'mydyma-taiwan-commerce-suite' ),
 			],
 		];
 	}
 
 	public function process_payment( $order_id ): array {
 		$order = wc_get_order( $order_id );
-		$order->update_status( 'pending', __( '等待 ECPay 付款確認', 'taiwan-store-core' ) );
+		$order->update_status( 'pending', __( '等待 ECPay 付款確認', 'mydyma-taiwan-commerce-suite' ) );
 
 		return [
 			'result'   => 'success',
@@ -116,7 +134,7 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 		$trade_no = 'TW' . gmdate( 'ymdHis' ) . substr( (string) $order_id, -3 ) . wp_rand( 10, 99 );
 
 		// Save trade_no to order for callback matching
-		$order->update_meta_data( 'ts_ecpay_trade_no', $trade_no );
+		$order->update_meta_data( 'mydyma_tcs_ecpay_trade_no', $trade_no );
 		$order->save();
 
 		$item_name = implode( '#', array_map(
@@ -135,7 +153,7 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 			'TotalAmount'       => (int) $order->get_total(),
 			'TradeDesc'         => urlencode( get_bloginfo( 'name' ) . ' 訂單' ),
 			'ItemName'          => $item_name,
-			'ReturnURL'         => home_url( '/?wc-api=taiwan_store_core_ecpay' ),
+			'ReturnURL'         => home_url( '/?wc-api=mydyma_tcs_ecpay' ),
 			'OrderResultURL'    => $this->get_return_url( $order ),
 			'ChoosePayment'     => $choose_payment,
 			'EncryptType'       => '1',
@@ -151,22 +169,27 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 		$params['CheckMacValue'] = $this->generate_check_mac( $params, $hash_key, $hash_iv );
 
 		// Render auto-submit form
-		echo '<p>' . esc_html__( '即將跳轉至綠界付款頁面...', 'taiwan-store-core' ) . '</p>';
+		echo '<p>' . esc_html__( '即將跳轉至綠界付款頁面...', 'mydyma-taiwan-commerce-suite' ) . '</p>';
 		echo '<form id="ts-ecpay-form" method="post" action="' . esc_url( $endpoint ) . '">';
 		foreach ( $params as $k => $v ) {
 			echo '<input type="hidden" name="' . esc_attr( $k ) . '" value="' . esc_attr( $v ) . '">';
 		}
 		echo '</form>';
-		echo '<script>document.getElementById("ts-ecpay-form").submit();</script>';
+		// Submit is performed by the enqueued mydyma-tcs-form-auto-submit script.
 	}
 
 	/**
 	 * Handle ECPay server-side callback (ReturnURL).
 	 */
 	public function handle_callback(): void {
-		// ECPay callback: verify the CheckMacValue instead of a WP nonce (ECPay signs its own payload).
+		// ECPay callback: authenticity is established by the CheckMacValue ECPay signs over
+		// the payload, not a WP nonce. We must compute the MAC against the unslashed (but
+		// otherwise unmodified) payload — sanitizing here would mangle whitespace and break
+		// the signature. After the MAC is verified we sanitize each field individually
+		// before storing/displaying it.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- ECPay uses CheckMacValue for authenticity
-		$post = $_POST;
+		$post = wp_unslash( $_POST );
+
 		if ( empty( $post['MerchantID'] ) || empty( $post['MerchantTradeNo'] ) ) {
 			echo '0|ErrorMessage';
 			exit;
@@ -176,8 +199,8 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 		$hash_key = $is_test ? 'pwFHCqoQZGmho4w6' : $this->get_option( 'hash_key' );
 		$hash_iv  = $is_test ? 'EkRm7iFT261dpevs' : $this->get_option( 'hash_iv' );
 
-		// Verify CheckMacValue
-		$received_mac = $post['CheckMacValue'];
+		// Verify CheckMacValue against the raw-but-unslashed payload.
+		$received_mac = isset( $post['CheckMacValue'] ) ? (string) $post['CheckMacValue'] : '';
 		unset( $post['CheckMacValue'] );
 		$expected_mac = $this->generate_check_mac( $post, $hash_key, $hash_iv );
 
@@ -186,31 +209,34 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 			exit;
 		}
 
-		// Find order by CustomField1 (order_id)
-		$order_id = absint( $post['CustomField1'] ?? 0 );
-		$order    = $order_id ? wc_get_order( $order_id ) : null;
+		// MAC verified — now sanitize each field before any use.
+		$order_id     = absint( $post['CustomField1'] ?? 0 );
+		$order        = $order_id ? wc_get_order( $order_id ) : null;
 
 		if ( ! $order ) {
 			echo '0|OrderNotFound';
 			exit;
 		}
 
-		$rtn_code = $post['RtnCode'] ?? '0';
+		$rtn_code     = sanitize_text_field( $post['RtnCode'] ?? '0' );
+		$trade_no     = sanitize_text_field( $post['TradeNo'] ?? '' );
+		$payment_type = sanitize_text_field( $post['PaymentType'] ?? '' );
+		$rtn_msg      = sanitize_text_field( $post['RtnMsg'] ?? '' );
 
-		if ( $rtn_code === '1' ) {
-			$order->payment_complete( $post['TradeNo'] ?? '' );
+		if ( '1' === $rtn_code ) {
+			$order->payment_complete( $trade_no );
 			$order->add_order_note( sprintf(
 				// translators: %1$s is ECPay transaction ID, %2$s is payment method string
-				__( 'ECPay 付款成功。交易編號：%1$s，付款方式：%2$s', 'taiwan-store-core' ),
-				$post['TradeNo'] ?? '',
-				$post['PaymentType'] ?? ''
+				__( 'ECPay 付款成功。交易編號：%1$s，付款方式：%2$s', 'mydyma-taiwan-commerce-suite' ),
+				$trade_no,
+				$payment_type
 			) );
 		} else {
 			$order->update_status( 'failed', sprintf(
 				// translators: %1$s is ECPay RtnCode number, %2$s is error message string
-				__( 'ECPay 付款失敗。RtnCode：%1$s，訊息：%2$s', 'taiwan-store-core' ),
+				__( 'ECPay 付款失敗。RtnCode：%1$s，訊息：%2$s', 'mydyma-taiwan-commerce-suite' ),
 				$rtn_code,
-				$post['RtnMsg'] ?? ''
+				$rtn_msg
 			) );
 		}
 
@@ -223,10 +249,10 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 	 */
 	public function process_refund( $order_id, $amount = null, $reason = '' ): bool|\WP_Error {
 		$order    = wc_get_order( $order_id );
-		$trade_no = $order->get_meta( 'ts_ecpay_trade_no' );
+		$trade_no = $order->get_meta( 'mydyma_tcs_ecpay_trade_no' );
 
 		if ( ! $trade_no ) {
-			return new \WP_Error( 'no_trade_no', __( '找不到 ECPay 交易編號，無法退款', 'taiwan-store-core' ) );
+			return new \WP_Error( 'no_trade_no', __( '找不到 ECPay 交易編號，無法退款', 'mydyma-taiwan-commerce-suite' ) );
 		}
 
 		$is_test     = 'yes' === $this->get_option( 'test_mode', 'yes' );
@@ -259,11 +285,11 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 		parse_str( wp_remote_retrieve_body( $response ), $result );
 		if ( ( $result['RtnCode'] ?? '' ) === '1' ) {
 			// translators: %s is refund amount
-			$order->add_order_note( sprintf( __( 'ECPay 退款成功：NT$ %s', 'taiwan-store-core' ), $amount ) );
+			$order->add_order_note( sprintf( __( 'ECPay 退款成功：NT$ %s', 'mydyma-taiwan-commerce-suite' ), $amount ) );
 			return true;
 		}
 
-		return new \WP_Error( 'refund_failed', $result['RtnMsg'] ?? __( '退款失敗', 'taiwan-store-core' ) );
+		return new \WP_Error( 'refund_failed', $result['RtnMsg'] ?? __( '退款失敗', 'mydyma-taiwan-commerce-suite' ) );
 	}
 
 	/**

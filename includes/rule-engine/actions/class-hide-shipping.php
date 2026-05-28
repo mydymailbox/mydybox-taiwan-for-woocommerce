@@ -1,8 +1,8 @@
 <?php
-namespace Taiwan_Store_Core\Rule_Engine\Actions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
+namespace Mydyma_TCS\Rule_Engine\Actions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydyma_TCS is the plugin prefix
 
-use Taiwan_Store_Core\Rule_Engine\Action;
-use Taiwan_Store_Core\Rule_Engine\Context;
+use Mydyma_TCS\Rule_Engine\Action;
+use Mydyma_TCS\Rule_Engine\Context;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -20,12 +20,12 @@ class Hide_Shipping implements Action {
 	}
 
 	public function label(): string {
-		return __( 'Hide Shipping Methods', 'taiwan-store-core' );
+		return __( 'Hide Shipping Methods', 'mydyma-taiwan-commerce-suite' );
 	}
 
 	public function args(): array {
 		return [
-			[ 'id' => 'methods', 'label' => __( 'Select shipping methods to hide', 'taiwan-store-core' ), 'type' => 'multiselect', 'source' => 'shipping_methods' ]
+			[ 'id' => 'methods', 'label' => __( 'Select shipping methods to hide', 'mydyma-taiwan-commerce-suite' ), 'type' => 'multiselect', 'source' => 'shipping_methods' ]
 		];
 	}
 

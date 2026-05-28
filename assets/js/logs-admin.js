@@ -1,10 +1,10 @@
 /**
- * Taiwan Store Core — Logs & Stats Dashboard
+ * Mydyma TCS — Logs & Stats Dashboard
  */
 (function($) {
     'use strict';
 
-    const D = typeof TaiwanStoreCoreCoreStats !== 'undefined' ? TaiwanStoreCoreCoreStats : null;
+    const D = typeof MydymaTcsLogStats !== 'undefined' ? MydymaTcsLogStats : null;
     if (!D) return;
 
     function renderStats(data) {
@@ -12,8 +12,8 @@
         const total = data.total;
         
         if (total === 0) {
-            $('#taiwan-store-core-logs-root').html(`
-                <div class="taiwan-store-core-empty-state">
+            $('#mydyma-taiwan-commerce-suite-logs-root').html(`
+                <div class="mydyma-taiwan-commerce-suite-empty-state">
                     <span class="dashicons dashicons-chart-pie"></span>
                     <p>今日尚無訂單數據</p>
                     <p style="font-size:12px;color:#aaa">數據將在今日產生首筆訂單後顯示</p>
@@ -69,26 +69,26 @@
             </div>
         `;
 
-        $('#taiwan-store-core-logs-root').html(chartHtml);
+        $('#mydyma-taiwan-commerce-suite-logs-root').html(chartHtml);
     }
 
     function init() {
-        $('#taiwan-store-core-logs-root').html('<div class="taiwan-store-core-spinner active"></div> 正在讀取數據...');
+        $('#mydyma-taiwan-commerce-suite-logs-root').html('<div class="mydyma-taiwan-commerce-suite-spinner active"></div> 正在讀取數據...');
         
         $.post(D.ajaxUrl, {
-            action: 'taiwan_store_core_get_stats',
+            action: 'mydyma_tcs_get_stats',
             nonce: D.nonce
         }).done(function(res) {
             if (res.success) {
                 renderStats(res.data);
             } else {
-                $('#taiwan-store-core-logs-root').text('無法載入數據');
+                $('#mydyma-taiwan-commerce-suite-logs-root').text('無法載入數據');
             }
         });
     }
 
     $(function() {
-        if ($('#taiwan-store-core-logs-root').length) {
+        if ($('#mydyma-taiwan-commerce-suite-logs-root').length) {
             init();
         }
     });

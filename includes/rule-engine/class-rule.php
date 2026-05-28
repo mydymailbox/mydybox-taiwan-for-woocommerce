@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Rule_Engine; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
+namespace Mydyma_TCS\Rule_Engine; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydyma_TCS is the plugin prefix
 
 defined( 'ABSPATH' ) || exit;
 
@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
  * Immutable value object representing a single rule.
  *
  * Rules are stored as plain arrays in wp_options:
- *   option key:  Taiwan_Store_Core_rules_{hook}
+ *   option key:  Mydyma_TCS_rules_{hook}
  *   option value: array of serialized Rule arrays
  */
 class Rule {

@@ -7,10 +7,10 @@
 }
 
 /* 統編發票區塊：預設隱藏，勾選 checkbox 後展開 */
-.woocommerce-checkout .taiwan-store-core-invoice-field {
+.woocommerce-checkout .mydyma-taiwan-commerce-suite-invoice-field {
 	display: none;
 }
-.woocommerce-checkout .taiwan-store-core-invoice-field.taiwan-store-core-visible {
+.woocommerce-checkout .mydyma-taiwan-commerce-suite-invoice-field.mydyma-taiwan-commerce-suite-visible {
 	display: block;
 }
 
@@ -89,7 +89,7 @@
 }
 
 /* 統編查詢提示文字（統編欄位下方） */
-#taiwan-store-core-taxid-hint {
+#mydyma-taiwan-commerce-suite-taxid-hint {
 	display: block;
 	margin-top: 4px;
 	font-size: 0.85em;
@@ -127,14 +127,14 @@
 }
 
 /* 訂單清單標籤樣式 */
-.taiwan-store-core-tags-container {
+.mydyma-taiwan-commerce-suite-tags-container {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px;
 	align-items: center;
 	margin-top: 5px;
 }
-.taiwan-store-core-tag {
+.mydyma-taiwan-commerce-suite-tag {
 	display: inline-block;
 	padding: 2px 6px;
 	border-radius: 4px;
@@ -144,10 +144,10 @@
 	white-space: nowrap;
 	color: #fff;
 }
-.taiwan-store-core-tag-taxid   { background-color: #1e3a5f; }
-.taiwan-store-core-tag-carrier { background-color: #00a32a; }
-.taiwan-store-core-tag-donate  { background-color: #f0821b; }
-.taiwan-store-core-tag-marketing { background-color: #9b59b6; }
+.mydyma-taiwan-commerce-suite-tag-taxid   { background-color: #1e3a5f; }
+.mydyma-taiwan-commerce-suite-tag-carrier { background-color: #00a32a; }
+.mydyma-taiwan-commerce-suite-tag-donate  { background-color: #f0821b; }
+.mydyma-taiwan-commerce-suite-tag-marketing { background-color: #9b59b6; }
 
 /* ── CVS Store Pickup ── */
 .ts-cvs-info-box {

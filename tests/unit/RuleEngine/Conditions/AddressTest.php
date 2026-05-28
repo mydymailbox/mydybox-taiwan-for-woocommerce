@@ -1,9 +1,9 @@
 <?php
-namespace Taiwan_Store_Core\Tests\Unit\RuleEngine\Conditions;
+namespace Mydyma_TCS\Tests\Unit\RuleEngine\Conditions;
 
 use PHPUnit\Framework\TestCase;
-use Taiwan_Store_Core\Rule_Engine\Conditions\Address;
-use Taiwan_Store_Core\Rule_Engine\Context;
+use Mydyma_TCS\Rule_Engine\Conditions\Address;
+use Mydyma_TCS\Rule_Engine\Context;
 use ReflectionProperty;
 
 class AddressTest extends TestCase {

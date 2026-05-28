@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Modules\Abandoned_Cart;
+namespace Mydyma_TCS\Modules\Abandoned_Cart;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -8,12 +8,12 @@ defined( 'ABSPATH' ) || exit;
  */
 class Tracker {
 
-	const TABLE = 'ts_abandoned_carts';
+	const TABLE = 'mydyma_tcs_abandoned_carts';
 
 	public function boot(): void {
 		// Capture email as user types in checkout
-		add_action( 'wp_ajax_ts_capture_checkout_email',        [ $this, 'ajax_capture' ] );
-		add_action( 'wp_ajax_nopriv_ts_capture_checkout_email', [ $this, 'ajax_capture' ] );
+		add_action( 'wp_ajax_mydyma_tcs_capture_checkout_email',        [ $this, 'ajax_capture' ] );
+		add_action( 'wp_ajax_nopriv_mydyma_tcs_capture_checkout_email', [ $this, 'ajax_capture' ] );
 
 		// Enqueue the JS that fires the capture AJAX
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
@@ -22,9 +22,9 @@ class Tracker {
 		add_action( 'woocommerce_checkout_order_created', [ $this, 'on_order_created' ] );
 
 		// Scheduled event to trigger reminders
-		add_action( 'taiwan_store_core_process_abandoned_carts', [ $this, 'process_abandoned' ] );
-		if ( ! wp_next_scheduled( 'taiwan_store_core_process_abandoned_carts' ) ) {
-			wp_schedule_event( time(), 'hourly', 'taiwan_store_core_process_abandoned_carts' );
+		add_action( 'mydyma_tcs_process_abandoned_carts', [ $this, 'process_abandoned' ] );
+		if ( ! wp_next_scheduled( 'mydyma_tcs_process_abandoned_carts' ) ) {
+			wp_schedule_event( time(), 'hourly', 'mydyma_tcs_process_abandoned_carts' );
 		}
 
 		// Create DB table if needed
@@ -32,7 +32,7 @@ class Tracker {
 	}
 
 	public function maybe_create_table(): void {
-		if ( get_option( 'ts_abandoned_cart_table_v1' ) ) return;
+		if ( get_option( 'mydyma_tcs_abandoned_cart_table_v1' ) ) return;
 
 		global $wpdb;
 		$table   = $wpdb->prefix . self::TABLE;
@@ -54,7 +54,7 @@ class Tracker {
 		) {$charset};" );
 		// phpcs:enable
 
-		update_option( 'ts_abandoned_cart_table_v1', '1' );
+		update_option( 'mydyma_tcs_abandoned_cart_table_v1', '1' );
 	}
 
 	public function enqueue_scripts(): void {
@@ -62,19 +62,19 @@ class Tracker {
 
 		wp_enqueue_script(
 			'ts-abandoned-cart',
-			TAIWAN_STORE_CORE_URL . 'assets/js/abandoned-cart.js',
+			MYDYMA_TCS_URL . 'assets/js/abandoned-cart.js',
 			[ 'jquery' ],
-			TAIWAN_STORE_CORE_VERSION,
+			MYDYMA_TCS_VERSION,
 			true
 		);
 		wp_localize_script( 'ts-abandoned-cart', 'tsAbandonedCart', [
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-			'nonce'   => wp_create_nonce( 'ts_abandoned_cart' ),
+			'nonce'   => wp_create_nonce( 'mydyma_tcs_abandoned_cart' ),
 		] );
 	}
 
 	public function ajax_capture(): void {
-		check_ajax_referer( 'ts_abandoned_cart', 'nonce' );
+		check_ajax_referer( 'mydyma_tcs_abandoned_cart', 'nonce' );
 
 		$email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
 		if ( ! is_email( $email ) ) wp_send_json_error();
@@ -124,7 +124,7 @@ class Tracker {
 	public function process_abandoned(): void {
 		global $wpdb;
 		$table   = $wpdb->prefix . self::TABLE;
-		$minutes = (int) get_option( 'ts_abandoned_cart_delay', 60 );
+		$minutes = (int) get_option( 'mydyma_tcs_abandoned_cart_delay', 60 );
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is $wpdb->prefix . constant
 		$rows = $wpdb->get_results( $wpdb->prepare(
@@ -138,7 +138,7 @@ class Tracker {
 
 		// phpcs:enable
 		foreach ( $rows as $row ) {
-			do_action( 'taiwan_store_core_abandoned_cart_reminder', $row );
+			do_action( 'mydyma_tcs_abandoned_cart_reminder', $row );
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- update single row, no cache needed
 			$wpdb->update( $table, [ 'reminded_at' => current_time( 'mysql' ) ], [ 'id' => $row->id ] );
 		}

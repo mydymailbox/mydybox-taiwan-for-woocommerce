@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Modules\Checkout_Tw;
+namespace Mydyma_TCS\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Invoice_Export {
 
-	private const ACTION_GENERIC = 'taiwan_store_core_export_invoice_csv';
+	private const ACTION_GENERIC = 'mydyma_tcs_export_invoice_csv';
 
 	public function boot(): void {
 		if ( ! is_admin() ) return;
@@ -23,7 +23,7 @@ class Invoice_Export {
 	}
 
 	public function handle_global_export(): void {
-		if ( sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) ) === 'taiwan-store-core' && sanitize_text_field( wp_unslash( $_GET['action'] ?? '' ) ) === 'export-invoices' ) {
+		if ( sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) ) === 'mydyma-taiwan-commerce-suite' && sanitize_text_field( wp_unslash( $_GET['action'] ?? '' ) ) === 'export-invoices' ) {
 			check_admin_referer( -1, '_wpnonce' ); // Or implement a proper nonce if needed
 			$orders = wc_get_orders( [ 'limit' => 500, 'status' => [ 'wc-processing', 'wc-completed' ] ] );
 			$ids    = array_map( function( $o ) { return $o->get_id(); }, $orders );
@@ -33,7 +33,7 @@ class Invoice_Export {
 	}
 
 	public function add_bulk_actions( array $actions ): array {
-		$actions[ self::ACTION_GENERIC ] = __( 'Export Invoice: Generic (CSV)', 'taiwan-store-core' );
+		$actions[ self::ACTION_GENERIC ] = __( 'Export Invoice: Generic (CSV)', 'mydyma-taiwan-commerce-suite' );
 		return $actions;
 	}
 
@@ -60,15 +60,15 @@ class Invoice_Export {
 
 		$out = fopen( 'php://output', 'w' );
 		fputcsv( $out, [
-			__( 'Order Number', 'taiwan-store-core' ),
-			__( 'Date', 'taiwan-store-core' ),
-			__( 'Customer Name', 'taiwan-store-core' ),
-			__( 'Email', 'taiwan-store-core' ),
-			__( 'Invoice Type', 'taiwan-store-core' ),
-			__( 'Carrier/Donation Code', 'taiwan-store-core' ),
-			__( 'Tax ID', 'taiwan-store-core' ),
-			__( 'Company Title', 'taiwan-store-core' ),
-			__( 'Total Amount', 'taiwan-store-core' ),
+			__( 'Order Number', 'mydyma-taiwan-commerce-suite' ),
+			__( 'Date', 'mydyma-taiwan-commerce-suite' ),
+			__( 'Customer Name', 'mydyma-taiwan-commerce-suite' ),
+			__( 'Email', 'mydyma-taiwan-commerce-suite' ),
+			__( 'Invoice Type', 'mydyma-taiwan-commerce-suite' ),
+			__( 'Carrier/Donation Code', 'mydyma-taiwan-commerce-suite' ),
+			__( 'Tax ID', 'mydyma-taiwan-commerce-suite' ),
+			__( 'Company Title', 'mydyma-taiwan-commerce-suite' ),
+			__( 'Total Amount', 'mydyma-taiwan-commerce-suite' ),
 		] );
 
 		foreach ( $order_ids as $order_id ) {
@@ -79,10 +79,10 @@ class Invoice_Export {
 				$order->get_date_created() ? $order->get_date_created()->date( 'Y-m-d H:i:s' ) : '',
 				trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ),
 				$order->get_billing_email(),
-				(string) $order->get_meta( 'billing_taiwan_store_core_invoice_type' ),
-				(string) $order->get_meta( 'billing_taiwan_store_core_carrier_number' ),
-				(string) $order->get_meta( 'billing_taiwan_store_core_company_tax_id' ),
-				(string) $order->get_meta( 'billing_taiwan_store_core_company_title' ),
+				(string) $order->get_meta( 'billing_mydyma_tcs_invoice_type' ),
+				(string) $order->get_meta( 'billing_mydyma_tcs_carrier_number' ),
+				(string) $order->get_meta( 'billing_mydyma_tcs_company_tax_id' ),
+				(string) $order->get_meta( 'billing_mydyma_tcs_company_title' ),
 				$order->get_total(),
 			] );
 		}

@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Rule_Engine;
+namespace Mydyma_TCS\Rule_Engine;
 
 defined( 'ABSPATH' ) || exit;
 

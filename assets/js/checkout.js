@@ -11,7 +11,7 @@
 ( function ( $ ) {
 	'use strict';
 
-	var data = ( typeof TaiwanStoreCoreCheckout !== 'undefined' ) ? TaiwanStoreCoreCheckout : null;
+	var data = ( typeof MydymaTcsCheckout !== 'undefined' ) ? MydymaTcsCheckout : null;
 	if ( ! data || ! data.states ) {
 		return;
 	}
@@ -157,16 +157,16 @@
 			return;
 		}
 		var code = ( states[ stateCode ] || {} )[ district ];
-		if ( code && ! $postcode.data( 'taiwan-store-core-manual' ) ) {
+		if ( code && ! $postcode.data( 'mydyma-taiwan-commerce-suite-manual' ) ) {
 			$postcode.val( code ).trigger( 'change' );
-			$postcode.data( 'taiwan-store-core-autofilled', true );
+			$postcode.data( 'mydyma-taiwan-commerce-suite-autofilled', true );
 		}
 	}
 
 	// ── 發票類型 select2 初始化（對齊縣市欄位高度）────────────────────────────
 
 	function initInvoiceSelect2() {
-		var $sel = $( '#billing_taiwan_store_core_invoice_type' );
+		var $sel = $( '#billing_mydyma_tcs_invoice_type' );
 		if ( ! $sel.length ) return;
 
 		// Use selectWoo (WC's fork) if available, fall back to select2.
@@ -191,14 +191,14 @@
 	// ── 發票類型切換 ──────────────────────────────────────────────────────────
 
 	function syncInvoiceType() {
-		var type      = $( '#billing_taiwan_store_core_invoice_type' ).val();
+		var type      = $( '#billing_mydyma_tcs_invoice_type' ).val();
 		var isCompany = ( type === 'company' );
 		var cfg       = CARRIER_CONFIG[ type ];
 
 		// 公司統編區塊：顯示/隱藏 carrier + company 欄位
-		var $carrierField = $( '#billing_taiwan_store_core_carrier_number_field' );
-		var $taxIdField   = $( '#billing_taiwan_store_core_company_tax_id_field' );
-		var $titleField   = $( '#billing_taiwan_store_core_company_title_field' );
+		var $carrierField = $( '#billing_mydyma_tcs_carrier_number_field' );
+		var $taxIdField   = $( '#billing_mydyma_tcs_company_tax_id_field' );
+		var $titleField   = $( '#billing_mydyma_tcs_company_title_field' );
 
 		// 先全部隱藏 (使用動畫)
 		$carrierField.stop().slideUp( 200 );
@@ -210,30 +210,30 @@
 			$titleField.stop().slideDown( 200 );
 		} else if ( cfg ) {
 			$carrierField.stop().slideDown( 200 );
-			$( '#billing_taiwan_store_core_carrier_number' )
+			$( '#billing_mydyma_tcs_carrier_number' )
 				.attr( 'placeholder', cfg.placeholder )
 				.closest( 'p, .form-row' ).find( 'label' ).first().text( cfg.label );
-			setHint( $( '#billing_taiwan_store_core_carrier_number' ), cfg.hint, '#646970' );
+			setHint( $( '#billing_mydyma_tcs_carrier_number' ), cfg.hint, '#646970' );
 		}
 
 		// 清空不相關欄位
 		if ( ! cfg ) {
-			$( '#billing_taiwan_store_core_carrier_number' ).val( '' );
-			setHint( $( '#billing_taiwan_store_core_carrier_number' ), '', '' );
+			$( '#billing_mydyma_tcs_carrier_number' ).val( '' );
+			setHint( $( '#billing_mydyma_tcs_carrier_number' ), '', '' );
 		}
 		if ( ! isCompany ) {
-			$( '#billing_taiwan_store_core_company_tax_id, #billing_taiwan_store_core_company_title' ).val( '' );
-			$( '#taiwan-store-core-taxid-hint' ).text( '' );
+			$( '#billing_mydyma_tcs_company_tax_id, #billing_mydyma_tcs_company_title' ).val( '' );
+			$( '#mydyma-taiwan-commerce-suite-taxid-hint' ).text( '' );
 		}
 	}
 
 	// ── 載具號碼即時格式提示 ───────────────────────────────────────────────────
 
 	function validateCarrierLive() {
-		var type = $( '#billing_taiwan_store_core_invoice_type' ).val();
+		var type = $( '#billing_mydyma_tcs_invoice_type' ).val();
 		var cfg  = CARRIER_CONFIG[ type ];
-		var val  = $( '#billing_taiwan_store_core_carrier_number' ).val().trim();
-		var $inp = $( '#billing_taiwan_store_core_carrier_number' );
+		var val  = $( '#billing_mydyma_tcs_carrier_number' ).val().trim();
+		var $inp = $( '#billing_mydyma_tcs_carrier_number' );
 
 		if ( ! cfg || ! val ) {
 			setHint( $inp, cfg ? cfg.hint : '', '#646970' );
@@ -249,7 +249,7 @@
 	// ── 手機號碼即時格式提示 ───────────────────────────────────────────────────
 
 	function validatePhoneLive() {
-		if ( ! TaiwanStoreCoreCheckout.phoneValidate ) {
+		if ( ! MydymaTcsCheckout.phoneValidate ) {
 			return;
 		}
 		// 非台灣地址跳過
@@ -302,18 +302,18 @@
 	var taxidTimer = null;
 
 	function lookupTaxId( taxId ) {
-		var $title = $( '#billing_taiwan_store_core_company_title' );
-		var $hint  = $( '#taiwan-store-core-taxid-hint' );
+		var $title = $( '#billing_mydyma_tcs_company_title' );
+		var $hint  = $( '#mydyma-taiwan-commerce-suite-taxid-hint' );
 
 		if ( ! $hint.length ) {
-			$hint = $( '<span id="taiwan-store-core-taxid-hint">' ).css( { display: 'block', marginTop: '4px', fontSize: '0.85em' } );
-			$( '#billing_taiwan_store_core_company_tax_id' ).after( $hint );
+			$hint = $( '<span id="mydyma-taiwan-commerce-suite-taxid-hint">' ).css( { display: 'block', marginTop: '4px', fontSize: '0.85em' } );
+			$( '#billing_mydyma_tcs_company_tax_id' ).after( $hint );
 		}
 
-		$hint.html( '<span class="taiwan-store-core-spinner active" style="vertical-align:middle; margin-right:5px;"></span> ' + data.i18n.looking ).css( 'color', '#646970' );
+		$hint.html( '<span class="mydyma-taiwan-commerce-suite-spinner active" style="vertical-align:middle; margin-right:5px;"></span> ' + data.i18n.looking ).css( 'color', '#646970' );
 
 		$.post( data.ajaxUrl, {
-			action:  'wc_tw_core_lookup_taxid',
+			action:  'mydyma_tcs_lookup_taxid',
 			nonce:   data.taxidNonce,
 			tax_id:  taxId,
 		} )
@@ -334,27 +334,27 @@
 	// ── Event Listeners ───────────────────────────────────────────────────────
 
 	// 發票類型切換
-	$( document.body ).on( 'change', '#billing_taiwan_store_core_invoice_type', syncInvoiceType );
+	$( document.body ).on( 'change', '#billing_mydyma_tcs_invoice_type', syncInvoiceType );
 
 	// 載具號碼即時提示
-	$( document.body ).on( 'input', '#billing_taiwan_store_core_carrier_number', validateCarrierLive );
+	$( document.body ).on( 'input', '#billing_mydyma_tcs_carrier_number', validateCarrierLive );
 
 	// 手機號碼即時提示
 	$( document.body ).on( 'input', '#billing_phone', validatePhoneLive );
 
 	// 統一編號輸入後觸發查詢
 	if ( data.taxidLookup ) {
-		$( document.body ).on( 'input', '#billing_taiwan_store_core_company_tax_id', function () {
+		$( document.body ).on( 'input', '#billing_mydyma_tcs_company_tax_id', function () {
 			var val = $( this ).val().replace( /\D/g, '' );
 			clearTimeout( taxidTimer );
-			$( '#taiwan-store-core-taxid-hint' ).text( '' );
+			$( '#mydyma-taiwan-commerce-suite-taxid-hint' ).text( '' );
 
 			if ( val.length < 8 ) {
 				return;
 			}
 			// JS checksum pre-check before hitting the API
 			if ( ! taxIdChecksum( val ) ) {
-				setHint( $( '#billing_taiwan_store_core_company_tax_id' ), '⚠ 統編加權碼不符，請確認號碼', '#d63638' );
+				setHint( $( '#billing_mydyma_tcs_company_tax_id' ), '⚠ 統編加權碼不符，請確認號碼', '#d63638' );
 				return;
 			}
 			taxidTimer = setTimeout( function () { lookupTaxId( val ); }, 600 );
@@ -377,12 +377,12 @@
 	$( document.body ).on( 'change', '#billing_city, #shipping_city', function () {
 		var prefix = $( this ).attr( 'id' ).replace( '_city', '' );
 		var $form  = $( this ).closest( 'form' );
-		$form.find( '#' + prefix + '_postcode' ).data( 'taiwan-store-core-manual', false );
+		$form.find( '#' + prefix + '_postcode' ).data( 'mydyma-taiwan-commerce-suite-manual', false );
 		fillPostcode( $form, prefix );
 	} );
 
 	$( document.body ).on( 'input', '#billing_postcode, #shipping_postcode', function () {
-		$( this ).data( 'taiwan-store-core-manual', true ).data( 'taiwan-store-core-autofilled', false );
+		$( this ).data( 'mydyma-taiwan-commerce-suite-manual', true ).data( 'mydyma-taiwan-commerce-suite-autofilled', false );
 	} );
 
 	$( document.body ).on( 'updated_checkout', function () {
@@ -418,15 +418,15 @@
 			var method = $form.find( 'input[name^="shipping_method"]:checked' ).val() || '';
 			var isCVS  = /711|fami|hilife|ok|cvs/i.test( method );
 			
-			var $targetField = $( '#taiwan-store-core-cvs-store-name-field' );
+			var $targetField = $( '#mydyma-taiwan-commerce-suite-cvs-store-name-field' );
 			if ( ! $targetField.length ) return;
 
 			if ( isCVS ) {
 				$targetField.show();
-				$( '#taiwan-store-core-cvs-store-address-field' ).show();
+				$( '#mydyma-taiwan-commerce-suite-cvs-store-address-field' ).show();
 				
-				if ( ! $( '#taiwan-store-core-select-store-btn' ).length ) {
-					var $btn = $( '<button type="button" id="taiwan-store-core-select-store-btn" class="button alt taiwan-store-core-btn-premium-checkout" style="margin-top:10px; width:100%; height:45px; border-radius:8px; background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border:none; box-shadow:0 4px 12px rgba(37,99,235,0.2); font-weight:700; color:#fff;">' )
+				if ( ! $( '#mydyma-taiwan-commerce-suite-select-store-btn' ).length ) {
+					var $btn = $( '<button type="button" id="mydyma-taiwan-commerce-suite-select-store-btn" class="button alt mydyma-taiwan-commerce-suite-btn-premium-checkout" style="margin-top:10px; width:100%; height:45px; border-radius:8px; background:linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border:none; box-shadow:0 4px 12px rgba(37,99,235,0.2); font-weight:700; color:#fff;">' )
 						.html( '<span class="dashicons dashicons-location" style="margin-top:10px;"></span> 選擇取貨門市' );
 					$targetField.append( $btn );
 					
@@ -437,7 +437,7 @@
 				}
 			} else {
 				$targetField.hide();
-				$( '#taiwan-store-core-cvs-store-address-field' ).hide();
+				$( '#mydyma-taiwan-commerce-suite-cvs-store-address-field' ).hide();
 			}
 		}
 
@@ -453,7 +453,7 @@
 				LogisticsSubType: subtype,
 				IsCollection: 'N',
 				ServerReplyURL: data.mapCallbackUrl,
-				ExtraData: 'taiwan_store_core_checkout'
+				ExtraData: 'mydyma_tcs_checkout'
 			};
 
 			// 建立一個隱藏表單來 POST 到綠界

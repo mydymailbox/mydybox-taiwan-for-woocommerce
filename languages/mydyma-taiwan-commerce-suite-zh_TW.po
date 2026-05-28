@@ -1,6 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Taiwan Store Core 1.0.7\n"
+"Project-Id-Version: Mydyma Taiwan Commerce Suite for WooCommerce 1.0.7
+"
 "Report-Msgid-Bugs-To: https://github.com/mydymailbox/taiwan-store-core/issues\n"
 "POT-Creation-Date: 2026-05-12T14:30+00:00\n"
 "PO-Revision-Date: 2026-05-12T14:30+00:00\n"

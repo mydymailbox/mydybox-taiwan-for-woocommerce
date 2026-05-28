@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Modules\Checkout_Tw;
+namespace Mydyma_TCS\Modules\Checkout_Tw;
 
 use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
 
@@ -12,15 +12,15 @@ defined( 'ABSPATH' ) || exit;
 class Blocks_Integration implements IntegrationInterface {
 
 	public function get_name(): string {
-		return 'taiwan-store-core';
+		return 'mydyma-taiwan-commerce-suite';
 	}
 
 	public function initialize(): void {
-		$asset_path = TAIWAN_STORE_CORE_DIR . 'build/index.asset.php';
-		$asset_url  = TAIWAN_STORE_CORE_URL . 'build/index.js';
+		$asset_path = MYDYMA_TCS_DIR . 'build/index.asset.php';
+		$asset_url  = MYDYMA_TCS_URL . 'build/index.js';
 
 		$dependencies = [ 'wp-element', 'wp-i18n', 'wc-blocks-registry' ];
-		$version      = TAIWAN_STORE_CORE_VERSION;
+		$version      = MYDYMA_TCS_VERSION;
 
 		if ( file_exists( $asset_path ) ) {
 			$asset        = require $asset_path;
@@ -29,7 +29,7 @@ class Blocks_Integration implements IntegrationInterface {
 		}
 
 		wp_register_script(
-			'taiwan-store-core-blocks-frontend',
+			'mydyma-taiwan-commerce-suite-blocks-frontend',
 			$asset_url,
 			$dependencies,
 			$version,
@@ -38,22 +38,22 @@ class Blocks_Integration implements IntegrationInterface {
 	}
 
 	public function get_script_handles(): array {
-		return [ 'taiwan-store-core-blocks-frontend' ];
+		return [ 'mydyma-taiwan-commerce-suite-blocks-frontend' ];
 	}
 
 	public function get_editor_script_handles(): array {
-		return [ 'taiwan-store-core-blocks-frontend' ];
+		return [ 'mydyma-taiwan-commerce-suite-blocks-frontend' ];
 	}
 
 	public function get_script_data(): array {
 		return [
-			'is_tax_id_enabled' => get_option( 'ts_checkout_show_tax_id', 'yes' ),
-			'is_taxid_lookup'   => get_option( 'ts_checkout_lookup_tax_id', 'yes' ),
+			'is_tax_id_enabled' => get_option( 'mydyma_tcs_checkout_show_tax_id', 'yes' ),
+			'is_taxid_lookup'   => get_option( 'mydyma_tcs_checkout_lookup_tax_id', 'no' ),
 			'ajaxUrl'           => admin_url( 'admin-ajax.php' ),
-			'taxidNonce'        => wp_create_nonce( 'ts_lookup_tax_id' ),
-			'is_postcode_auto'  => get_option( 'ts_checkout_postcode_autofill', 'yes' ),
-			'name_consolidate'  => get_option( 'ts_checkout_name_consolidate', 'yes' ),
-			'gcisNonce'         => wp_create_nonce( 'ts_lookup_tax_id' ),
+			'taxidNonce'        => wp_create_nonce( 'mydyma_tcs_lookup_tax_id' ),
+			'is_postcode_auto'  => get_option( 'mydyma_tcs_checkout_postcode_autofill', 'yes' ),
+			'name_consolidate'  => get_option( 'mydyma_tcs_checkout_name_consolidate', 'yes' ),
+			'gcisNonce'         => wp_create_nonce( 'mydyma_tcs_lookup_tax_id' ),
 		];
 	}
 }

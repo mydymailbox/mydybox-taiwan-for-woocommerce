@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Admin;
+namespace Mydyma_TCS\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -15,25 +15,29 @@ class Settings_Page {
 	}
 
 	public function enqueue_assets( $hook ): void {
-		if ( 'toplevel_page_taiwan-store-core' !== $hook ) return;
-		wp_enqueue_style( 'taiwan-store-core-dashboard', TAIWAN_STORE_CORE_URL . 'assets/css/admin-dashboard.css', [], TAIWAN_STORE_CORE_VERSION );
+		if ( 'toplevel_page_mydyma-taiwan-commerce-suite' !== $hook ) return;
+		wp_enqueue_style( 'mydyma-taiwan-commerce-suite-dashboard', MYDYMA_TCS_URL . 'assets/css/admin-dashboard.css', [], MYDYMA_TCS_VERSION );
 
 		$active_tab = sanitize_key( wp_unslash( $_GET['tab'] ?? 'general' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab param
 		if ( 'logs' === $active_tab ) {
-			wp_enqueue_script( 'taiwan-store-core-logs', TAIWAN_STORE_CORE_URL . 'assets/js/logs-admin.js', [ 'jquery' ], TAIWAN_STORE_CORE_VERSION, true );
-			wp_localize_script( 'taiwan-store-core-logs', 'TaiwanStoreCoreCoreStats', [
+			wp_enqueue_script( 'mydyma-taiwan-commerce-suite-logs', MYDYMA_TCS_URL . 'assets/js/logs-admin.js', [ 'jquery' ], MYDYMA_TCS_VERSION, true );
+			wp_localize_script( 'mydyma-taiwan-commerce-suite-logs', 'MydymaTcsLogStats', [
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'taiwan_store_core_admin' ),
+				'nonce'   => wp_create_nonce( 'mydyma_tcs_admin' ),
 			] );
+		}
+		if ( 'manual' === $active_tab ) {
+			wp_enqueue_style( 'mydyma-tcs-admin-manual', MYDYMA_TCS_URL . 'assets/css/admin-manual.css', [], MYDYMA_TCS_VERSION );
+			wp_enqueue_script( 'mydyma-tcs-admin-manual', MYDYMA_TCS_URL . 'assets/js/admin-manual.js', [], MYDYMA_TCS_VERSION, true );
 		}
 	}
 
 	public function add_menu_item(): void {
 		add_menu_page(
-			__( 'Taiwan Store', 'taiwan-store-core' ),
-			__( 'Taiwan Store', 'taiwan-store-core' ),
+			__( 'Mydyma TCS', 'mydyma-taiwan-commerce-suite' ),
+			__( 'Mydyma TCS', 'mydyma-taiwan-commerce-suite' ),
 			'manage_options',
-			'taiwan-store-core',
+			'mydyma-taiwan-commerce-suite',
 			[ $this, 'render_page' ],
 			'dashicons-store',
 			56
@@ -42,73 +46,70 @@ class Settings_Page {
 
 	public function register_settings(): void {
 		// General
-		register_setting( 'ts_settings_general', 'ts_custom_order_number_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_general', 'ts_order_number_prefix', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_general', 'ts_order_number_digits', [ 'sanitize_callback' => 'absint' ] );
-		register_setting( 'ts_settings_general', 'ts_order_number_random_suffix', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_general', 'ts_checkout_announcement_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_general', 'ts_checkout_announcement_text', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_general', 'taiwan_store_core_license_key', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_general', 'mydyma_tcs_custom_order_number_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_general', 'mydyma_tcs_order_number_prefix', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_general', 'mydyma_tcs_order_number_digits', [ 'sanitize_callback' => 'absint' ] );
+		register_setting( 'mydyma_tcs_settings_general', 'mydyma_tcs_order_number_random_suffix', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_general', 'mydyma_tcs_checkout_announcement_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_general', 'mydyma_tcs_checkout_announcement_text', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_general', 'mydyma_tcs_license_key', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 
 		// Checkout
-		register_setting( 'ts_settings_checkout', 'ts_checkout_show_tax_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_checkout_name_consolidate', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_checkout_validate_tax_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_checkout_lookup_tax_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_cvs_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_cvs_test_mode', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_cvs_merchant_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_cvs_hash_key', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_cvs_hash_iv', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_newebpay_cvs_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_newebpay_cvs_test_mode', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_newebpay_cvs_merchant_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_newebpay_cvs_hash_key', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_newebpay_cvs_hash_iv', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_gcis_api_uuid', [
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_checkout_show_tax_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_checkout_name_consolidate', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_checkout_validate_tax_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_checkout_lookup_tax_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_cvs_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_cvs_test_mode', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_cvs_merchant_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_cvs_hash_key', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_cvs_hash_iv', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_newebpay_cvs_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_newebpay_cvs_test_mode', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_newebpay_cvs_merchant_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_newebpay_cvs_hash_key', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_newebpay_cvs_hash_iv', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_gcis_api_uuid', [
 			'sanitize_callback' => 'sanitize_text_field',
 			'default'           => '236EE382-4942-41A9-BD03-CA0709025E7C',
 		] );
-		register_setting( 'ts_settings_checkout', 'ts_checkout_phone_validate', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_checkout_postcode_autofill', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_checkout_abandoned_cart', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_abandoned_cart_delay', [ 'sanitize_callback' => 'absint' ] );
-		register_setting( 'ts_settings_checkout', 'ts_abandoned_cart_email', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_abandoned_cart_email_subject', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_abandoned_cart_email_body', [ 'sanitize_callback' => 'sanitize_textarea_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_abandoned_cart_line', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_abandoned_cart_line_message', [ 'sanitize_callback' => 'sanitize_textarea_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_checkout_countdown', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_checkout', 'ts_checkout_countdown_minutes', [ 'sanitize_callback' => 'absint' ] );
-		register_setting( 'ts_settings_checkout', 'ts_product_sticky_bar', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_checkout_phone_validate', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_checkout_postcode_autofill', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_checkout_abandoned_cart', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_abandoned_cart_delay', [ 'sanitize_callback' => 'absint' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_abandoned_cart_email', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_abandoned_cart_email_subject', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_abandoned_cart_email_body', [ 'sanitize_callback' => 'sanitize_textarea_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_abandoned_cart_line', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_abandoned_cart_line_message', [ 'sanitize_callback' => 'sanitize_textarea_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_checkout_countdown', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_checkout_countdown_minutes', [ 'sanitize_callback' => 'absint' ] );
+		register_setting( 'mydyma_tcs_settings_checkout', 'mydyma_tcs_product_sticky_bar', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 
 		// Social
-		register_setting( 'ts_settings_social', 'ts_social_line_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_social', 'ts_social_line_client_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_social', 'ts_social_line_client_secret', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_social', 'ts_social_line_token', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_social', 'ts_social_google_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_social', 'ts_social_google_client_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_social', 'ts_social_google_client_secret', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_social', 'ts_social_fb_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_social', 'ts_social_fb_client_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		register_setting( 'ts_settings_social', 'ts_social_fb_client_secret', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_social', 'mydyma_tcs_social_line_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_social', 'mydyma_tcs_social_line_client_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_social', 'mydyma_tcs_social_line_client_secret', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_social', 'mydyma_tcs_social_line_token', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_social', 'mydyma_tcs_social_google_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_social', 'mydyma_tcs_social_google_client_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_social', 'mydyma_tcs_social_google_client_secret', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_social', 'mydyma_tcs_social_fb_enabled', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_social', 'mydyma_tcs_social_fb_client_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_social', 'mydyma_tcs_social_fb_client_secret', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 
 		// Logs
-		register_setting( 'ts_settings_logs', 'ts_debug_log', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+		register_setting( 'mydyma_tcs_settings_logs', 'mydyma_tcs_debug_log', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 
 		// Extension placeholders
 		if ( is_plugin_active( 'taiwan-store-notifier/taiwan-store-notifier.php' ) ) {
-			register_setting( 'ts_settings_notifier', 'wctn_mitake_username', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-			register_setting( 'ts_settings_notifier', 'wctn_mitake_password', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-			register_setting( 'ts_settings_notifier', 'wctn_line_token', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-			register_setting( 'ts_settings_notifier', 'wctn_admin_line_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+			register_setting( 'mydyma_tcs_settings_notifier', 'mydyma_tcs_mitake_username', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+			register_setting( 'mydyma_tcs_settings_notifier', 'mydyma_tcs_mitake_password', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+			register_setting( 'mydyma_tcs_settings_notifier', 'mydyma_tcs_line_token', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+			register_setting( 'mydyma_tcs_settings_notifier', 'mydyma_tcs_admin_line_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 		}
 		if ( is_plugin_active( 'taiwan-store-marketing/taiwan-store-marketing.php' ) ) {
-			register_setting( 'ts_settings_marketing', 'ts_marketing_options', [ 'sanitize_callback' => 'sanitize_text_field' ] );
-		}
-		if ( is_plugin_active( 'wc-tw-invoice-pro/wc-tw-invoice-pro.php' ) ) {
-			register_setting( 'ts_settings_invoice', 'ts_invoice_pro_options', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+			register_setting( 'mydyma_tcs_settings_marketing', 'mydyma_tcs_marketing_options', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 		}
 	}
 
@@ -174,9 +175,9 @@ class Settings_Page {
 		<div class="ts-notice ts-notice--warning">
 			<span>⚠️</span>
 			<div>
-				<strong><?php esc_html_e( '目前為測試模式', 'taiwan-store-core' ); ?></strong> —
+				<strong><?php esc_html_e( '目前為測試模式', 'mydyma-taiwan-commerce-suite' ); ?></strong> —
 				MerchantID: <code><?php echo esc_html( $merchant_id ); ?></code>
-				<?php esc_html_e( '後台', 'taiwan-store-core' ); ?>:
+				<?php esc_html_e( '後台', 'mydyma-taiwan-commerce-suite' ); ?>:
 				<a href="<?php echo esc_url( $portal_url ); ?>" target="_blank"><?php echo esc_html( $portal_url ); ?></a>
 				（<?php echo esc_html( $account ); ?> / <?php echo esc_html( $password ); ?>）
 			</div>
@@ -189,17 +190,16 @@ class Settings_Page {
 	public function render_page(): void {
 		$active_type = sanitize_key( wp_unslash( $_GET['type'] ?? '' ) );         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab param
 		$active_tab  = sanitize_key( wp_unslash( $_GET['tab'] ?? ( $active_type ? 'rules' : 'general' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$base_url    = admin_url( 'admin.php?page=taiwan-store-core' );
+		$base_url    = admin_url( 'admin.php?page=mydyma-taiwan-commerce-suite' );
 
-		$extensions = apply_filters( 'taiwan_store_core_extension_tabs', [
-			[ 'id' => 'marketing', 'name' => __( '行銷助手', 'taiwan-store-core' ), 'path' => 'taiwan-store-marketing/taiwan-store-marketing.php' ],
-			[ 'id' => 'notifier',  'name' => __( '通知助手', 'taiwan-store-core' ), 'path' => 'taiwan-store-notifier/taiwan-store-notifier.php' ],
-			[ 'id' => 'invoice',   'name' => __( '電子發票', 'taiwan-store-core' ),    'path' => 'wc-tw-invoice-pro/wc-tw-invoice-pro.php' ],
-			[ 'id' => 'member',    'name' => __( '會員分級', 'taiwan-store-core' ),    'path' => 'taiwan-store-member/taiwan-store-member.php' ],
-			[ 'id' => 'group_buy', 'name' => __( '拼團購買', 'taiwan-store-core' ),   'path' => 'taiwan-store-group-buy/taiwan-store-group-buy.php' ],
+		$extensions = apply_filters( 'mydyma_tcs_extension_tabs', [
+			[ 'id' => 'marketing', 'name' => __( '行銷助手', 'mydyma-taiwan-commerce-suite' ), 'path' => 'taiwan-store-marketing/taiwan-store-marketing.php' ],
+			[ 'id' => 'notifier',  'name' => __( '通知助手', 'mydyma-taiwan-commerce-suite' ), 'path' => 'taiwan-store-notifier/taiwan-store-notifier.php' ],
+			[ 'id' => 'member',    'name' => __( '會員分級', 'mydyma-taiwan-commerce-suite' ),    'path' => 'taiwan-store-member/taiwan-store-member.php' ],
+			[ 'id' => 'group_buy', 'name' => __( '拼團購買', 'mydyma-taiwan-commerce-suite' ),   'path' => 'taiwan-store-group-buy/taiwan-store-group-buy.php' ],
 		] );
 
-		$extension_tab_ids = apply_filters( 'taiwan_store_core_extension_tab_ids', [ 'member', 'group_buy' ] );
+		$extension_tab_ids = apply_filters( 'mydyma_tcs_extension_tab_ids', [ 'member', 'group_buy' ] );
 		$is_extension_tab  = in_array( $active_tab, $extension_tab_ids, true );
 		?>
 		<div class="wrap taiwan-store-admin-wrap">
@@ -208,12 +208,12 @@ class Settings_Page {
 			<header class="taiwan-store-header">
 				<h1>
 					<span class="dashicons dashicons-store"></span>
-					<?php esc_html_e( '台灣商店：核心助手', 'taiwan-store-core' ); ?>
-					<span class="taiwan-store-version">v<?php echo esc_html( TAIWAN_STORE_CORE_VERSION ); ?></span>
+					<?php esc_html_e( '台灣商店：核心助手', 'mydyma-taiwan-commerce-suite' ); ?>
+					<span class="taiwan-store-version">v<?php echo esc_html( MYDYMA_TCS_VERSION ); ?></span>
 				</h1>
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'manual', $base_url ) ); ?>" class="btn-white">
 					<span class="dashicons dashicons-book-alt" style="font-size:16px;vertical-align:middle;margin-top:-2px;"></span>
-					<?php esc_html_e( '使用手冊', 'taiwan-store-core' ); ?>
+					<?php esc_html_e( '使用手冊', 'mydyma-taiwan-commerce-suite' ); ?>
 				</a>
 			</header>
 
@@ -221,8 +221,8 @@ class Settings_Page {
 			<nav class="taiwan-store-tabs">
 				<?php
 				$core_tabs = [
-					'general'  => [ 'label' => __( '一般設定', 'taiwan-store-core' ),  'icon' => 'admin-generic' ],
-					'checkout' => [ 'label' => __( '結帳設定', 'taiwan-store-core' ),  'icon' => 'cart' ],
+					'general'  => [ 'label' => __( '一般設定', 'mydyma-taiwan-commerce-suite' ),  'icon' => 'admin-generic' ],
+					'checkout' => [ 'label' => __( '結帳設定', 'mydyma-taiwan-commerce-suite' ),  'icon' => 'cart' ],
 				];
 				foreach ( $core_tabs as $tid => $t ) :
 					$is_active = ( $active_tab === $tid );
@@ -236,9 +236,9 @@ class Settings_Page {
 
 				<?php
 				$rule_tabs = [
-					'payment'  => __( '付款規則', 'taiwan-store-core' ),
-					'shipping' => __( '運費規則', 'taiwan-store-core' ),
-					'cart'     => __( '購物車規則', 'taiwan-store-core' ),
+					'payment'  => __( '付款規則', 'mydyma-taiwan-commerce-suite' ),
+					'shipping' => __( '運費規則', 'mydyma-taiwan-commerce-suite' ),
+					'cart'     => __( '購物車規則', 'mydyma-taiwan-commerce-suite' ),
 				];
 				foreach ( $rule_tabs as $rtype => $rlabel ) :
 					$is_active = ( $active_tab === 'rules' && $active_type === $rtype );
@@ -252,7 +252,7 @@ class Settings_Page {
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'social', $base_url ) ); ?>"
 				   class="taiwan-store-tab-link <?php echo $active_tab === 'social' ? 'active' : ''; ?>">
 					<span class="dashicons dashicons-share-alt"></span>
-					<?php esc_html_e( '社群登入', 'taiwan-store-core' ); ?>
+					<?php esc_html_e( '社群登入', 'mydyma-taiwan-commerce-suite' ); ?>
 				</a>
 
 				<?php foreach ( $extensions as $ext ) : ?>
@@ -269,13 +269,13 @@ class Settings_Page {
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'logs', $base_url ) ); ?>"
 				   class="taiwan-store-tab-link <?php echo $active_tab === 'logs' ? 'active' : ''; ?>">
 					<span class="dashicons dashicons-chart-area"></span>
-					<?php esc_html_e( '系統紀錄', 'taiwan-store-core' ); ?>
+					<?php esc_html_e( '系統紀錄', 'mydyma-taiwan-commerce-suite' ); ?>
 				</a>
 
 <a href="<?php echo esc_url( add_query_arg( 'tab', 'help', $base_url ) ); ?>"
 				   class="taiwan-store-tab-link <?php echo $active_tab === 'help' ? 'active' : ''; ?>">
 					<span class="dashicons dashicons-editor-help"></span>
-					<?php esc_html_e( '使用說明', 'taiwan-store-core' ); ?>
+					<?php esc_html_e( '使用說明', 'mydyma-taiwan-commerce-suite' ); ?>
 				</a>
 
 				</nav>
@@ -285,12 +285,12 @@ class Settings_Page {
 				<?php if ( ! $is_extension_tab && $active_tab !== 'help' && $active_tab !== 'manual' ) : ?>
 				<form method="post" action="options.php">
 					<?php
-					$group = 'ts_settings_general';
-					if ( $active_tab === 'checkout' )  $group = 'ts_settings_checkout';
-					if ( $active_tab === 'social' )    $group = 'ts_settings_social';
-					if ( $active_tab === 'logs' )      $group = 'ts_settings_logs';
-					if ( $active_tab === 'notifier' )  $group = 'ts_settings_notifier';
-					if ( $active_tab === 'marketing' ) $group = 'ts_settings_marketing';
+					$group = 'mydyma_tcs_settings_general';
+					if ( $active_tab === 'checkout' )  $group = 'mydyma_tcs_settings_checkout';
+					if ( $active_tab === 'social' )    $group = 'mydyma_tcs_settings_social';
+					if ( $active_tab === 'logs' )      $group = 'mydyma_tcs_settings_logs';
+					if ( $active_tab === 'notifier' )  $group = 'mydyma_tcs_settings_notifier';
+					if ( $active_tab === 'marketing' ) $group = 'mydyma_tcs_settings_marketing';
 		settings_fields( $group );
 					?>
 				<?php endif; ?>
@@ -301,54 +301,54 @@ class Settings_Page {
 					<div class="ts-settings-stack">
 
 						<?php $this->card_open(
-							__( '自訂訂單編號', 'taiwan-store-core' ),
-							__( '啟用後，新訂單將以「前綴 + 日期（YYYYMMDD）+ 流水號」格式顯示。', 'taiwan-store-core' ),
+							__( '自訂訂單編號', 'mydyma-taiwan-commerce-suite' ),
+							__( '啟用後，新訂單將以「前綴 + 日期（YYYYMMDD）+ 流水號」格式顯示。', 'mydyma-taiwan-commerce-suite' ),
 							'', 'tag'
 						); ?>
-							<?php $this->field_open( __( '啟用自訂訂單編號', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_custom_order_number_enabled', 'yes' ); ?>
+							<?php $this->field_open( __( '啟用自訂訂單編號', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_custom_order_number_enabled', 'yes' ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '訂單編號前綴', 'taiwan-store-core' ) ); ?>
-								<input type="text" name="ts_order_number_prefix"
-									value="<?php echo esc_attr( $this->opt( 'ts_order_number_prefix', 'TW' ) ); ?>"
+							<?php $this->field_open( __( '訂單編號前綴', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="text" name="mydyma_tcs_order_number_prefix"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_order_number_prefix', 'TW' ) ); ?>"
 									class="regular-text" placeholder="TW">
-								<?php $this->hint( __( '例如填入 TW 則編號為 TW20260508-0001。', 'taiwan-store-core' ) ); ?>
+								<?php $this->hint( __( '例如填入 TW 則編號為 TW20260508-0001。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '流水號位數', 'taiwan-store-core' ) ); ?>
-								<input type="number" name="ts_order_number_digits"
-									value="<?php echo esc_attr( $this->opt( 'ts_order_number_digits', '4' ) ); ?>"
+							<?php $this->field_open( __( '流水號位數', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="number" name="mydyma_tcs_order_number_digits"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_order_number_digits', '4' ) ); ?>"
 									min="1" max="10" class="small-text">
-								<?php $this->hint( __( '流水號的最少顯示位數（不足時補零）。', 'taiwan-store-core' ) ); ?>
+								<?php $this->hint( __( '流水號的最少顯示位數（不足時補零）。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '編號隨機後綴', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_order_number_random_suffix' ); ?>
-								<?php $this->hint( __( '啟用後會在流水號後方加 2 碼隨機英數（例：TW20240511-0001-X9），防範競爭對手推估單量。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '編號隨機後綴', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_order_number_random_suffix' ); ?>
+								<?php $this->hint( __( '啟用後會在流水號後方加 2 碼隨機英數（例：TW20240511-0001-X9），防範競爭對手推估單量。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 						<?php $this->card_close(); ?>
 
 						<?php $this->card_open(
-							__( '結帳頁公告', 'taiwan-store-core' ),
-							__( '在結帳頁面頂端顯示重要公告（例如：連假出貨公告、全館免運提示）。', 'taiwan-store-core' ),
+							__( '結帳頁公告', 'mydyma-taiwan-commerce-suite' ),
+							__( '在結帳頁面頂端顯示重要公告（例如：連假出貨公告、全館免運提示）。', 'mydyma-taiwan-commerce-suite' ),
 							'ts-card--amber', 'megaphone'
 						); ?>
-							<?php $this->field_open( __( '啟用公告', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_checkout_announcement_enabled' ); ?>
+							<?php $this->field_open( __( '啟用公告', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_checkout_announcement_enabled' ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '公告內容', 'taiwan-store-core' ) ); ?>
-								<textarea name="ts_checkout_announcement_text" rows="3" class="large-text"
-									placeholder="<?php esc_attr_e( '填入結帳頁公告內容…', 'taiwan-store-core' ); ?>"
-								><?php echo esc_textarea( $this->opt( 'ts_checkout_announcement_text' ) ); ?></textarea>
-								<?php $this->hint( __( '支援 HTML 標籤。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '公告內容', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<textarea name="mydyma_tcs_checkout_announcement_text" rows="3" class="large-text"
+									placeholder="<?php esc_attr_e( '填入結帳頁公告內容…', 'mydyma-taiwan-commerce-suite' ); ?>"
+								><?php echo esc_textarea( $this->opt( 'mydyma_tcs_checkout_announcement_text' ) ); ?></textarea>
+								<?php $this->hint( __( '支援 HTML 標籤。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 						<?php $this->card_close(); ?>
 
 						<?php $this->card_open(
-							__( '已連線擴充外掛', 'taiwan-store-core' ),
-							__( '核心外掛會自動偵測並優化與下列擴充功能的相容性。', 'taiwan-store-core' ),
+							__( '已連線擴充外掛', 'mydyma-taiwan-commerce-suite' ),
+							__( '核心外掛會自動偵測並優化與下列擴充功能的相容性。', 'mydyma-taiwan-commerce-suite' ),
 							'ts-card--blue', 'admin-plugins'
 						); ?>
 							<div class="ts-ext-list">
@@ -356,7 +356,6 @@ class Settings_Page {
 								$ext_list = [
 									[ 'n' => '行銷助手 Pro',  'p' => 'taiwan-store-marketing/taiwan-store-marketing.php' ],
 									[ 'n' => '通知助手 Pro',  'p' => 'taiwan-store-notifier/taiwan-store-notifier.php' ],
-									[ 'n' => '電子發票 Pro',  'p' => 'wc-tw-invoice-pro/wc-tw-invoice-pro.php' ],
 									[ 'n' => '會員分級 Pro',  'p' => 'taiwan-store-member/taiwan-store-member.php' ],
 									[ 'n' => '拼團購買 Pro',  'p' => 'taiwan-store-group-buy/taiwan-store-group-buy.php' ],
 								];
@@ -366,27 +365,27 @@ class Settings_Page {
 									<div class="ts-ext-item">
 										<span class="ts-ext-name">Taiwan Store <?php echo esc_html( $e['n'] ); ?></span>
 										<?php if ( $active ) : ?>
-											<span class="ts-badge ts-badge--active ts-badge--dot"><?php esc_html_e( 'Running', 'taiwan-store-core' ); ?></span>
+											<span class="ts-badge ts-badge--active ts-badge--dot"><?php esc_html_e( 'Running', 'mydyma-taiwan-commerce-suite' ); ?></span>
 										<?php else : ?>
-											<span class="ts-badge ts-badge--inactive"><?php esc_html_e( 'Inactive', 'taiwan-store-core' ); ?></span>
+											<span class="ts-badge ts-badge--inactive"><?php esc_html_e( 'Inactive', 'mydyma-taiwan-commerce-suite' ); ?></span>
 										<?php endif; ?>
 									</div>
 								<?php endforeach; ?>
 							</div>
 						<?php $this->card_close(); ?>
 
-						<?php $this->card_open( __( '授權啟用', 'taiwan-store-core' ), '', '', 'lock' ); ?>
-							<?php $this->field_open( __( '授權碼', 'taiwan-store-core' ), __( '填入後啟用自動更新與支援。', 'taiwan-store-core' ) ); ?>
+						<?php $this->card_open( __( '授權啟用', 'mydyma-taiwan-commerce-suite' ), '', '', 'lock' ); ?>
+							<?php $this->field_open( __( '授權碼', 'mydyma-taiwan-commerce-suite' ), __( '填入後啟用自動更新與支援。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 								<div class="ts-license-row">
-									<input type="text" name="taiwan_store_core_license_key"
-										value="<?php echo esc_attr( $this->opt( 'taiwan_store_core_license_key' ) ); ?>"
+									<input type="text" name="mydyma_tcs_license_key"
+										value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_license_key' ) ); ?>"
 										class="regular-text" placeholder="TS-XXXX-XXXX">
 								</div>
 							<?php $this->field_close(); ?>
 						<?php $this->card_close(); ?>
 
 					</div>
-					<div class="ts-form-footer"><?php submit_button( __( '儲存一般設定', 'taiwan-store-core' ), 'primary', 'submit', false ); ?></div>
+					<div class="ts-form-footer"><?php submit_button( __( '儲存一般設定', 'mydyma-taiwan-commerce-suite' ), 'primary', 'submit', false ); ?></div>
 				</div>
 				<?php endif; ?>
 
@@ -396,136 +395,136 @@ class Settings_Page {
 					<div class="ts-settings-stack">
 
 						<?php $this->card_open(
-							__( '結帳欄位', 'taiwan-store-core' ),
+							__( '結帳欄位', 'mydyma-taiwan-commerce-suite' ),
 							'', '', 'editor-ul'
 						); ?>
-							<?php $this->field_open( __( '合併姓名欄位', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_checkout_name_consolidate', 'yes' ); ?>
-								<?php $this->hint( __( '將「名字」和「姓氏」合併為單一「姓名」欄位。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '合併姓名欄位', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_checkout_name_consolidate', 'yes' ); ?>
+								<?php $this->hint( __( '將「名字」和「姓氏」合併為單一「姓名」欄位。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '顯示統一編號欄位', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_checkout_show_tax_id', 'yes' ); ?>
+							<?php $this->field_open( __( '顯示統一編號欄位', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_checkout_show_tax_id', 'yes' ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '驗證統一編號格式', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_checkout_validate_tax_id', 'yes' ); ?>
-								<?php $this->hint( __( '驗證統一編號格式（8 位數字，MOD11 加權）。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '驗證統一編號格式', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_checkout_validate_tax_id', 'yes' ); ?>
+								<?php $this->hint( __( '驗證統一編號格式（8 位數字，MOD11 加權）。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '統編自動查詢公司名稱', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_checkout_lookup_tax_id', 'yes' ); ?>
-								<?php $this->hint( __( '輸入統編時自動帶入公司名稱（串接政府 GCIS API）。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '統編自動查詢公司名稱', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_checkout_lookup_tax_id', 'no' ); ?>
+								<?php $this->hint( __( '輸入統編時自動帶入公司名稱（串接政府 GCIS API）。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( 'GCIS API UUID', 'taiwan-store-core' ), __( '查詢失敗時更新此欄即可，無需改程式。', 'taiwan-store-core' ) ); ?>
-								<input type="text" name="ts_gcis_api_uuid"
-									value="<?php echo esc_attr( $this->opt( 'ts_gcis_api_uuid', '236EE382-4942-41A9-BD03-CA0709025E7C' ) ); ?>"
+							<?php $this->field_open( __( 'GCIS API UUID', 'mydyma-taiwan-commerce-suite' ), __( '查詢失敗時更新此欄即可，無需改程式。', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="text" name="mydyma_tcs_gcis_api_uuid"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_gcis_api_uuid', '236EE382-4942-41A9-BD03-CA0709025E7C' ) ); ?>"
 									class="regular-text mono">
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '台灣手機號碼驗證', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_checkout_phone_validate', 'yes' ); ?>
-								<?php $this->hint( __( '驗證手機格式（09xxxxxxxx）。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '台灣手機號碼驗證', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_checkout_phone_validate', 'yes' ); ?>
+								<?php $this->hint( __( '驗證手機格式（09xxxxxxxx）。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '郵遞區號自動填入', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_checkout_postcode_autofill', 'yes' ); ?>
-								<?php $this->hint( __( '選擇鄉鎮市區後自動填入郵遞區號。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '郵遞區號自動填入', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_checkout_postcode_autofill', 'yes' ); ?>
+								<?php $this->hint( __( '選擇鄉鎮市區後自動填入郵遞區號。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 						<?php $this->card_close(); ?>
 
 						<?php $this->card_open(
-							__( '進階結帳功能', 'taiwan-store-core' ),
+							__( '進階結帳功能', 'mydyma-taiwan-commerce-suite' ),
 							'', '', 'admin-tools'
 						); ?>
-							<?php $this->field_open( __( '棄單提醒', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_checkout_abandoned_cart' ); ?>
+							<?php $this->field_open( __( '棄單提醒', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_checkout_abandoned_cart' ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '提醒延遲時間（分鐘）', 'taiwan-store-core' ) ); ?>
-								<input type="number" name="ts_abandoned_cart_delay"
-									value="<?php echo esc_attr( $this->opt( 'ts_abandoned_cart_delay', '60' ) ); ?>"
+							<?php $this->field_open( __( '提醒延遲時間（分鐘）', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="number" name="mydyma_tcs_abandoned_cart_delay"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_abandoned_cart_delay', '60' ) ); ?>"
 									min="10" max="1440" class="small-text">
-								<?php $this->hint( __( '用戶離開結帳頁幾分鐘後發送提醒（預設 60 分鐘）。', 'taiwan-store-core' ) ); ?>
+								<?php $this->hint( __( '用戶離開結帳頁幾分鐘後發送提醒（預設 60 分鐘）。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '發送 Email 提醒', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_abandoned_cart_email', 'yes' ); ?>
+							<?php $this->field_open( __( '發送 Email 提醒', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_abandoned_cart_email', 'yes' ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( 'Email 主旨', 'taiwan-store-core' ) ); ?>
-								<input type="text" name="ts_abandoned_cart_email_subject"
-									value="<?php echo esc_attr( $this->opt( 'ts_abandoned_cart_email_subject', '您的購物車還在等您 🛒' ) ); ?>"
+							<?php $this->field_open( __( 'Email 主旨', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="text" name="mydyma_tcs_abandoned_cart_email_subject"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_abandoned_cart_email_subject', '您的購物車還在等您 🛒' ) ); ?>"
 									class="large-text">
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( 'Email 內容', 'taiwan-store-core' ) ); ?>
-								<textarea name="ts_abandoned_cart_email_body" rows="5" class="large-text"><?php echo esc_textarea( $this->opt( 'ts_abandoned_cart_email_body' ) ); ?></textarea>
-								<?php $this->hint( __( '可用變數：{{recover_url}} 回購連結、{{email}} 用戶信箱、{{site_name}} 網站名稱。留空使用預設內容。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( 'Email 內容', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<textarea name="mydyma_tcs_abandoned_cart_email_body" rows="5" class="large-text"><?php echo esc_textarea( $this->opt( 'mydyma_tcs_abandoned_cart_email_body' ) ); ?></textarea>
+								<?php $this->hint( __( '可用變數：{{recover_url}} 回購連結、{{email}} 用戶信箱、{{site_name}} 網站名稱。留空使用預設內容。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '發送 LINE 推播', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_abandoned_cart_line' ); ?>
-								<?php $this->hint( __( '需先於「社群登入」設定 LINE Messaging API Token，且用戶須曾用 LINE 登入。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '發送 LINE 推播', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_abandoned_cart_line' ); ?>
+								<?php $this->hint( __( '需先於「社群登入」設定 LINE Messaging API Token，且用戶須曾用 LINE 登入。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( 'LINE 訊息內容', 'taiwan-store-core' ) ); ?>
-								<textarea name="ts_abandoned_cart_line_message" rows="3" class="large-text"><?php echo esc_textarea( $this->opt( 'ts_abandoned_cart_line_message', "您的購物車還有商品尚未結帳！\n點此回到購物車：{{recover_url}}" ) ); ?></textarea>
-								<?php $this->hint( __( '可用變數：{{recover_url}}', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( 'LINE 訊息內容', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<textarea name="mydyma_tcs_abandoned_cart_line_message" rows="3" class="large-text"><?php echo esc_textarea( $this->opt( 'mydyma_tcs_abandoned_cart_line_message', "您的購物車還有商品尚未結帳！\n點此回到購物車：{{recover_url}}" ) ); ?></textarea>
+								<?php $this->hint( __( '可用變數：{{recover_url}}', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '結帳倒數計時器', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_checkout_countdown' ); ?>
+							<?php $this->field_open( __( '結帳倒數計時器', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_checkout_countdown' ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '倒數分鐘數', 'taiwan-store-core' ) ); ?>
-								<input type="number" name="ts_checkout_countdown_minutes"
-									value="<?php echo esc_attr( $this->opt( 'ts_checkout_countdown_minutes', '15' ) ); ?>"
+							<?php $this->field_open( __( '倒數分鐘數', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="number" name="mydyma_tcs_checkout_countdown_minutes"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_checkout_countdown_minutes', '15' ) ); ?>"
 									min="1" max="60" class="small-text">
-								<?php $this->hint( __( '結帳頁顯示的保留時間（預設 15 分鐘）。', 'taiwan-store-core' ) ); ?>
+								<?php $this->hint( __( '結帳頁顯示的保留時間（預設 15 分鐘）。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '置底加入購物車列', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_product_sticky_bar', 'yes' ); ?>
+							<?php $this->field_open( __( '置底加入購物車列', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_product_sticky_bar', 'yes' ); ?>
 							<?php $this->field_close(); ?>
 						<?php $this->card_close(); ?>
 
 						<?php $this->card_open(
-							__( '超商取貨（ECPay 物流）', 'taiwan-store-core' ),
-							__( '啟用後請至 WooCommerce → 運費 → 運送區域 新增「超商取貨」方式。', 'taiwan-store-core' ),
+							__( '超商取貨（ECPay 物流）', 'mydyma-taiwan-commerce-suite' ),
+							__( '啟用後請至 WooCommerce → 運費 → 運送區域 新增「超商取貨」方式。', 'mydyma-taiwan-commerce-suite' ),
 							'ts-card--sky', 'store'
 						); ?>
-							<?php $this->field_open( __( '啟用超商取貨', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_cvs_enabled' ); ?>
-								<?php $this->hint( __( '啟用後須至 WooCommerce → 運費 → 運送區域 新增「超商取貨」方式。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '啟用超商取貨', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_cvs_enabled' ); ?>
+								<?php $this->hint( __( '啟用後須至 WooCommerce → 運費 → 運送區域 新增「超商取貨」方式。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '測試模式', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_cvs_test_mode', 'yes' ); ?>
-								<?php $this->hint( __( '開啟時使用 ECPay Staging（MerchantID: 3002607），關閉後請填入正式帳號。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '測試模式', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_cvs_test_mode', 'yes' ); ?>
+								<?php $this->hint( __( '開啟時使用 ECPay Staging（MerchantID: 3002607），關閉後請填入正式帳號。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '正式 MerchantID', 'taiwan-store-core' ) ); ?>
-								<input type="text" name="ts_cvs_merchant_id"
-									value="<?php echo esc_attr( $this->opt( 'ts_cvs_merchant_id' ) ); ?>"
+							<?php $this->field_open( __( '正式 MerchantID', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="text" name="mydyma_tcs_cvs_merchant_id"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_cvs_merchant_id' ) ); ?>"
 									class="regular-text"
-									placeholder="<?php esc_attr_e( '測試模式時無需填寫', 'taiwan-store-core' ); ?>">
+									placeholder="<?php esc_attr_e( '測試模式時無需填寫', 'mydyma-taiwan-commerce-suite' ); ?>">
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '正式 HashKey', 'taiwan-store-core' ) ); ?>
-								<input type="password" name="ts_cvs_hash_key"
-									value="<?php echo esc_attr( $this->opt( 'ts_cvs_hash_key' ) ); ?>"
+							<?php $this->field_open( __( '正式 HashKey', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="password" name="mydyma_tcs_cvs_hash_key"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_cvs_hash_key' ) ); ?>"
 									class="regular-text">
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '正式 HashIV', 'taiwan-store-core' ) ); ?>
-								<input type="password" name="ts_cvs_hash_iv"
-									value="<?php echo esc_attr( $this->opt( 'ts_cvs_hash_iv' ) ); ?>"
+							<?php $this->field_open( __( '正式 HashIV', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="password" name="mydyma_tcs_cvs_hash_iv"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_cvs_hash_iv' ) ); ?>"
 									class="regular-text">
 							<?php $this->field_close(); ?>
 
-							<?php if ( 'yes' === $this->opt( 'ts_cvs_test_mode', 'yes' ) ) : ?>
+							<?php if ( 'yes' === $this->opt( 'mydyma_tcs_cvs_test_mode', 'yes' ) ) : ?>
 								<div style="padding:0 24px 16px;">
 									<?php $this->test_mode_notice( '3002607', 'https://vendor-stage.ecpay.com.tw', 'stagetest3', 'test1234' ); ?>
 								</div>
@@ -533,49 +532,49 @@ class Settings_Page {
 						<?php $this->card_close(); ?>
 
 						<?php $this->card_open(
-							__( '超商取貨（藍新物流）', 'taiwan-store-core' ),
-							__( '啟用後請至 WooCommerce → 運費 → 運送區域 新增「超商取貨（藍新）」方式。', 'taiwan-store-core' ),
+							__( '超商取貨（藍新物流）', 'mydyma-taiwan-commerce-suite' ),
+							__( '啟用後請至 WooCommerce → 運費 → 運送區域 新增「超商取貨（藍新）」方式。', 'mydyma-taiwan-commerce-suite' ),
 							'ts-card--sky', 'store'
 						); ?>
-							<?php $this->field_open( __( '啟用藍新超商取貨', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_newebpay_cvs_enabled' ); ?>
-								<?php $this->hint( __( '啟用後須至 WooCommerce → 運費 → 運送區域 新增「超商取貨（藍新）」方式。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '啟用藍新超商取貨', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_newebpay_cvs_enabled' ); ?>
+								<?php $this->hint( __( '啟用後須至 WooCommerce → 運費 → 運送區域 新增「超商取貨（藍新）」方式。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '測試模式', 'taiwan-store-core' ) ); ?>
-								<?php $this->toggle( 'ts_newebpay_cvs_test_mode', 'yes' ); ?>
-								<?php $this->hint( __( '開啟時使用藍新測試環境，關閉後請填入正式帳號。', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '測試模式', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<?php $this->toggle( 'mydyma_tcs_newebpay_cvs_test_mode', 'yes' ); ?>
+								<?php $this->hint( __( '開啟時使用藍新測試環境，關閉後請填入正式帳號。', 'mydyma-taiwan-commerce-suite' ) ); ?>
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '正式 MerchantID', 'taiwan-store-core' ) ); ?>
-								<input type="text" name="ts_newebpay_cvs_merchant_id"
-									value="<?php echo esc_attr( $this->opt( 'ts_newebpay_cvs_merchant_id' ) ); ?>"
+							<?php $this->field_open( __( '正式 MerchantID', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="text" name="mydyma_tcs_newebpay_cvs_merchant_id"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_newebpay_cvs_merchant_id' ) ); ?>"
 									class="regular-text"
-									placeholder="<?php esc_attr_e( '測試模式時無需填寫', 'taiwan-store-core' ); ?>">
+									placeholder="<?php esc_attr_e( '測試模式時無需填寫', 'mydyma-taiwan-commerce-suite' ); ?>">
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '正式 HashKey', 'taiwan-store-core' ) ); ?>
-								<input type="password" name="ts_newebpay_cvs_hash_key"
-									value="<?php echo esc_attr( $this->opt( 'ts_newebpay_cvs_hash_key' ) ); ?>"
+							<?php $this->field_open( __( '正式 HashKey', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="password" name="mydyma_tcs_newebpay_cvs_hash_key"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_newebpay_cvs_hash_key' ) ); ?>"
 									class="regular-text">
 							<?php $this->field_close(); ?>
 
-							<?php $this->field_open( __( '正式 HashIV', 'taiwan-store-core' ) ); ?>
-								<input type="password" name="ts_newebpay_cvs_hash_iv"
-									value="<?php echo esc_attr( $this->opt( 'ts_newebpay_cvs_hash_iv' ) ); ?>"
+							<?php $this->field_open( __( '正式 HashIV', 'mydyma-taiwan-commerce-suite' ) ); ?>
+								<input type="password" name="mydyma_tcs_newebpay_cvs_hash_iv"
+									value="<?php echo esc_attr( $this->opt( 'mydyma_tcs_newebpay_cvs_hash_iv' ) ); ?>"
 									class="regular-text">
 							<?php $this->field_close(); ?>
 						<?php $this->card_close(); ?>
 
 					</div>
-					<div class="ts-form-footer"><?php submit_button( __( '儲存結帳設定', 'taiwan-store-core' ), 'primary', 'submit', false ); ?></div>
+					<div class="ts-form-footer"><?php submit_button( __( '儲存結帳設定', 'mydyma-taiwan-commerce-suite' ), 'primary', 'submit', false ); ?></div>
 				</div>
 				<?php endif; ?>
 
 				<!-- ── Rules ─────────────────────────────────────────────────── -->
 				<?php if ( $active_tab === 'rules' ) : ?>
 				<div class="taiwan-store-tab-content active">
-					<?php ( new \Taiwan_Store_Core\Admin\Rules_UI() )->render_rules_editor( $active_type ); ?>
+					<?php ( new \Mydyma_TCS\Admin\Rules_UI() )->render_rules_editor( $active_type ); ?>
 				</div>
 				<?php endif; ?>
 
@@ -589,30 +588,30 @@ class Settings_Page {
 							$social_providers = [
 								[
 									'title'   => 'LINE Login',
-									'toggle'  => 'ts_social_line_enabled',
+									'toggle'  => 'mydyma_tcs_social_line_enabled',
 									'fields'  => [
-										[ 'label' => 'Channel ID',          'name' => 'ts_social_line_client_id',     'type' => 'text' ],
-										[ 'label' => 'Channel Secret',      'name' => 'ts_social_line_client_secret', 'type' => 'password' ],
-										[ 'label' => 'Messaging API Token', 'name' => 'ts_social_line_token',         'type' => 'textarea',
+										[ 'label' => 'Channel ID',          'name' => 'mydyma_tcs_social_line_client_id',     'type' => 'text' ],
+										[ 'label' => 'Channel Secret',      'name' => 'mydyma_tcs_social_line_client_secret', 'type' => 'password' ],
+										[ 'label' => 'Messaging API Token', 'name' => 'mydyma_tcs_social_line_token',         'type' => 'textarea',
 										  'hint'  => '用於發送遺棄購物車提醒與訂單通知。' ],
 									],
 									'icon' => 'format-chat',
 								],
 								[
 									'title'  => 'Google Login',
-									'toggle' => 'ts_social_google_enabled',
+									'toggle' => 'mydyma_tcs_social_google_enabled',
 									'fields' => [
-										[ 'label' => 'Client ID',     'name' => 'ts_social_google_client_id',     'type' => 'text' ],
-										[ 'label' => 'Client Secret', 'name' => 'ts_social_google_client_secret', 'type' => 'password' ],
+										[ 'label' => 'Client ID',     'name' => 'mydyma_tcs_social_google_client_id',     'type' => 'text' ],
+										[ 'label' => 'Client Secret', 'name' => 'mydyma_tcs_social_google_client_secret', 'type' => 'password' ],
 									],
 									'icon' => 'google',
 								],
 								[
 									'title'  => 'Facebook Login',
-									'toggle' => 'ts_social_fb_enabled',
+									'toggle' => 'mydyma_tcs_social_fb_enabled',
 									'fields' => [
-										[ 'label' => 'App ID',     'name' => 'ts_social_fb_client_id',     'type' => 'text' ],
-										[ 'label' => 'App Secret', 'name' => 'ts_social_fb_client_secret', 'type' => 'password' ],
+										[ 'label' => 'App ID',     'name' => 'mydyma_tcs_social_fb_client_id',     'type' => 'text' ],
+										[ 'label' => 'App Secret', 'name' => 'mydyma_tcs_social_fb_client_secret', 'type' => 'password' ],
 									],
 									'icon' => 'facebook-alt',
 								],
@@ -640,7 +639,7 @@ class Settings_Page {
 						<div class="ts-guide-card">
 							<div class="ts-guide-card-header">
 								<span class="dashicons dashicons-welcome-learn-more"></span>
-								<h3><?php esc_html_e( '社群登入串接指南', 'taiwan-store-core' ); ?></h3>
+								<h3><?php esc_html_e( '社群登入串接指南', 'mydyma-taiwan-commerce-suite' ); ?></h3>
 							</div>
 							<div class="ts-guide-steps">
 								<div class="ts-guide-step">
@@ -653,7 +652,7 @@ class Settings_Page {
 								</div>
 								<div class="ts-guide-step">
 									<h4>Step 2: Callback URL</h4>
-									<p><?php esc_html_e( '請將下列網址填入各平台的「重新導向 URI」欄位：', 'taiwan-store-core' ); ?></p>
+									<p><?php esc_html_e( '請將下列網址填入各平台的「重新導向 URI」欄位：', 'mydyma-taiwan-commerce-suite' ); ?></p>
 									<div class="ts-callback-box" style="margin-top:10px;">
 										<div><strong>LINE:</strong> <code><?php echo esc_html( home_url( '/?taiwan_store_social=line' ) ); ?></code></div>
 										<div><strong>Google:</strong> <code><?php echo esc_html( home_url( '/?taiwan_store_social=google' ) ); ?></code></div>
@@ -662,13 +661,13 @@ class Settings_Page {
 								</div>
 								<div class="ts-guide-step">
 									<h4>Step 3: HTTPS</h4>
-									<p><?php esc_html_e( '所有社群登入皆要求網站具備有效的 SSL 憑證（HTTPS）。若為本機測試，請確保環境支援 HTTPS 導向。', 'taiwan-store-core' ); ?></p>
+									<p><?php esc_html_e( '所有社群登入皆要求網站具備有效的 SSL 憑證（HTTPS）。若為本機測試，請確保環境支援 HTTPS 導向。', 'mydyma-taiwan-commerce-suite' ); ?></p>
 								</div>
 							</div>
 						</div>
 
 					</div>
-					<div class="ts-form-footer"><?php submit_button( __( '儲存社群設定', 'taiwan-store-core' ), 'primary', 'submit', false ); ?></div>
+					<div class="ts-form-footer"><?php submit_button( __( '儲存社群設定', 'mydyma-taiwan-commerce-suite' ), 'primary', 'submit', false ); ?></div>
 				</div>
 				<?php endif; ?>
 
@@ -677,27 +676,27 @@ class Settings_Page {
 				<div class="taiwan-store-tab-content active">
 					<div class="ts-settings-stack">
 
-						<?php $this->card_open( __( '今日概覽', 'taiwan-store-core' ), '', '', 'chart-area' ); ?>
+						<?php $this->card_open( __( '今日概覽', 'mydyma-taiwan-commerce-suite' ), '', '', 'chart-area' ); ?>
 							<div style="padding:20px 24px;">
-								<div id="taiwan-store-core-logs-root">
-									<div class="taiwan-store-core-spinner active"></div>
+								<div id="mydyma-taiwan-commerce-suite-logs-root">
+									<div class="mydyma-taiwan-commerce-suite-spinner active"></div>
 								</div>
 							</div>
 						<?php $this->card_close(); ?>
 
 						<?php
-						$debug_toggle = '<label class="ts-switch"><input type="hidden" name="ts_debug_log" value="no"><input type="checkbox" name="ts_debug_log" value="yes" ' . checked( 'yes', $this->opt( 'ts_debug_log' ), false ) . '><span class="ts-slider"></span></label>';
-						$this->card_open( __( 'Debug 紀錄模式', 'taiwan-store-core' ), __( '啟用後，詳細的 API 請求與錯誤訊息將記錄於 WooCommerce 系統日誌。', 'taiwan-store-core' ), 'ts-card--amber', 'editor-code', $debug_toggle );
+						$debug_toggle = '<label class="ts-switch"><input type="hidden" name="mydyma_tcs_debug_log" value="no"><input type="checkbox" name="mydyma_tcs_debug_log" value="yes" ' . checked( 'yes', $this->opt( 'mydyma_tcs_debug_log' ), false ) . '><span class="ts-slider"></span></label>';
+						$this->card_open( __( 'Debug 紀錄模式', 'mydyma-taiwan-commerce-suite' ), __( '啟用後，詳細的 API 請求與錯誤訊息將記錄於 WooCommerce 系統日誌。', 'mydyma-taiwan-commerce-suite' ), 'ts-card--amber', 'editor-code', $debug_toggle );
 						?>
-							<?php $this->field_open( __( '檢視系統日誌', 'taiwan-store-core' ) ); ?>
+							<?php $this->field_open( __( '檢視系統日誌', 'mydyma-taiwan-commerce-suite' ) ); ?>
 								<a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ); ?>" class="button button-secondary">
-									<?php esc_html_e( '前往 WooCommerce 日誌', 'taiwan-store-core' ); ?>
+									<?php esc_html_e( '前往 WooCommerce 日誌', 'mydyma-taiwan-commerce-suite' ); ?>
 								</a>
 							<?php $this->field_close(); ?>
 						<?php $this->card_close(); ?>
 
 					</div>
-					<div class="ts-form-footer"><?php submit_button( __( '儲存日誌設定', 'taiwan-store-core' ), 'primary', 'submit', false ); ?></div>
+					<div class="ts-form-footer"><?php submit_button( __( '儲存日誌設定', 'mydyma-taiwan-commerce-suite' ), 'primary', 'submit', false ); ?></div>
 				</div>
 				<?php endif; ?>
 
@@ -707,14 +706,14 @@ class Settings_Page {
 
 					<div class="ts-help-hero">
 						<div class="ts-help-hero-text">
-							<h2>👋 <?php esc_html_e( '需要什麼幫助？', 'taiwan-store-core' ); ?></h2>
-							<p><?php esc_html_e( '歡迎使用 Taiwan Store 系列外掛。我們提供專為台灣電商設計的一站式在地化工具，讓您的 WooCommerce 商店更符合台灣買家的使用習慣。', 'taiwan-store-core' ); ?></p>
+							<h2>👋 <?php esc_html_e( '需要什麼幫助？', 'mydyma-taiwan-commerce-suite' ); ?></h2>
+							<p><?php esc_html_e( '歡迎使用 Taiwan Store 系列外掛。我們提供專為台灣電商設計的一站式在地化工具，讓您的 WooCommerce 商店更符合台灣買家的使用習慣。', 'mydyma-taiwan-commerce-suite' ); ?></p>
 						</div>
 					</div>
 
 					<h3 class="ts-section-heading">
 						<span class="dashicons dashicons-heart" style="color:var(--ts-red);"></span>
-						<?php esc_html_e( '系統環境檢測', 'taiwan-store-core' ); ?>
+						<?php esc_html_e( '系統環境檢測', 'mydyma-taiwan-commerce-suite' ); ?>
 					</h3>
 
 					<div class="ts-card ts-card--green" style="margin-bottom:28px;">
@@ -741,7 +740,7 @@ class Settings_Page {
 
 					<h3 class="ts-section-heading">
 						<span class="dashicons dashicons-book-alt" style="color:var(--ts-blue);"></span>
-						<?php esc_html_e( '核心功能說明', 'taiwan-store-core' ); ?>
+						<?php esc_html_e( '核心功能說明', 'mydyma-taiwan-commerce-suite' ); ?>
 					</h3>
 
 					<div class="ts-help-grid">
@@ -782,7 +781,7 @@ class Settings_Page {
 
 					<h3 class="ts-section-heading">
 						<span class="dashicons dashicons-admin-plugins" style="color:var(--ts-green);"></span>
-						<?php esc_html_e( '擴充外掛', 'taiwan-store-core' ); ?>
+						<?php esc_html_e( '擴充外掛', 'mydyma-taiwan-commerce-suite' ); ?>
 					</h3>
 
 					<?php
@@ -795,10 +794,6 @@ class Settings_Page {
 							'path' => 'taiwan-store-notifier/taiwan-store-notifier.php',
 							'icon' => 'testimonial', 'tab' => 'notifier',
 							'desc' => [ '<strong>物流追蹤：</strong>支援 7-11 / 全家 / 黑貓狀態同步。', '<strong>全通路推播：</strong>自訂 LINE / SMS 訊息範本，內建測試發送中心。' ] ],
-						[ 'name' => 'Taiwan Store: 電子發票 Pro',
-							'path' => 'wc-tw-invoice-pro/wc-tw-invoice-pro.php',
-							'icon' => 'media-text', 'tab' => 'invoice',
-							'desc' => [ '<strong>完整自動化：</strong>整合 ECPay / 藍新，支援手動開立、作廢與狀態管理。', '<strong>對獎與報表：</strong>自動對獎通知、月份匯出報表、營收儀表板。' ] ],
 						[ 'name' => 'Taiwan Store: 會員分級 Pro',
 							'path' => 'taiwan-store-member/taiwan-store-member.php',
 							'icon' => 'awards', 'tab' => 'member',
@@ -832,7 +827,7 @@ class Settings_Page {
 									<?php endforeach; ?>
 								</div>
 								<?php if ( $is_active ) : ?>
-									<a href="<?php echo esc_url( admin_url( 'admin.php?page=taiwan-store-core&tab=' . $ext['tab'] ) ); ?>" class="button button-secondary button-small">前往設定</a>
+									<a href="<?php echo esc_url( admin_url( 'admin.php?page=mydyma-taiwan-commerce-suite&tab=' . $ext['tab'] ) ); ?>" class="button button-secondary button-small">前往設定</a>
 								<?php else : ?>
 									<a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>" class="button button-secondary button-small">安裝並啟用</a>
 								<?php endif; ?>
@@ -841,7 +836,7 @@ class Settings_Page {
 					</div>
 
 					<div class="ts-faq-section">
-						<h3 class="ts-faq-section-title"><?php esc_html_e( '常見問題（FAQ）', 'taiwan-store-core' ); ?></h3>
+						<h3 class="ts-faq-section-title"><?php esc_html_e( '常見問題（FAQ）', 'mydyma-taiwan-commerce-suite' ); ?></h3>
 						<?php
 						$faqs = [
 							[ 'q' => '如何更新地址資料庫？',       'a' => '系統內建最新台灣縣市鄉鎮資料。未來行政區調整將透過外掛版本更新同步，不需手動操作。' ],
@@ -865,7 +860,7 @@ class Settings_Page {
 				<div class="taiwan-store-tab-content active">
 				<?php endif; ?>
 
-				<?php do_action( "taiwan_store_core_tab_content_{$active_tab}" ); ?>
+				<?php do_action( "mydyma_tcs_tab_content_{$active_tab}" ); ?>
 
 				<?php if ( $is_extension_tab ) : ?></div><?php endif; ?>
 

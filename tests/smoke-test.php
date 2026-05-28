@@ -87,9 +87,9 @@ require_once $base . 'actions/class-hide-payment.php';
 require_once $base . 'actions/class-hide-shipping.php';
 require_once $base . 'actions/class-block-checkout.php';
 
-use Taiwan_Store_Core\Rule_Engine\Rule_Engine;
-use Taiwan_Store_Core\Rule_Engine\Rule;
-use Taiwan_Store_Core\Rule_Engine\Context;
+use Mydyma_TCS\Rule_Engine\Rule_Engine;
+use Mydyma_TCS\Rule_Engine\Rule;
+use Mydyma_TCS\Rule_Engine\Context;
 
 // --- Test Framework ----------------------------------------------------------
 
@@ -161,20 +161,20 @@ function make_context_with_products( array $product_ids ): Context {
 // --- Setup Engine ------------------------------------------------------------
 
 $engine = Rule_Engine::instance();
-$engine->register_condition( new Taiwan_Store_Core\Rule_Engine\Conditions\Cart_Total() );
-$engine->register_condition( new Taiwan_Store_Core\Rule_Engine\Conditions\Max_Qty() );
-$engine->register_condition( new Taiwan_Store_Core\Rule_Engine\Conditions\Address() );
-$engine->register_condition( new Taiwan_Store_Core\Rule_Engine\Conditions\Product() );
-$engine->register_condition( new Taiwan_Store_Core\Rule_Engine\Conditions\Category() );
-$engine->register_action( new Taiwan_Store_Core\Rule_Engine\Actions\Hide_Payment() );
-$engine->register_action( new Taiwan_Store_Core\Rule_Engine\Actions\Hide_Shipping() );
-$engine->register_action( new Taiwan_Store_Core\Rule_Engine\Actions\Block_Checkout() );
+$engine->register_condition( new Mydyma_TCS\Rule_Engine\Conditions\Cart_Total() );
+$engine->register_condition( new Mydyma_TCS\Rule_Engine\Conditions\Max_Qty() );
+$engine->register_condition( new Mydyma_TCS\Rule_Engine\Conditions\Address() );
+$engine->register_condition( new Mydyma_TCS\Rule_Engine\Conditions\Product() );
+$engine->register_condition( new Mydyma_TCS\Rule_Engine\Conditions\Category() );
+$engine->register_action( new Mydyma_TCS\Rule_Engine\Actions\Hide_Payment() );
+$engine->register_action( new Mydyma_TCS\Rule_Engine\Actions\Hide_Shipping() );
+$engine->register_action( new Mydyma_TCS\Rule_Engine\Actions\Block_Checkout() );
 
 // --- T01: Cart_Total Condition -----------------------------------------------
 
 test_section( 'T01: Cart_Total Condition' );
 
-$cond = new Taiwan_Store_Core\Rule_Engine\Conditions\Cart_Total();
+$cond = new Mydyma_TCS\Rule_Engine\Conditions\Cart_Total();
 
 $ctx_500 = make_context_with_total( 500.0 );
 $ctx_100 = make_context_with_total( 100.0 );
@@ -192,7 +192,7 @@ assert_false( 'eq: 100 != 500',  $cond->matches( $ctx_100, [ 'op' => 'eq', 'amou
 
 test_section( 'T02: Address Condition' );
 
-$addr_cond  = new Taiwan_Store_Core\Rule_Engine\Conditions\Address();
+$addr_cond  = new Mydyma_TCS\Rule_Engine\Conditions\Address();
 $ctx_taipei = make_context_with_state( 'TPE' );
 
 assert_true(
@@ -290,7 +290,7 @@ assert_false( 'cart has_rules returns false', $engine->has_rules( 'cart' ) );
 
 test_section( 'T06: Default op is gte' );
 
-$cond_def = new Taiwan_Store_Core\Rule_Engine\Conditions\Cart_Total();
+$cond_def = new Mydyma_TCS\Rule_Engine\Conditions\Cart_Total();
 $ctx_200 = make_context_with_total( 200.0 );
 assert_true(
 	'No op defaults to gte: 200 >= 100',

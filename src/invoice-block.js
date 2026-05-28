@@ -36,7 +36,7 @@ export const InvoiceBlock = ( { checkoutExtensionData } ) => {
 
         try {
             const formData = new URLSearchParams();
-            formData.append('action', 'wc_tw_core_lookup_taxid');
+            formData.append('action', 'mydyma_tcs_lookup_taxid');
             formData.append('nonce', taxidNonce);
             formData.append('tax_id', taxId);
 

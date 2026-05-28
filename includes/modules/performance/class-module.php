@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Modules\Performance; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
+namespace Mydyma_TCS\Modules\Performance; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydyma_TCS is the plugin prefix
 
 defined( 'ABSPATH' ) || exit;
 
@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Note: Most per-module gating is already handled in each module's own boot()
  * via is_checkout() / is_cart(). This module provides cross-cutting guards.
  */
-class Module implements \Taiwan_Store_Core\Module {
+class Module implements \Mydyma_TCS\Module {
 
 	public function id(): string {
 		return 'performance';

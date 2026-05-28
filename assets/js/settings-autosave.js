@@ -2,7 +2,7 @@
 (function ($) {
     'use strict';
 
-    const D = window.TaiwanStoreCoreSettingsData;
+    const D = window.MydymaTcsSettingsData;
     if (!D) return;
 
     let timer = null;
@@ -13,7 +13,7 @@
         if (!$wrap.length) return;
 
         // 狀態文字顯示在儲存按鈕旁邊
-        $status = $('<span class="taiwan-store-core-autosave-bar" style="margin-left:15px; vertical-align:middle; font-size:13px; color:#666;"></span>');
+        $status = $('<span class="mydyma-taiwan-commerce-suite-autosave-bar" style="margin-left:15px; vertical-align:middle; font-size:13px; color:#666;"></span>');
         $('.woocommerce-save-button').after($status);
 
         // 監聽變動
@@ -29,7 +29,7 @@
 
     function showStatus(state) {
         const map = {
-            saving: '<span class="dashicons dashicons-update-alt taiwan-store-core-as-spin"></span> 正在同步...',
+            saving: '<span class="dashicons dashicons-update-alt mydyma-taiwan-commerce-suite-as-spin"></span> 正在同步...',
             saved:  '<span class="dashicons dashicons-yes-alt" style="color:green"></span> 已自動同步',
             error:  '',
         };
@@ -41,7 +41,7 @@
         if (!$form.length) return;
 
         const data = $form.serialize()
-            + '&action=wc_tw_core_autosave_settings'
+            + '&action=mydyma_tcs_autosave_settings'
             + '&_autosave_nonce=' + encodeURIComponent(D.nonce)
             + '&section=' + encodeURIComponent(D.section);
 

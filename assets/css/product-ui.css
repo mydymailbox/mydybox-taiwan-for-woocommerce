@@ -1,0 +1,28 @@
+.mydyma-taiwan-commerce-suite-sticky-cart-wrap { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); z-index: 9999; padding: 12px 0; transform: translateY(150%); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.12); border-radius: 16px; }
+.mydyma-taiwan-commerce-suite-sticky-cart-wrap.is-visible { transform: translateY(0); }
+.mydyma-taiwan-commerce-suite-sticky-cart-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+.mydyma-taiwan-commerce-suite-sticky-info { display: flex; align-items: center; gap: 15px; }
+.mydyma-taiwan-commerce-suite-sticky-info img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.mydyma-taiwan-commerce-suite-sticky-text { display: flex; flex-direction: column; }
+.mydyma-taiwan-commerce-suite-sticky-title { font-size: 15px; font-weight: 700; color: #1e293b; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.mydyma-taiwan-commerce-suite-sticky-price { font-size: 15px; color: #ef4444; font-weight: 700; }
+
+.ts-stock-badge { font-size: 11px; background: #f0fdf4; color: #166534; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+.ts-stock-badge.low { background: #fef2f2; color: #991b1b; }
+
+.mydyma-taiwan-commerce-suite-sticky-action { display: flex; align-items: center; gap: 15px; }
+.mydyma-taiwan-commerce-suite-sticky-qty-wrap { display: flex; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; height: 44px; }
+.ts-sticky-qty-btn { background: none; border: none; width: 38px; height: 100%; font-size: 18px; cursor: pointer; color: #64748b; transition: all 0.2s; }
+.ts-sticky-qty-btn:hover { background: #e2e8f0; color: #1e293b; }
+.ts-sticky-qty-input { width: 42px !important; border: none !important; background: transparent !important; text-align: center !important; font-weight: 800 !important; color: #1e293b !important; padding: 0 !important; margin: 0 !important; font-size: 15px !important; }
+
+.mydyma-taiwan-commerce-suite-sticky-btn { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #fff; border: none; padding: 0 30px; height: 44px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: all 0.3s; white-space: nowrap; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+.mydyma-taiwan-commerce-suite-sticky-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3); background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); }
+
+@media (max-width: 767px) {
+	.mydyma-taiwan-commerce-suite-sticky-cart-wrap { bottom: 10px; left: 10px; right: 10px; border-radius: 12px; }
+	.mydyma-taiwan-commerce-suite-sticky-info { display: none; }
+	.mydyma-taiwan-commerce-suite-sticky-action { width: 100%; justify-content: space-between; }
+	.mydyma-taiwan-commerce-suite-sticky-qty-wrap { flex: 1; max-width: 130px; }
+	.mydyma-taiwan-commerce-suite-sticky-btn { flex: 2; font-size: 15px; }
+}

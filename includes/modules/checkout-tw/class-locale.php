@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Modules\Checkout_Tw;
+namespace Mydyma_TCS\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -47,7 +47,7 @@ class Locale {
 						return;
 					}
 
-					var options = '<option value=\"\">" . esc_js( __( '─ 請選擇 ─', 'taiwan-store-core' ) ) . "</option>';
+					var options = '<option value=\"\">" . esc_js( __( '─ 請選擇 ─', 'mydyma-taiwan-commerce-suite' ) ) . "</option>';
 					$.each(twDistricts[state], function(k, v) {
 						options += '<option value=\"' + k + '\"' + (k === currentCity ? ' selected' : '') + '>' + v + '</option>';
 					});
@@ -85,16 +85,16 @@ class Locale {
 	}
 
 	public function override_default_fields( $fields ): array {
-		$fields['state']['label']        = __( '縣市', 'taiwan-store-core' );
+		$fields['state']['label']        = __( '縣市', 'mydyma-taiwan-commerce-suite' );
 		$fields['state']['priority']     = 50;
 		
-		$fields['city']['label']         = __( '鄉鎮市區', 'taiwan-store-core' );
+		$fields['city']['label']         = __( '鄉鎮市區', 'mydyma-taiwan-commerce-suite' );
 		$fields['city']['priority']      = 60;
 		
-		$fields['postcode']['label']     = __( '郵遞區號', 'taiwan-store-core' );
+		$fields['postcode']['label']     = __( '郵遞區號', 'mydyma-taiwan-commerce-suite' );
 		$fields['postcode']['priority']  = 45;
 		
-		$fields['address_1']['label']    = __( '地址', 'taiwan-store-core' );
+		$fields['address_1']['label']    = __( '地址', 'mydyma-taiwan-commerce-suite' );
 		$fields['address_1']['priority'] = 70;
 		
 		$fields['address_2']['priority'] = 80;
@@ -104,8 +104,8 @@ class Locale {
 
 	public function override_billing_fields( $fields ): array {
 		// Respect Name Consolidation setting (if added later, default to yes)
-		$consolidate = 'yes' === get_option( 'ts_checkout_name_consolidate', 'yes' );
-		$is_autofill = 'yes' === get_option( 'ts_checkout_postcode_autofill', 'yes' );
+		$consolidate = 'yes' === get_option( 'mydyma_tcs_checkout_name_consolidate', 'yes' );
+		$is_autofill = 'yes' === get_option( 'mydyma_tcs_checkout_postcode_autofill', 'yes' );
 
 		$tw = [
 			'country' => [
@@ -113,17 +113,17 @@ class Locale {
 				'class'    => [ 'form-row-wide' ],
 			],
 			'last_name' => [
-				'label'    => $consolidate ? __( '姓名', 'taiwan-store-core' ) : __( '姓氏', 'taiwan-store-core' ),
+				'label'    => $consolidate ? __( '姓名', 'mydyma-taiwan-commerce-suite' ) : __( '姓氏', 'mydyma-taiwan-commerce-suite' ),
 				'priority' => 10,
 				'class'    => $consolidate ? [ 'form-row-wide' ] : [ 'form-row-first' ],
 			],
 			'first_name' => $consolidate ? [ 'type' => 'hidden', 'default' => '-' ] : [
-				'label'    => __( '名字', 'taiwan-store-core' ),
+				'label'    => __( '名字', 'mydyma-taiwan-commerce-suite' ),
 				'priority' => 15,
 				'class'    => [ 'form-row-last' ],
 			],
 			'phone' => [
-				'label'             => __( '行動電話', 'taiwan-store-core' ),
+				'label'             => __( '行動電話', 'mydyma-taiwan-commerce-suite' ),
 				'required'          => true,
 				'priority'          => 20,
 				'class'             => [ 'form-row-first' ],
@@ -133,41 +133,41 @@ class Locale {
 				],
 			],
 			'email' => [
-				'label'    => __( '電子郵件', 'taiwan-store-core' ),
+				'label'    => __( '電子郵件', 'mydyma-taiwan-commerce-suite' ),
 				'priority' => 30,
 				'class'    => [ 'form-row-last' ],
 			],
 			'postcode' => [
-				'label'       => __( '郵遞區號', 'taiwan-store-core' ),
-				'placeholder' => $is_autofill ? __( '自動帶入', 'taiwan-store-core' ) : '',
+				'label'       => __( '郵遞區號', 'mydyma-taiwan-commerce-suite' ),
+				'placeholder' => $is_autofill ? __( '自動帶入', 'mydyma-taiwan-commerce-suite' ) : '',
 				'required'    => false,
 				'priority'    => 45,
 				'class'       => [ 'form-row-wide' ],
 				'custom_attributes' => $is_autofill ? [ 'readonly' => 'readonly' ] : [],
 			],
 			'state' => [
-				'label'    => __( '縣市', 'taiwan-store-core' ),
+				'label'    => __( '縣市', 'mydyma-taiwan-commerce-suite' ),
 				'required' => true,
 				'priority' => 50,
 				'class'    => [ 'form-row-first' ],
 			],
 			'city' => [
 				'type'     => 'select',
-				'label'    => __( '鄉鎮市區', 'taiwan-store-core' ),
+				'label'    => __( '鄉鎮市區', 'mydyma-taiwan-commerce-suite' ),
 				'required' => true,
 				'priority' => 60,
 				'class'    => [ 'form-row-last' ],
-				'options'  => [ '' => __( '─ 請選擇 ─', 'taiwan-store-core' ) ],
+				'options'  => [ '' => __( '─ 請選擇 ─', 'mydyma-taiwan-commerce-suite' ) ],
 			],
 			'address_1' => [
-				'label'       => __( '路名／街道', 'taiwan-store-core' ),
-				'placeholder' => __( '例如：中山北路二段', 'taiwan-store-core' ),
+				'label'       => __( '路名／街道', 'mydyma-taiwan-commerce-suite' ),
+				'placeholder' => __( '例如：中山北路二段', 'mydyma-taiwan-commerce-suite' ),
 				'priority'    => 70,
 				'class'       => [ 'form-row-first' ],
 			],
 			'address_2' => [
-				'label'       => __( '巷弄號碼／樓層', 'taiwan-store-core' ),
-				'placeholder' => __( '例如：12巷3弄5號4樓', 'taiwan-store-core' ),
+				'label'       => __( '巷弄號碼／樓層', 'mydyma-taiwan-commerce-suite' ),
+				'placeholder' => __( '例如：12巷3弄5號4樓', 'mydyma-taiwan-commerce-suite' ),
 				'required'    => false,
 				'priority'    => 80,
 				'class'       => [ 'form-row-last' ],
@@ -189,48 +189,48 @@ class Locale {
 	}
 
 	public function override_shipping_fields( $fields ): array {
-		$consolidate = 'yes' === get_option( 'ts_checkout_name_consolidate', 'yes' );
+		$consolidate = 'yes' === get_option( 'mydyma_tcs_checkout_name_consolidate', 'yes' );
 
 		$tw = [
 			'last_name' => [
-				'label'    => $consolidate ? __( '姓名', 'taiwan-store-core' ) : __( '姓氏', 'taiwan-store-core' ),
+				'label'    => $consolidate ? __( '姓名', 'mydyma-taiwan-commerce-suite' ) : __( '姓氏', 'mydyma-taiwan-commerce-suite' ),
 				'priority' => 10,
 				'class'    => $consolidate ? [ 'form-row-wide' ] : [ 'form-row-first' ],
 			],
 			'first_name' => $consolidate ? [ 'type' => 'hidden', 'default' => '-' ] : [
-				'label'    => __( '名字', 'taiwan-store-core' ),
+				'label'    => __( '名字', 'mydyma-taiwan-commerce-suite' ),
 				'priority' => 15,
 				'class'    => [ 'form-row-last' ],
 			],
 			'postcode' => [
-				'label'    => __( '郵遞區號', 'taiwan-store-core' ),
+				'label'    => __( '郵遞區號', 'mydyma-taiwan-commerce-suite' ),
 				'required' => false,
 				'priority' => 35,
 				'class'    => [ 'form-row-wide' ],
 			],
 			'state' => [
-				'label'    => __( '縣市', 'taiwan-store-core' ),
+				'label'    => __( '縣市', 'mydyma-taiwan-commerce-suite' ),
 				'required' => true,
 				'priority' => 40,
 				'class'    => [ 'form-row-first' ],
 			],
 			'city' => [
 				'type'     => 'select',
-				'label'    => __( '鄉鎮市區', 'taiwan-store-core' ),
+				'label'    => __( '鄉鎮市區', 'mydyma-taiwan-commerce-suite' ),
 				'required' => true,
 				'priority' => 50,
 				'class'    => [ 'form-row-last' ],
-				'options'  => [ '' => __( '─ 請選擇 ─', 'taiwan-store-core' ) ],
+				'options'  => [ '' => __( '─ 請選擇 ─', 'mydyma-taiwan-commerce-suite' ) ],
 			],
 			'address_1' => [
-				'label'       => __( '路名／街道', 'taiwan-store-core' ),
-				'placeholder' => __( '例如：中山北路二段', 'taiwan-store-core' ),
+				'label'       => __( '路名／街道', 'mydyma-taiwan-commerce-suite' ),
+				'placeholder' => __( '例如：中山北路二段', 'mydyma-taiwan-commerce-suite' ),
 				'priority'    => 60,
 				'class'       => [ 'form-row-first' ],
 			],
 			'address_2' => [
-				'label'       => __( '巷弄號碼／樓層', 'taiwan-store-core' ),
-				'placeholder' => __( '例如：12巷3弄5號4樓', 'taiwan-store-core' ),
+				'label'       => __( '巷弄號碼／樓層', 'mydyma-taiwan-commerce-suite' ),
+				'placeholder' => __( '例如：12巷3弄5號4樓', 'mydyma-taiwan-commerce-suite' ),
 				'required'    => false,
 				'priority'    => 70,
 				'class'       => [ 'form-row-last' ],
@@ -259,21 +259,21 @@ class Locale {
 
 	public function override_order_notes( $fields ): array {
 		if ( isset( $fields['order']['order_comments'] ) ) {
-			$fields['order']['order_comments']['label']       = __( '訂單備註', 'taiwan-store-core' );
-			$fields['order']['order_comments']['placeholder'] = __( '關於您的訂單的備註，例如：送貨時的特殊注意事項。', 'taiwan-store-core' );
+			$fields['order']['order_comments']['label']       = __( '訂單備註', 'mydyma-taiwan-commerce-suite' );
+			$fields['order']['order_comments']['placeholder'] = __( '關於您的訂單的備註，例如：送貨時的特殊注意事項。', 'mydyma-taiwan-commerce-suite' );
 		}
 		return $fields;
 	}
 
 	public function override_order_button_text(): string {
-		return __( '立即結帳', 'taiwan-store-core' );
+		return __( '立即結帳', 'mydyma-taiwan-commerce-suite' );
 	}
 
 	/**
 	 * Translate standard WooCommerce checkout strings that are often missing in Taiwan.
 	 */
 	public function translate_checkout_strings( $translated_text, $text, $domain ) {
-		if ( 'woocommerce' !== $domain && 'taiwan-store-core' !== $domain ) return $translated_text;
+		if ( 'woocommerce' !== $domain && 'mydyma-taiwan-commerce-suite' !== $domain ) return $translated_text;
 
 		$map = [
 			'Billing details'               => '帳單資訊',

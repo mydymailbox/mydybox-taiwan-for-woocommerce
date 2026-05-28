@@ -1,5 +1,5 @@
 <?php
-namespace Taiwan_Store_Core\Modules\Checkout_Tw;
+namespace Mydyma_TCS\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -14,11 +14,11 @@ class Checkout_Announcement {
 	}
 
 	public function render_announcement(): void {
-		if ( get_option( 'ts_checkout_announcement_enabled', 'no' ) !== 'yes' ) {
+		if ( get_option( 'mydyma_tcs_checkout_announcement_enabled', 'no' ) !== 'yes' ) {
 			return;
 		}
 
-		$text = get_option( 'ts_checkout_announcement_text', '' );
+		$text = get_option( 'mydyma_tcs_checkout_announcement_text', '' );
 		if ( empty( $text ) ) {
 			return;
 		}
