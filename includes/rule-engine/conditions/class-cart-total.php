@@ -1,8 +1,8 @@
 <?php
-namespace Mydyma_TCS\Rule_Engine\Conditions;
+namespace Mydybox\Rule_Engine\Conditions;
 
-use Mydyma_TCS\Rule_Engine\Condition;
-use Mydyma_TCS\Rule_Engine\Context;
+use Mydybox\Rule_Engine\Condition;
+use Mydybox\Rule_Engine\Context;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -12,13 +12,13 @@ defined( 'ABSPATH' ) || exit;
 class Cart_Total implements Condition {
 
 	public function id(): string { return 'cart_total'; }
-	public function label(): string { return __( 'Cart Subtotal', 'mydyma-taiwan-commerce-suite' ); }
+	public function label(): string { return __( 'Cart Subtotal', 'mydybox-taiwan-for-woocommerce' ); }
 	public function type(): string { return 'number'; }
 	public function operators(): array {
 		return [
-			[ 'id' => 'gte', 'label' => __( 'Greater than or equal (>=)', 'mydyma-taiwan-commerce-suite' ) ],
-			[ 'id' => 'lte', 'label' => __( 'Less than or equal (<=)', 'mydyma-taiwan-commerce-suite' ) ],
-			[ 'id' => 'eq',  'label' => __( 'Equal to (=)', 'mydyma-taiwan-commerce-suite' ) ],
+			[ 'id' => 'gte', 'label' => __( 'Greater than or equal (>=)', 'mydybox-taiwan-for-woocommerce' ) ],
+			[ 'id' => 'lte', 'label' => __( 'Less than or equal (<=)', 'mydybox-taiwan-for-woocommerce' ) ],
+			[ 'id' => 'eq',  'label' => __( 'Equal to (=)', 'mydybox-taiwan-for-woocommerce' ) ],
 		];
 	}
 

@@ -1,8 +1,8 @@
 <?php
-namespace Mydyma_TCS\Rule_Engine\Actions;
+namespace Mydybox\Rule_Engine\Actions;
 
-use Mydyma_TCS\Rule_Engine\Action;
-use Mydyma_TCS\Rule_Engine\Context;
+use Mydybox\Rule_Engine\Action;
+use Mydybox\Rule_Engine\Context;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -12,10 +12,10 @@ defined( 'ABSPATH' ) || exit;
 class Hide_Payment implements Action {
 
 	public function id(): string { return 'hide_payment'; }
-	public function label(): string { return __( 'Hide Payment Gateways', 'mydyma-taiwan-commerce-suite' ); }
+	public function label(): string { return __( 'Hide Payment Gateways', 'mydybox-taiwan-for-woocommerce' ); }
 	public function args(): array {
 		return [
-			[ 'id' => 'gateways', 'label' => __( 'Select gateways to hide', 'mydyma-taiwan-commerce-suite' ), 'type' => 'multiselect', 'source' => 'gateways' ]
+			[ 'id' => 'gateways', 'label' => __( 'Select gateways to hide', 'mydybox-taiwan-for-woocommerce' ), 'type' => 'multiselect', 'source' => 'gateways' ]
 		];
 	}
 

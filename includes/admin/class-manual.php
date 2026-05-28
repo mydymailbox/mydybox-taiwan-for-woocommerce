@@ -1,11 +1,11 @@
 <?php
-namespace Mydyma_TCS\Admin;
+namespace Mydybox\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Mydyma TCS 使用手冊
- * 在後台 mydyma-taiwan-commerce-suite?tab=manual 渲染完整文字手冊。
+ * Mydybox 使用手冊
+ * 在後台 mydybox-taiwan-for-woocommerce?tab=manual 渲染完整文字手冊。
  */
 class Manual {
 
@@ -16,7 +16,7 @@ class Manual {
 
 		<div class="ts-manual-hero">
 			<div class="ts-manual-hero-inner">
-				<h1>📖 Mydyma TCS 使用手冊</h1>
+				<h1>📖 Mydybox 使用手冊</h1>
 				<p>詳細說明所有功能的設定方式與操作流程。點擊各章節標題展開內容。</p>
 			</div>
 		</div>
@@ -152,7 +152,7 @@ class Manual {
 						<p>開啟後，所有 API 請求（ECPay、GCIS、LINE）的詳細資料會寫入 WooCommerce 日誌。</p>
 						<ul>
 							<li>日誌位置：WooCommerce → 系統狀態 → 日誌</li>
-							<li>來源標籤：<code>mydyma-taiwan-commerce-suite</code></li>
+							<li>來源標籤：<code>mydybox-taiwan-for-woocommerce</code></li>
 						</ul>
 						<div class="ts-warn">⚠ 正式環境請關閉 Debug 模式，避免日誌過大影響效能。</div>
 					' ),

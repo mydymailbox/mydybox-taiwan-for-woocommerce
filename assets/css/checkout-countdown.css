@@ -1,7 +1,7 @@
-.mydyma-taiwan-commerce-suite-timer-banner { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 15px 20px; margin-bottom: 25px; }
-.mydyma-taiwan-commerce-suite-timer-inner { display: flex; align-items: center; gap: 12px; }
-.mydyma-taiwan-commerce-suite-timer-icon { font-size: 20px; }
-.mydyma-taiwan-commerce-suite-timer-text { font-size: 14px; color: #92400e; font-weight: 500; }
-#mydyma-taiwan-commerce-suite-countdown-clock { font-family: monospace; font-weight: 700; color: #b45309; background: rgba(251,191,36,0.2); padding: 2px 6px; border-radius: 4px; }
-.mydyma-taiwan-commerce-suite-timer-banner.is-expired { background: #fef2f2; border-color: #fecaca; }
-.mydyma-taiwan-commerce-suite-timer-banner.is-expired .mydyma-taiwan-commerce-suite-timer-text { color: #991b1b; }
+.mydybox-taiwan-for-woocommerce-timer-banner { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 15px 20px; margin-bottom: 25px; }
+.mydybox-taiwan-for-woocommerce-timer-inner { display: flex; align-items: center; gap: 12px; }
+.mydybox-taiwan-for-woocommerce-timer-icon { font-size: 20px; }
+.mydybox-taiwan-for-woocommerce-timer-text { font-size: 14px; color: #92400e; font-weight: 500; }
+#mydybox-taiwan-for-woocommerce-countdown-clock { font-family: monospace; font-weight: 700; color: #b45309; background: rgba(251,191,36,0.2); padding: 2px 6px; border-radius: 4px; }
+.mydybox-taiwan-for-woocommerce-timer-banner.is-expired { background: #fef2f2; border-color: #fecaca; }
+.mydybox-taiwan-for-woocommerce-timer-banner.is-expired .mydybox-taiwan-for-woocommerce-timer-text { color: #991b1b; }

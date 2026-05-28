@@ -2,7 +2,7 @@
 (function ($) {
     'use strict';
 
-    const D = window.MydymaTcsRulesData;
+    const D = window.MydyboxRulesData;
     if (!D) return;
 
     const hook = D.hook;
@@ -141,32 +141,32 @@
 
         let listHtml;
         if (rules.length) {
-            listHtml = '<div class="mydyma-taiwan-commerce-suite-rules-list">' +
+            listHtml = '<div class="mydybox-taiwan-for-woocommerce-rules-list">' +
                 rules.map((r, i) => renderCard(r, i)).join('') +
                 '</div>';
         } else {
             listHtml = `
-                <div class="mydyma-taiwan-commerce-suite-empty-state">
+                <div class="mydybox-taiwan-for-woocommerce-empty-state">
                     <span class="dashicons ${icon}"></span>
                     <h3>尚無任何規則</h3>
                     <p>點擊右上角「新增規則」開始設定條件與動作${Object.keys(D.samples||{}).length ? '，或先匯入範例規則作為起手式' : ''}</p>
-                    ${Object.keys(D.samples||{}).length ? `<button type="button" class="mydyma-taiwan-commerce-suite-btn-secondary" id="mydyma-taiwan-commerce-suite-empty-samples-btn" style="margin: 0 auto">
+                    ${Object.keys(D.samples||{}).length ? `<button type="button" class="mydybox-taiwan-for-woocommerce-btn-secondary" id="mydybox-taiwan-for-woocommerce-empty-samples-btn" style="margin: 0 auto">
                         <span class="dashicons dashicons-download"></span>載入範例規則
                     </button>` : ''}
                 </div>`;
         }
 
         $('#wc-tw-rules-app').html(`
-            <div class="mydyma-taiwan-commerce-suite-page-header">
+            <div class="mydybox-taiwan-for-woocommerce-page-header">
                 <h2>
                     <span class="dashicons ${icon}"></span>
                     ${esc(title)}
-                    <span class="mydyma-taiwan-commerce-suite-badge">${rules.length}</span>
+                    <span class="mydybox-taiwan-for-woocommerce-badge">${rules.length}</span>
                 </h2>
-                ${Object.keys(D.samples||{}).length ? `<button type="button" class="mydyma-taiwan-commerce-suite-btn-secondary" id="mydyma-taiwan-commerce-suite-samples-btn" style="margin-right:8px">
+                ${Object.keys(D.samples||{}).length ? `<button type="button" class="mydybox-taiwan-for-woocommerce-btn-secondary" id="mydybox-taiwan-for-woocommerce-samples-btn" style="margin-right:8px">
                     <span class="dashicons dashicons-download"></span>載入範例
                 </button>` : ''}
-                <button type="button" class="mydyma-taiwan-commerce-suite-btn-primary" id="mydyma-taiwan-commerce-suite-add-btn">
+                <button type="button" class="mydybox-taiwan-for-woocommerce-btn-primary" id="mydybox-taiwan-for-woocommerce-add-btn">
                     <span class="dashicons dashicons-plus-alt2"></span>新增規則
                 </button>
             </div>
@@ -175,15 +175,15 @@
 
         // Event Delegation
         const $app = $('#wc-tw-rules-app');
-        $app.off('click.ts').on('click.ts', '#mydyma-taiwan-commerce-suite-add-btn', () => openModal(null));
-        $app.on('click.ts', '#mydyma-taiwan-commerce-suite-samples-btn, #mydyma-taiwan-commerce-suite-empty-samples-btn', openSamplesPicker);
+        $app.off('click.ts').on('click.ts', '#mydybox-taiwan-for-woocommerce-add-btn', () => openModal(null));
+        $app.on('click.ts', '#mydybox-taiwan-for-woocommerce-samples-btn, #mydybox-taiwan-for-woocommerce-empty-samples-btn', openSamplesPicker);
         
-        $app.on('click.ts', '.mydyma-taiwan-commerce-suite-edit-btn', function () { 
+        $app.on('click.ts', '.mydybox-taiwan-for-woocommerce-edit-btn', function () { 
             const idx = +$(this).data('idx');
             if (rules[idx]) openModal(rules[idx]); 
         });
         
-        $app.on('click.ts', '.mydyma-taiwan-commerce-suite-del-btn', function () {
+        $app.on('click.ts', '.mydybox-taiwan-for-woocommerce-del-btn', function () {
             const idx = +$(this).data('idx');
             const rule = rules[idx];
             if (!rule) return;
@@ -207,7 +207,7 @@
             }
         });
 
-        $app.on('change.ts', '.mydyma-taiwan-commerce-suite-toggle-input', function () {
+        $app.on('change.ts', '.mydybox-taiwan-for-woocommerce-toggle-input', function () {
             const id  = $(this).data('id');
             const r   = rules.find(x => x.id === id);
             if (r) saveToServer({ ...r, enabled: $(this).is(':checked') }, true);
@@ -221,56 +221,56 @@
         const enabled = !!r.enabled;
 
         const condTags = conds.length
-            ? conds.map(c => `<span class="mydyma-taiwan-commerce-suite-tag cond">
+            ? conds.map(c => `<span class="mydybox-taiwan-for-woocommerce-tag cond">
                     <span class="dashicons ${COND_ICONS[c.type] || 'dashicons-filter'}"></span>
                     ${esc(COND_LABELS[c.type] || c.type)}
                 </span>`).join('')
-            : '<span class="mydyma-taiwan-commerce-suite-tag empty">永遠觸發</span>';
+            : '<span class="mydybox-taiwan-for-woocommerce-tag empty">永遠觸發</span>';
 
         const actTags = acts.length
-            ? acts.map(a => `<span class="mydyma-taiwan-commerce-suite-tag action">
+            ? acts.map(a => `<span class="mydybox-taiwan-for-woocommerce-tag action">
                     <span class="dashicons ${ACTION_ICONS[a.type] || 'dashicons-admin-settings'}"></span>
                     ${esc(ACTION_LABELS[a.type] || a.type)}
                 </span>`).join('')
-            : '<span class="mydyma-taiwan-commerce-suite-tag empty">無動作</span>';
+            : '<span class="mydybox-taiwan-for-woocommerce-tag empty">無動作</span>';
 
         return `
-            <div class="mydyma-taiwan-commerce-suite-rule-card ${enabled ? '' : 'is-disabled'}">
-                <div class="mydyma-taiwan-commerce-suite-rule-card-header">
-                    <label class="mydyma-taiwan-commerce-suite-switch" title="${enabled ? '點擊停用' : '點擊啟用'}">
-                        <input type="checkbox" class="mydyma-taiwan-commerce-suite-toggle-input" data-id="${esc(r.id)}" ${enabled ? 'checked' : ''}>
-                        <span class="mydyma-taiwan-commerce-suite-switch-slider"></span>
+            <div class="mydybox-taiwan-for-woocommerce-rule-card ${enabled ? '' : 'is-disabled'}">
+                <div class="mydybox-taiwan-for-woocommerce-rule-card-header">
+                    <label class="mydybox-taiwan-for-woocommerce-switch" title="${enabled ? '點擊停用' : '點擊啟用'}">
+                        <input type="checkbox" class="mydybox-taiwan-for-woocommerce-toggle-input" data-id="${esc(r.id)}" ${enabled ? 'checked' : ''}>
+                        <span class="mydybox-taiwan-for-woocommerce-switch-slider"></span>
                     </label>
-                    <span class="mydyma-taiwan-commerce-suite-rule-name">${esc(r.name || '（未命名規則）')}</span>
-                    <span class="mydyma-taiwan-commerce-suite-pill ${enabled ? 'on' : 'off'}">
+                    <span class="mydybox-taiwan-for-woocommerce-rule-name">${esc(r.name || '（未命名規則）')}</span>
+                    <span class="mydybox-taiwan-for-woocommerce-pill ${enabled ? 'on' : 'off'}">
                         <span class="dashicons ${enabled ? 'dashicons-yes' : 'dashicons-minus'}"></span>
                         ${enabled ? '啟用中' : '停用'}
                     </span>
-                    <div class="mydyma-taiwan-commerce-suite-rule-card-actions">
-                        <button type="button" class="mydyma-taiwan-commerce-suite-btn-ghost mydyma-taiwan-commerce-suite-edit-btn" data-idx="${i}" title="編輯規則">
+                    <div class="mydybox-taiwan-for-woocommerce-rule-card-actions">
+                        <button type="button" class="mydybox-taiwan-for-woocommerce-btn-ghost mydybox-taiwan-for-woocommerce-edit-btn" data-idx="${i}" title="編輯規則">
                             <span class="dashicons dashicons-edit"></span>編輯
                         </button>
-                        <button type="button" class="mydyma-taiwan-commerce-suite-btn-danger mydyma-taiwan-commerce-suite-del-btn"
+                        <button type="button" class="mydybox-taiwan-for-woocommerce-btn-danger mydybox-taiwan-for-woocommerce-del-btn"
                             data-idx="${i}" title="刪除規則">
                             <span class="dashicons dashicons-trash"></span>刪除
                         </button>
                     </div>
                 </div>
-                <div class="mydyma-taiwan-commerce-suite-rule-card-body">
-                    <div class="mydyma-taiwan-commerce-suite-rule-section">
-                        <div class="mydyma-taiwan-commerce-suite-rule-section-title">
+                <div class="mydybox-taiwan-for-woocommerce-rule-card-body">
+                    <div class="mydybox-taiwan-for-woocommerce-rule-section">
+                        <div class="mydybox-taiwan-for-woocommerce-rule-section-title">
                             <span class="dashicons dashicons-filter"></span>觸發條件
                         </div>
-                        <div class="mydyma-taiwan-commerce-suite-tags">${condTags}</div>
+                        <div class="mydybox-taiwan-for-woocommerce-tags">${condTags}</div>
                     </div>
-                    <div class="mydyma-taiwan-commerce-suite-rule-flow-arrow">
+                    <div class="mydybox-taiwan-for-woocommerce-rule-flow-arrow">
                         <span class="dashicons dashicons-arrow-right-alt2"></span>
                     </div>
-                    <div class="mydyma-taiwan-commerce-suite-rule-section">
-                        <div class="mydyma-taiwan-commerce-suite-rule-section-title">
+                    <div class="mydybox-taiwan-for-woocommerce-rule-section">
+                        <div class="mydybox-taiwan-for-woocommerce-rule-section-title">
                             <span class="dashicons dashicons-controls-forward"></span>執行動作
                         </div>
-                        <div class="mydyma-taiwan-commerce-suite-tags">${actTags}</div>
+                        <div class="mydybox-taiwan-for-woocommerce-tags">${actTags}</div>
                     </div>
                 </div>
             </div>`;
@@ -282,23 +282,23 @@
             ? JSON.parse(JSON.stringify(rule))
             : { id: '', name: '', hook, enabled: true, conditions: [], actions: [] };
 
-        if ($('#mydyma-taiwan-commerce-suite-overlay').length === 0) {
-            $('body').append('<div class="mydyma-taiwan-commerce-suite-overlay" id="mydyma-taiwan-commerce-suite-overlay"></div>');
+        if ($('#mydybox-taiwan-for-woocommerce-overlay').length === 0) {
+            $('body').append('<div class="mydybox-taiwan-for-woocommerce-overlay" id="mydybox-taiwan-for-woocommerce-overlay"></div>');
         }
 
         renderModal();
-        $('#mydyma-taiwan-commerce-suite-overlay').addClass('open');
-        $('#mydyma-taiwan-commerce-suite-overlay').on('click.mydyma-taiwan-commerce-suite-modal', function (e) {
-            if ($(e.target).is('#mydyma-taiwan-commerce-suite-overlay')) closeModal();
+        $('#mydybox-taiwan-for-woocommerce-overlay').addClass('open');
+        $('#mydybox-taiwan-for-woocommerce-overlay').on('click.mydybox-taiwan-for-woocommerce-modal', function (e) {
+            if ($(e.target).is('#mydybox-taiwan-for-woocommerce-overlay')) closeModal();
         });
-        $(document).on('keydown.mydyma-taiwan-commerce-suite-modal', function (e) {
+        $(document).on('keydown.mydybox-taiwan-for-woocommerce-modal', function (e) {
             if (e.key === 'Escape') closeModal();
         });
     }
 
     function closeModal() {
-        $('#mydyma-taiwan-commerce-suite-overlay').removeClass('open');
-        $(document).off('keydown.mydyma-taiwan-commerce-suite-modal');
+        $('#mydybox-taiwan-for-woocommerce-overlay').removeClass('open');
+        $(document).off('keydown.mydybox-taiwan-for-woocommerce-modal');
         editingRule = null;
     }
 
@@ -306,37 +306,37 @@
         const r    = editingRule;
         const isNew = !r.id;
 
-        $('#mydyma-taiwan-commerce-suite-overlay').html(`
-            <div class="mydyma-taiwan-commerce-suite-modal" id="mydyma-taiwan-commerce-suite-modal">
-                <div class="mydyma-taiwan-commerce-suite-modal-head">
+        $('#mydybox-taiwan-for-woocommerce-overlay').html(`
+            <div class="mydybox-taiwan-for-woocommerce-modal" id="mydybox-taiwan-for-woocommerce-modal">
+                <div class="mydybox-taiwan-for-woocommerce-modal-head">
                     <h3>
                         <span class="dashicons ${isNew ? 'dashicons-plus-alt2' : 'dashicons-edit'}"></span>
                         ${isNew ? '新增規則' : '編輯規則'}
                     </h3>
-                    <button type="button" class="mydyma-taiwan-commerce-suite-modal-x" id="mydyma-taiwan-commerce-suite-modal-close" title="關閉">✕</button>
+                    <button type="button" class="mydybox-taiwan-for-woocommerce-modal-x" id="mydybox-taiwan-for-woocommerce-modal-close" title="關閉">✕</button>
                 </div>
-                <div class="mydyma-taiwan-commerce-suite-modal-body">
+                <div class="mydybox-taiwan-for-woocommerce-modal-body">
                     
                     <!-- Rule Summary Box -->
-                    <div class="mydyma-taiwan-commerce-suite-summary-box">
+                    <div class="mydybox-taiwan-for-woocommerce-summary-box">
                         <span class="dashicons dashicons-info"></span>
-                        <div class="mydyma-taiwan-commerce-suite-summary-content" id="mydyma-taiwan-commerce-suite-rule-summary">
-                            <span class="mydyma-taiwan-commerce-suite-summary-placeholder">正在生成規則摘要...</span>
+                        <div class="mydybox-taiwan-for-woocommerce-summary-content" id="mydybox-taiwan-for-woocommerce-rule-summary">
+                            <span class="mydybox-taiwan-for-woocommerce-summary-placeholder">正在生成規則摘要...</span>
                         </div>
                     </div>
 
-                    <div class="mydyma-taiwan-commerce-suite-name-row">
-                        <div class="mydyma-taiwan-commerce-suite-form-row">
-                            <label>規則名稱 <span class="mydyma-taiwan-commerce-suite-required">*</span></label>
+                    <div class="mydybox-taiwan-for-woocommerce-name-row">
+                        <div class="mydybox-taiwan-for-woocommerce-form-row">
+                            <label>規則名稱 <span class="mydybox-taiwan-for-woocommerce-required">*</span></label>
                             <input type="text" id="e-name" class="large-text"
                                 value="${esc(r.name)}" placeholder="例：台灣以外不提供貨到付款">
                         </div>
-                        <div class="mydyma-taiwan-commerce-suite-form-row" style="flex-shrink:0">
+                        <div class="mydybox-taiwan-for-woocommerce-form-row" style="flex-shrink:0">
                             <label>狀態</label>
                             <label style="display:flex;align-items:center;gap:8px;height:30px;margin-top:2px;cursor:pointer">
-                                <span class="mydyma-taiwan-commerce-suite-switch" style="display:inline-block">
+                                <span class="mydybox-taiwan-for-woocommerce-switch" style="display:inline-block">
                                     <input type="checkbox" id="e-enabled" ${r.enabled ? 'checked' : ''}>
-                                    <span class="mydyma-taiwan-commerce-suite-switch-slider"></span>
+                                    <span class="mydybox-taiwan-for-woocommerce-switch-slider"></span>
                                 </span>
                                 <span id="e-enabled-label" style="font-size:13px;color:#646970">
                                     ${r.enabled ? '啟用' : '停用'}
@@ -345,22 +345,22 @@
                         </div>
                     </div>
 
-                    <hr class="mydyma-taiwan-commerce-suite-divider">
+                    <hr class="mydybox-taiwan-for-woocommerce-divider">
 
                     <!-- Conditions -->
-                    <div class="mydyma-taiwan-commerce-suite-block">
-                        <div class="mydyma-taiwan-commerce-suite-block-head">
-                            <h4 class="mydyma-taiwan-commerce-suite-step-title">
-                                <span class="mydyma-taiwan-commerce-suite-step-num">1</span>
+                    <div class="mydybox-taiwan-for-woocommerce-block">
+                        <div class="mydybox-taiwan-for-woocommerce-block-head">
+                            <h4 class="mydybox-taiwan-for-woocommerce-step-title">
+                                <span class="mydybox-taiwan-for-woocommerce-step-num">1</span>
                                 <span class="dashicons dashicons-filter"></span>
                                 當滿足以下條件 (Conditions)
-                                <span class="mydyma-taiwan-commerce-suite-block-hint">符合下方全部條件即觸發</span>
+                                <span class="mydybox-taiwan-for-woocommerce-block-hint">符合下方全部條件即觸發</span>
                             </h4>
                         </div>
-                        <div class="mydyma-taiwan-commerce-suite-block-body">
+                        <div class="mydybox-taiwan-for-woocommerce-block-body">
                             <div id="e-conds">${renderCondItems(r.conditions)}</div>
-                            <div class="mydyma-taiwan-commerce-suite-add-item-row" style="border-top:none; padding-top:0;">
-                                <button type="button" class="mydyma-taiwan-commerce-suite-btn-secondary" id="e-pick-cond" style="width:100%; justify-content:center; padding:10px; border-style:dashed;">
+                            <div class="mydybox-taiwan-for-woocommerce-add-item-row" style="border-top:none; padding-top:0;">
+                                <button type="button" class="mydybox-taiwan-for-woocommerce-btn-secondary" id="e-pick-cond" style="width:100%; justify-content:center; padding:10px; border-style:dashed;">
                                     <span class="dashicons dashicons-plus-alt2"></span>點擊新增觸發條件
                                 </button>
                             </div>
@@ -368,18 +368,18 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="mydyma-taiwan-commerce-suite-block">
-                        <div class="mydyma-taiwan-commerce-suite-block-head">
-                            <h4 class="mydyma-taiwan-commerce-suite-step-title">
-                                <span class="mydyma-taiwan-commerce-suite-step-num">2</span>
+                    <div class="mydybox-taiwan-for-woocommerce-block">
+                        <div class="mydybox-taiwan-for-woocommerce-block-head">
+                            <h4 class="mydybox-taiwan-for-woocommerce-step-title">
+                                <span class="mydybox-taiwan-for-woocommerce-step-num">2</span>
                                 <span class="dashicons dashicons-controls-forward"></span>
                                 則執行這些動作 (Actions)
                             </h4>
                         </div>
-                        <div class="mydyma-taiwan-commerce-suite-block-body">
+                        <div class="mydybox-taiwan-for-woocommerce-block-body">
                             <div id="e-acts">${renderActItems(r.actions)}</div>
-                            <div class="mydyma-taiwan-commerce-suite-add-item-row" style="border-top:none; padding-top:0;">
-                                <button type="button" class="mydyma-taiwan-commerce-suite-btn-secondary" id="e-pick-act" style="width:100%; justify-content:center; padding:10px; border-style:dashed;">
+                            <div class="mydybox-taiwan-for-woocommerce-add-item-row" style="border-top:none; padding-top:0;">
+                                <button type="button" class="mydybox-taiwan-for-woocommerce-btn-secondary" id="e-pick-act" style="width:100%; justify-content:center; padding:10px; border-style:dashed;">
                                     <span class="dashicons dashicons-plus-alt2"></span>點擊新增行銷動作
                                 </button>
                             </div>
@@ -387,11 +387,11 @@
                     </div>
 
                 </div>
-                <div class="mydyma-taiwan-commerce-suite-modal-foot">
-                    <button type="button" class="mydyma-taiwan-commerce-suite-btn-secondary" id="e-cancel">取消</button>
+                <div class="mydybox-taiwan-for-woocommerce-modal-foot">
+                    <button type="button" class="mydybox-taiwan-for-woocommerce-btn-secondary" id="e-cancel">取消</button>
                     <div class="spacer"></div>
-                    <div class="mydyma-taiwan-commerce-suite-spinner" id="e-spinner"></div>
-                    <button type="button" class="mydyma-taiwan-commerce-suite-btn-primary" id="e-save" style="padding:10px 24px;">
+                    <div class="mydybox-taiwan-for-woocommerce-spinner" id="e-spinner"></div>
+                    <button type="button" class="mydybox-taiwan-for-woocommerce-btn-primary" id="e-save" style="padding:10px 24px;">
                         <span class="dashicons dashicons-saved"></span>儲存並發佈規則
                     </button>
                 </div>
@@ -404,14 +404,14 @@
 
     // ── Condition items ───────────────────────────────────────────────────────
     function renderCondItems(conds) {
-        if (!conds.length) return '<p class="mydyma-taiwan-commerce-suite-block-empty">尚未新增條件。</p>';
+        if (!conds.length) return '<p class="mydybox-taiwan-for-woocommerce-block-empty">尚未新增條件。</p>';
         return conds.map((c, i) => `
-            <div class="mydyma-taiwan-commerce-suite-item-row" data-idx="${i}">
-                <span class="mydyma-taiwan-commerce-suite-item-type-badge">
+            <div class="mydybox-taiwan-for-woocommerce-item-row" data-idx="${i}">
+                <span class="mydybox-taiwan-for-woocommerce-item-type-badge">
                     ${esc(COND_LABELS[c.type] || c.type)}
                 </span>
-                <div class="mydyma-taiwan-commerce-suite-item-fields">${condFields(c)}</div>
-                <button type="button" class="mydyma-taiwan-commerce-suite-item-rm mydyma-taiwan-commerce-suite-rm-cond" data-idx="${i}" title="移除條件">
+                <div class="mydybox-taiwan-for-woocommerce-item-fields">${condFields(c)}</div>
+                <button type="button" class="mydybox-taiwan-for-woocommerce-item-rm mydybox-taiwan-for-woocommerce-rm-cond" data-idx="${i}" title="移除條件">
                     <span class="dashicons dashicons-no-alt"></span>
                 </button>
             </div>`).join('');
@@ -482,17 +482,17 @@
                     `<option value="${esc(gw.id)}"${(c.methods||[]).includes(gw.id)?' selected':''}>${esc(gw.label)}</option>`
                 ).join('');
                 return `
-                    <select class="cf mydyma-taiwan-commerce-suite-sum" data-key="op">
+                    <select class="cf mydybox-taiwan-for-woocommerce-sum" data-key="op">
                         <option value="in"${sel('in',c.op||'in')}>包含</option>
                         <option value="not_in"${sel('not_in',c.op)}>不包含</option>
                     </select>
-                    <select class="cf mydyma-taiwan-commerce-suite-sum" data-key="methods" multiple size="4">
+                    <select class="cf mydybox-taiwan-for-woocommerce-sum" data-key="methods" multiple size="4">
                         ${opts||'<option disabled>（無付款方式）</option>'}
                     </select>`;
             }
             case 'product':
                 return `
-                    <select class="cf mydyma-taiwan-commerce-suite-sum" data-key="op">
+                    <select class="cf mydybox-taiwan-for-woocommerce-sum" data-key="op">
                         <option value="in"${sel('in',c.op||'in')}>購物車含</option>
                         <option value="not_in"${sel('not_in',c.op)}>購物車不含</option>
                     </select>
@@ -503,18 +503,18 @@
                     `<option value="${esc(m.id)}"${(c.methods||[]).includes(m.id)?' selected':''}>${esc(m.label)}</option>`
                 ).join('');
                 return `
-                    <select class="cf mydyma-taiwan-commerce-suite-sum" data-key="op">
+                    <select class="cf mydybox-taiwan-for-woocommerce-sum" data-key="op">
                         <option value="in"${sel('in',c.op||'in')}>包含</option>
                         <option value="not_in"${sel('not_in',c.op)}>不包含</option>
                     </select>
-                    <select class="cf mydyma-taiwan-commerce-suite-sum" data-key="methods" multiple size="4">
+                    <select class="cf mydybox-taiwan-for-woocommerce-sum" data-key="methods" multiple size="4">
                         ${opts||'<option disabled>（無配送方式）</option>'}
                     </select>`;
             }
             case 'address_mismatch':
                 return `
                     <span style="color:#646970;font-size:13px">比對</span>
-                    <select class="cf mydyma-taiwan-commerce-suite-sum" data-key="compare">
+                    <select class="cf mydybox-taiwan-for-woocommerce-sum" data-key="compare">
                         <option value="country"${sel('country',c.compare||'country')}>國家／地區</option>
                         <option value="state"${sel('state',c.compare)}>縣市 / 州</option>
                     </select>
@@ -525,7 +525,7 @@
                     <input type="number" class="cf small-text" data-key="hours" data-as="number"
                         min="1" step="1" style="width:70px" value="${parseInt(c.hours)||24}">
                     <span style="color:#646970;font-size:13px">小時內訂單數</span>
-                    <select class="cf mydyma-taiwan-commerce-suite-sum" data-key="op">
+                    <select class="cf mydybox-taiwan-for-woocommerce-sum" data-key="op">
                         <option value="gte"${sel('gte',c.op||'gte')}>≥</option>
                         <option value="gt"${sel('gt',c.op)}>&gt;</option>
                         <option value="lte"${sel('lte',c.op)}>≤</option>
@@ -537,7 +537,7 @@
                     <span style="color:#646970;font-size:13px">筆</span>`;
             case 'user_role':
                 return `
-                    <select class="cf mydyma-taiwan-commerce-suite-sum" data-key="roles" multiple size="4">
+                    <select class="cf mydybox-taiwan-for-woocommerce-sum" data-key="roles" multiple size="4">
                         <option value="customer"${(c.roles||[]).includes('customer')?' selected':''}>顧客 (Customer)</option>
                         <option value="subscriber"${(c.roles||[]).includes('subscriber')?' selected':''}>訂閱者 (Subscriber)</option>
                         <option value="administrator"${(c.roles||[]).includes('administrator')?' selected':''}>管理員 (Administrator)</option>
@@ -584,14 +584,14 @@
 
     // ── Action items ──────────────────────────────────────────────────────────
     function renderActItems(acts) {
-        if (!acts.length) return '<p class="mydyma-taiwan-commerce-suite-block-empty">尚未新增動作。</p>';
+        if (!acts.length) return '<p class="mydybox-taiwan-for-woocommerce-block-empty">尚未新增動作。</p>';
         return acts.map((a, i) => `
-            <div class="mydyma-taiwan-commerce-suite-item-row mydyma-taiwan-commerce-suite-action-row-wrap" data-idx="${i}">
-                <span class="mydyma-taiwan-commerce-suite-item-type-badge">
+            <div class="mydybox-taiwan-for-woocommerce-item-row mydybox-taiwan-for-woocommerce-action-row-wrap" data-idx="${i}">
+                <span class="mydybox-taiwan-for-woocommerce-item-type-badge">
                     ${esc(ACTION_LABELS[a.type] || a.type)}
                 </span>
-                <div class="mydyma-taiwan-commerce-suite-item-fields">${actFields(a)}</div>
-                <button type="button" class="mydyma-taiwan-commerce-suite-item-rm mydyma-taiwan-commerce-suite-rm-act" data-idx="${i}" title="移除動作">
+                <div class="mydybox-taiwan-for-woocommerce-item-fields">${actFields(a)}</div>
+                <button type="button" class="mydybox-taiwan-for-woocommerce-item-rm mydybox-taiwan-for-woocommerce-rm-act" data-idx="${i}" title="移除動作">
                     <span class="dashicons dashicons-no-alt"></span>
                 </button>
             </div>`).join('');
@@ -604,7 +604,7 @@
                 const opts = (D.gateways||[]).map(gw =>
                     `<option value="${esc(gw.id)}"${(c.gateways||[]).includes(gw.id)?' selected':''}>${esc(gw.label)}</option>`
                 ).join('');
-                return `<select class="af mydyma-taiwan-commerce-suite-sum" data-key="gateways" multiple size="4">
+                return `<select class="af mydybox-taiwan-for-woocommerce-sum" data-key="gateways" multiple size="4">
                     ${opts||'<option disabled>（無可用付款方式）</option>'}
                 </select>`;
             }
@@ -612,7 +612,7 @@
                 const opts = (D.shipping||[]).map(m =>
                     `<option value="${esc(m.id)}"${(c.methods||[]).includes(m.id)?' selected':''}>${esc(m.label)}</option>`
                 ).join('');
-                return `<select class="af mydyma-taiwan-commerce-suite-sum" data-key="methods" multiple size="4">
+                return `<select class="af mydybox-taiwan-for-woocommerce-sum" data-key="methods" multiple size="4">
                     ${opts||'<option disabled>（無可用配送方式）</option>'}
                 </select>`;
             }
@@ -621,7 +621,7 @@
                     value="${esc(c.message||'')}" placeholder="顯示給顧客的錯誤訊息">`;
             case 'apply_discount':
                 return `
-                    <select class="af mydyma-taiwan-commerce-suite-sum" data-key="type">
+                    <select class="af mydybox-taiwan-for-woocommerce-sum" data-key="type">
                         <option value="fixed"${c.type==='fixed'?' selected':''}>定額折抵</option>
                         <option value="percent"${c.type==='percent'?' selected':''}>比例折抵 (%)</option>
                     </select>
@@ -682,16 +682,16 @@
 
     // ── Modal events ──────────────────────────────────────────────────────────
     function bindModalEvents() {
-        $('#mydyma-taiwan-commerce-suite-modal-close, #e-cancel').on('click', closeModal);
+        $('#mydybox-taiwan-for-woocommerce-modal-close, #e-cancel').on('click', closeModal);
 
         $('#e-enabled').on('change', function () {
             $('#e-enabled-label').text($(this).is(':checked') ? '啟用' : '停用');
         });
 
         // Address field toggle
-        $(document).on('change.MydymaTcs', '[data-role="addr-field"]', function () {
+        $(document).on('change.Mydybox', '[data-role="addr-field"]', function () {
             const isState = $(this).val() === 'state';
-            const $row = $(this).closest('.mydyma-taiwan-commerce-suite-item-row');
+            const $row = $(this).closest('.mydybox-taiwan-for-woocommerce-item-row');
             $row.find('.cf-grp[data-for="country"]').toggle(!isState);
             $row.find('.cf-grp[data-for="state"]').toggle(isState);
         });
@@ -708,13 +708,13 @@
             $('#e-acts').html(renderActItems(editingRule.actions));
         });
 
-        $(document).on('click.MydymaTcs', '.mydyma-taiwan-commerce-suite-rm-cond', function () {
+        $(document).on('click.Mydybox', '.mydybox-taiwan-for-woocommerce-rm-cond', function () {
             syncConds();
             editingRule.conditions.splice(+$(this).data('idx'), 1);
             $('#e-conds').html(renderCondItems(editingRule.conditions));
         });
 
-        $(document).on('click.MydymaTcs', '.mydyma-taiwan-commerce-suite-rm-act', function () {
+        $(document).on('click.Mydybox', '.mydybox-taiwan-for-woocommerce-rm-act', function () {
             syncActs();
             editingRule.actions.splice(+$(this).data('idx'), 1);
             $('#e-acts').html(renderActItems(editingRule.actions));
@@ -728,7 +728,7 @@
         $('#e-pick-cond').on('click', () => openPicker('cond'));
         $('#e-pick-act').on('click', () => openPicker('action'));
         
-        $(document).on('change.mydyma-taiwan-commerce-suite-sum input.mydyma-taiwan-commerce-suite-sum', '.cf, .af, #e-name', updateSummary);
+        $(document).on('change.mydybox-taiwan-for-woocommerce-sum input.mydybox-taiwan-for-woocommerce-sum', '.cf, .af, #e-name', updateSummary);
     }
 
     // ── UIUX Optimization Functions ───────────────────────────────────────────
@@ -739,33 +739,33 @@
         const descs  = isCond ? COND_DESCS  : ACTION_DESCS;
         const icons  = isCond ? COND_ICONS  : ACTION_ICONS;
 
-        if ($('#mydyma-taiwan-commerce-suite-picker-overlay').length === 0) {
-            $('body').append('<div class="mydyma-taiwan-commerce-suite-picker-overlay" id="mydyma-taiwan-commerce-suite-picker-overlay"></div>');
+        if ($('#mydybox-taiwan-for-woocommerce-picker-overlay').length === 0) {
+            $('body').append('<div class="mydybox-taiwan-for-woocommerce-picker-overlay" id="mydybox-taiwan-for-woocommerce-picker-overlay"></div>');
         }
 
         const itemsHtml = types.map(t => `
-            <div class="mydyma-taiwan-commerce-suite-picker-item" data-type="${t}">
+            <div class="mydybox-taiwan-for-woocommerce-picker-item" data-type="${t}">
                 <span class="dashicons ${icons[t] || 'dashicons-admin-settings'}"></span>
-                <div class="mydyma-taiwan-commerce-suite-picker-item-label">${labels[t]}</div>
-                <div class="mydyma-taiwan-commerce-suite-picker-item-desc">${descs[t] || ''}</div>
+                <div class="mydybox-taiwan-for-woocommerce-picker-item-label">${labels[t]}</div>
+                <div class="mydybox-taiwan-for-woocommerce-picker-item-desc">${descs[t] || ''}</div>
             </div>
         `).join('');
 
-        $('#mydyma-taiwan-commerce-suite-picker-overlay').html(`
-            <div class="mydyma-taiwan-commerce-suite-picker-modal">
-                <div class="mydyma-taiwan-commerce-suite-picker-head">
+        $('#mydybox-taiwan-for-woocommerce-picker-overlay').html(`
+            <div class="mydybox-taiwan-for-woocommerce-picker-modal">
+                <div class="mydybox-taiwan-for-woocommerce-picker-head">
                     <strong>新增${isCond ? '觸發條件' : '行銷動作'}</strong>
-                    <button type="button" class="mydyma-taiwan-commerce-suite-modal-x" id="mydyma-taiwan-commerce-suite-picker-close">✕</button>
+                    <button type="button" class="mydybox-taiwan-for-woocommerce-modal-x" id="mydybox-taiwan-for-woocommerce-picker-close">✕</button>
                 </div>
-                <div class="mydyma-taiwan-commerce-suite-picker-grid">${itemsHtml}</div>
+                <div class="mydybox-taiwan-for-woocommerce-picker-grid">${itemsHtml}</div>
             </div>
         `).addClass('open');
 
-        const close = () => $('#mydyma-taiwan-commerce-suite-picker-overlay').removeClass('open');
-        $('#mydyma-taiwan-commerce-suite-picker-close').on('click', close);
-        $('#mydyma-taiwan-commerce-suite-picker-overlay').on('click', e => { if ($(e.target).is('#mydyma-taiwan-commerce-suite-picker-overlay')) close(); });
+        const close = () => $('#mydybox-taiwan-for-woocommerce-picker-overlay').removeClass('open');
+        $('#mydybox-taiwan-for-woocommerce-picker-close').on('click', close);
+        $('#mydybox-taiwan-for-woocommerce-picker-overlay').on('click', e => { if ($(e.target).is('#mydybox-taiwan-for-woocommerce-picker-overlay')) close(); });
 
-        $('.mydyma-taiwan-commerce-suite-picker-item').on('click', function() {
+        $('.mydybox-taiwan-for-woocommerce-picker-item').on('click', function() {
             const type = $(this).data('type');
             if (isCond) {
                 syncConds();
@@ -794,43 +794,43 @@
                 const cfg = c.config || {};
                 const label = COND_LABELS[c.type];
                 switch(c.type) {
-                    case 'cart_total': return `金額 <span class="mydyma-taiwan-commerce-suite-summary-val">${cfg.op||'gte'} ${cfg.amount||0}</span>`;
-                    case 'cart_item_count': return `數量 <span class="mydyma-taiwan-commerce-suite-summary-val">${cfg.op||'gte'} ${cfg.count||0}</span>`;
-                    case 'first_purchase': return `<span class="mydyma-taiwan-commerce-suite-summary-val">首購</span>`;
-                    case 'user_role': return `身分是 <span class="mydyma-taiwan-commerce-suite-summary-val">${(cfg.roles||[]).join(',')}</span>`;
-                    default: return `<span class="mydyma-taiwan-commerce-suite-summary-val">${label}</span>`;
+                    case 'cart_total': return `金額 <span class="mydybox-taiwan-for-woocommerce-summary-val">${cfg.op||'gte'} ${cfg.amount||0}</span>`;
+                    case 'cart_item_count': return `數量 <span class="mydybox-taiwan-for-woocommerce-summary-val">${cfg.op||'gte'} ${cfg.count||0}</span>`;
+                    case 'first_purchase': return `<span class="mydybox-taiwan-for-woocommerce-summary-val">首購</span>`;
+                    case 'user_role': return `身分是 <span class="mydybox-taiwan-for-woocommerce-summary-val">${(cfg.roles||[]).join(',')}</span>`;
+                    default: return `<span class="mydybox-taiwan-for-woocommerce-summary-val">${label}</span>`;
                 }
             }).join(' 且 ');
         }
 
-        let actText = '<span class="mydyma-taiwan-commerce-suite-summary-placeholder">尚未設定動作</span>';
+        let actText = '<span class="mydybox-taiwan-for-woocommerce-summary-placeholder">尚未設定動作</span>';
         if (r.actions.length) {
             actText = r.actions.map(a => {
                 const cfg = a.config || {};
                 const label = ACTION_LABELS[a.type];
                 switch(a.type) {
-                    case 'apply_discount': return `給予 <span class="mydyma-taiwan-commerce-suite-summary-val">${cfg.amount||0}${cfg.type==='percent'?'%':'元'}</span> 折扣`;
-                    case 'add_free_gift': return `贈送 <span class="mydyma-taiwan-commerce-suite-summary-val">商品 ID ${cfg.product_id||'?'}</span>`;
-                    case 'free_shipping': return `給予 <span class="mydyma-taiwan-commerce-suite-summary-val">免運費</span>`;
-                    case 'cart_progress': return `顯示 <span class="mydyma-taiwan-commerce-suite-summary-val">${cfg.target_amount||0}元</span> 進度條`;
-                    default: return `<span class="mydyma-taiwan-commerce-suite-summary-val">${label}</span>`;
+                    case 'apply_discount': return `給予 <span class="mydybox-taiwan-for-woocommerce-summary-val">${cfg.amount||0}${cfg.type==='percent'?'%':'元'}</span> 折扣`;
+                    case 'add_free_gift': return `贈送 <span class="mydybox-taiwan-for-woocommerce-summary-val">商品 ID ${cfg.product_id||'?'}</span>`;
+                    case 'free_shipping': return `給予 <span class="mydybox-taiwan-for-woocommerce-summary-val">免運費</span>`;
+                    case 'cart_progress': return `顯示 <span class="mydybox-taiwan-for-woocommerce-summary-val">${cfg.target_amount||0}元</span> 進度條`;
+                    default: return `<span class="mydybox-taiwan-for-woocommerce-summary-val">${label}</span>`;
                 }
             }).join(', ');
         }
 
-        $('#mydyma-taiwan-commerce-suite-rule-summary').html(`當 <span class="mydyma-taiwan-commerce-suite-summary-val">${condText}</span> 時，${actText}。`);
+        $('#mydybox-taiwan-for-woocommerce-rule-summary').html(`當 <span class="mydybox-taiwan-for-woocommerce-summary-val">${condText}</span> 時，${actText}。`);
     }
 
     // ── Sync helpers ──────────────────────────────────────────────────────────
     function syncConds() {
         editingRule.conditions = editingRule.conditions.map((cond, i) => {
-            const $row = $(`#e-conds .mydyma-taiwan-commerce-suite-item-row[data-idx="${i}"]`);
+            const $row = $(`#e-conds .mydybox-taiwan-for-woocommerce-item-row[data-idx="${i}"]`);
             return $row.length ? { type: cond.type, config: collectCondCfg($row) } : cond;
         });
     }
     function syncActs() {
         editingRule.actions = editingRule.actions.map((act, i) => {
-            const $row = $(`#e-acts .mydyma-taiwan-commerce-suite-item-row[data-idx="${i}"]`);
+            const $row = $(`#e-acts .mydybox-taiwan-for-woocommerce-item-row[data-idx="${i}"]`);
             return $row.length ? { type: act.type, config: collectActCfg($row) } : act;
         });
     }
@@ -897,33 +897,33 @@
             const catLabel = typeof catInfo === 'object' ? catInfo.label : catInfo;
             
             itemsHtml += `
-                <div class="mydyma-taiwan-commerce-suite-sample-group">
-                    <h4 class="mydyma-taiwan-commerce-suite-sample-group-title">
+                <div class="mydybox-taiwan-for-woocommerce-sample-group">
+                    <h4 class="mydybox-taiwan-for-woocommerce-sample-group-title">
                         <span class="dashicons ${HOOK_ICON[catKey] || 'dashicons-tag'}"></span>
                         ${esc(catLabel)}
                     </h4>
-                    <div class="mydyma-taiwan-commerce-suite-samples-grid">
+                    <div class="mydybox-taiwan-for-woocommerce-samples-grid">
             `;
 
             // Handle sub-categories within groups (like in Marketing)
             let lastSubCat = '';
             group.forEach(s => {
                 if (s.category && s.category !== lastSubCat) {
-                    itemsHtml += `<div class="mydyma-taiwan-commerce-suite-sample-sub-header">${esc(s.category)}</div>`;
+                    itemsHtml += `<div class="mydybox-taiwan-for-woocommerce-sample-sub-header">${esc(s.category)}</div>`;
                     lastSubCat = s.category;
                 }
 
                 itemsHtml += `
-                    <div class="mydyma-taiwan-commerce-suite-sample-card ${catKey === hook ? 'is-current-type' : ''}">
-                        <label class="mydyma-taiwan-commerce-suite-sample-label">
-                            <input type="checkbox" class="mydyma-taiwan-commerce-suite-sample-cb" data-cat="${catKey}" value="${esc(s.id)}">
-                            <div class="mydyma-taiwan-commerce-suite-sample-content">
-                                <div class="mydyma-taiwan-commerce-suite-sample-icon">
+                    <div class="mydybox-taiwan-for-woocommerce-sample-card ${catKey === hook ? 'is-current-type' : ''}">
+                        <label class="mydybox-taiwan-for-woocommerce-sample-label">
+                            <input type="checkbox" class="mydybox-taiwan-for-woocommerce-sample-cb" data-cat="${catKey}" value="${esc(s.id)}">
+                            <div class="mydybox-taiwan-for-woocommerce-sample-content">
+                                <div class="mydybox-taiwan-for-woocommerce-sample-icon">
                                     <span class="dashicons ${s.icon || 'dashicons-admin-settings'}"></span>
                                 </div>
-                                <div class="mydyma-taiwan-commerce-suite-sample-info">
-                                    <strong class="mydyma-taiwan-commerce-suite-sample-title">${esc(s.name)}</strong>
-                                    <p class="mydyma-taiwan-commerce-suite-sample-desc">${esc(s.description || '')}</p>
+                                <div class="mydybox-taiwan-for-woocommerce-sample-info">
+                                    <strong class="mydybox-taiwan-for-woocommerce-sample-title">${esc(s.name)}</strong>
+                                    <p class="mydybox-taiwan-for-woocommerce-sample-desc">${esc(s.description || '')}</p>
                                 </div>
                             </div>
                         </label>
@@ -934,59 +934,59 @@
             itemsHtml += `</div></div>`;
         });
 
-        if ($('#mydyma-taiwan-commerce-suite-overlay').length === 0) {
-            $('body').append('<div class="mydyma-taiwan-commerce-suite-overlay" id="mydyma-taiwan-commerce-suite-overlay"></div>');
+        if ($('#mydybox-taiwan-for-woocommerce-overlay').length === 0) {
+            $('body').append('<div class="mydybox-taiwan-for-woocommerce-overlay" id="mydybox-taiwan-for-woocommerce-overlay"></div>');
         }
 
-        $('#mydyma-taiwan-commerce-suite-overlay').html(`
-            <div class="mydyma-taiwan-commerce-suite-modal" id="mydyma-taiwan-commerce-suite-modal" style="max-width:800px">
-                <div class="mydyma-taiwan-commerce-suite-modal-head">
+        $('#mydybox-taiwan-for-woocommerce-overlay').html(`
+            <div class="mydybox-taiwan-for-woocommerce-modal" id="mydybox-taiwan-for-woocommerce-modal" style="max-width:800px">
+                <div class="mydybox-taiwan-for-woocommerce-modal-head">
                     <h3><span class="dashicons dashicons-download"></span>載入常用範例規則</h3>
-                    <button type="button" class="mydyma-taiwan-commerce-suite-modal-x" id="mydyma-taiwan-commerce-suite-modal-close">✕</button>
+                    <button type="button" class="mydybox-taiwan-for-woocommerce-modal-x" id="mydybox-taiwan-for-woocommerce-modal-close">✕</button>
                 </div>
-                <div class="mydyma-taiwan-commerce-suite-modal-body" style="max-height:60vh; overflow-y:auto">
-                    <p class="mydyma-taiwan-commerce-suite-modal-intro">以下為「${HOOK_TITLE[hook] || hook}」的內建範例規則，勾選後點擊匯入即可快速套用。</p>
-                    <div class="mydyma-taiwan-commerce-suite-samples-container">
+                <div class="mydybox-taiwan-for-woocommerce-modal-body" style="max-height:60vh; overflow-y:auto">
+                    <p class="mydybox-taiwan-for-woocommerce-modal-intro">以下為「${HOOK_TITLE[hook] || hook}」的內建範例規則，勾選後點擊匯入即可快速套用。</p>
+                    <div class="mydybox-taiwan-for-woocommerce-samples-container">
                         ${itemsHtml}
                     </div>
                 </div>
-                <div class="mydyma-taiwan-commerce-suite-modal-foot">
-                    <button type="button" class="mydyma-taiwan-commerce-suite-btn-secondary" id="mydyma-taiwan-commerce-suite-samples-cancel">取消</button>
-                    <button type="button" class="mydyma-taiwan-commerce-suite-btn-ghost" id="mydyma-taiwan-commerce-suite-samples-select-all">全選</button>
+                <div class="mydybox-taiwan-for-woocommerce-modal-foot">
+                    <button type="button" class="mydybox-taiwan-for-woocommerce-btn-secondary" id="mydybox-taiwan-for-woocommerce-samples-cancel">取消</button>
+                    <button type="button" class="mydybox-taiwan-for-woocommerce-btn-ghost" id="mydybox-taiwan-for-woocommerce-samples-select-all">全選</button>
                     <div class="spacer"></div>
-                    <div class="mydyma-taiwan-commerce-suite-spinner" id="mydyma-taiwan-commerce-suite-samples-spinner"></div>
-                    <button type="button" class="mydyma-taiwan-commerce-suite-btn-primary" id="mydyma-taiwan-commerce-suite-samples-import" style="padding:10px 24px;">
+                    <div class="mydybox-taiwan-for-woocommerce-spinner" id="mydybox-taiwan-for-woocommerce-samples-spinner"></div>
+                    <button type="button" class="mydybox-taiwan-for-woocommerce-btn-primary" id="mydybox-taiwan-for-woocommerce-samples-import" style="padding:10px 24px;">
                         <span class="dashicons dashicons-yes"></span>立即匯入所選項目
                     </button>
                 </div>
             </div>
         `);
-        $('#mydyma-taiwan-commerce-suite-overlay').addClass('open');
+        $('#mydybox-taiwan-for-woocommerce-overlay').addClass('open');
 
         const close = () => {
-            $('#mydyma-taiwan-commerce-suite-overlay').removeClass('open');
-            $(document).off('keydown.mydyma-taiwan-commerce-suite-samples');
+            $('#mydybox-taiwan-for-woocommerce-overlay').removeClass('open');
+            $(document).off('keydown.mydybox-taiwan-for-woocommerce-samples');
         };
-        $('#mydyma-taiwan-commerce-suite-modal-close, #mydyma-taiwan-commerce-suite-samples-cancel').on('click', close);
-        $('#mydyma-taiwan-commerce-suite-overlay').on('click.mydyma-taiwan-commerce-suite-samples', e => { if ($(e.target).is('#mydyma-taiwan-commerce-suite-overlay')) close(); });
-        $(document).on('keydown.mydyma-taiwan-commerce-suite-samples', e => { if (e.key === 'Escape') close(); });
+        $('#mydybox-taiwan-for-woocommerce-modal-close, #mydybox-taiwan-for-woocommerce-samples-cancel').on('click', close);
+        $('#mydybox-taiwan-for-woocommerce-overlay').on('click.mydybox-taiwan-for-woocommerce-samples', e => { if ($(e.target).is('#mydybox-taiwan-for-woocommerce-overlay')) close(); });
+        $(document).on('keydown.mydybox-taiwan-for-woocommerce-samples', e => { if (e.key === 'Escape') close(); });
 
         // 全選 / 取消全選 toggle
-        $('#mydyma-taiwan-commerce-suite-samples-select-all').on('click', function () {
-            const allCbs = $('.mydyma-taiwan-commerce-suite-sample-cb');
+        $('#mydybox-taiwan-for-woocommerce-samples-select-all').on('click', function () {
+            const allCbs = $('.mydybox-taiwan-for-woocommerce-sample-cb');
             const allChecked = allCbs.length === allCbs.filter(':checked').length;
             allCbs.prop('checked', !allChecked);
             $(this).text(allChecked ? '全選' : '取消全選');
         });
 
-        $('#mydyma-taiwan-commerce-suite-samples-import').on('click', function () {
-            const selected = $('.mydyma-taiwan-commerce-suite-sample-cb:checked').map(function () { 
+        $('#mydybox-taiwan-for-woocommerce-samples-import').on('click', function () {
+            const selected = $('.mydybox-taiwan-for-woocommerce-sample-cb:checked').map(function () { 
                 return { id: $(this).val(), cat: $(this).data('cat') }; 
             }).get();
             
             if (!selected.length) { toast('請至少勾選一項', 'error'); return; }
             $(this).prop('disabled', true);
-            $('#mydyma-taiwan-commerce-suite-samples-spinner').addClass('active');
+            $('#mydybox-taiwan-for-woocommerce-samples-spinner').addClass('active');
 
             // Collect keys by category
             const keysByCat = {};
@@ -997,7 +997,7 @@
 
             // We only refresh the CURRENT hook's rules after import
             $.post(D.ajaxUrl, {
-                action: 'mydyma_tcs_import_samples',
+                action: 'mydybox_import_samples',
                 nonce:  D.nonce,
                 hook, // Still pass current hook to get updated list
                 keys:   JSON.stringify(keysByCat), // Pass as JSON for multi-cat support
@@ -1014,8 +1014,8 @@
             })
             .fail(() => toast('請求失敗，請重試', 'error'))
             .always(function () {
-                $('#mydyma-taiwan-commerce-suite-samples-import').prop('disabled', false);
-                $('#mydyma-taiwan-commerce-suite-samples-spinner').removeClass('active');
+                $('#mydybox-taiwan-for-woocommerce-samples-import').prop('disabled', false);
+                $('#mydybox-taiwan-for-woocommerce-samples-spinner').removeClass('active');
             });
         });
     }
@@ -1028,7 +1028,7 @@
         }
 
         $.post(D.ajaxUrl, {
-            action: 'mydyma_tcs_save_rule',
+            action: 'mydybox_save_rule',
             nonce:  D.nonce,
             hook,
             rule:   JSON.stringify(rule),
@@ -1063,7 +1063,7 @@
             return;
         }
         $.post(D.ajaxUrl, {
-            action:  'mydyma_tcs_delete_rule',
+            action:  'mydybox_delete_rule',
             nonce:   D.nonce,
             hook,
             rule_id: id,

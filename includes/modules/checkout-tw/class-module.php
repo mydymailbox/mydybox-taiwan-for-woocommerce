@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Modules\Checkout_Tw;
+namespace Mydybox\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
  * Checkout TW Module.
  * Coordinates locale, fields, validation, and meta handling for Taiwan checkout.
  */
-class Module implements \Mydyma_TCS\Module {
+class Module implements \Mydybox\Module {
 
 	public function id(): string {
 		return 'checkout_tw';

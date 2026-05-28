@@ -1,8 +1,8 @@
 <?php
-namespace Mydyma_TCS\Tests\Unit\RuleEngine;
+namespace Mydybox\Tests\Unit\RuleEngine;
 
 use PHPUnit\Framework\TestCase;
-use Mydyma_TCS\Rule_Engine\Context;
+use Mydybox\Rule_Engine\Context;
 use ReflectionProperty;
 
 class ContextTest extends TestCase {

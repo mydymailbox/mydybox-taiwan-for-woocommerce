@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Admin;
+namespace Mydybox\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,13 +26,13 @@ class Rules_UI {
 	}
 
 	public function enqueue_assets( $hook ): void {
-		if ( false === strpos( $hook, 'mydyma-taiwan-commerce-suite' ) ) return;
+		if ( false === strpos( $hook, 'mydybox-taiwan-for-woocommerce' ) ) return;
 
 		// SweetAlert2 for the rules editor - bundled locally
-		wp_enqueue_script( 'sweetalert2', MYDYMA_TCS_URL . 'assets/vendor/sweetalert2.all.min.js', [], '11.26.25', true );
+		wp_enqueue_script( 'sweetalert2', MYDYBOX_URL . 'assets/vendor/sweetalert2.all.min.js', [], '11.26.25', true );
 
-		wp_enqueue_style( 'mydyma-taiwan-commerce-suite-rules-css', MYDYMA_TCS_URL . 'assets/css/rules-admin.css', [], MYDYMA_TCS_VERSION );
-		wp_enqueue_script( 'mydyma-taiwan-commerce-suite-rules-js', MYDYMA_TCS_URL . 'assets/js/rules-admin.js', [ 'jquery', 'sweetalert2' ], MYDYMA_TCS_VERSION, true );
+		wp_enqueue_style( 'mydybox-taiwan-for-woocommerce-rules-css', MYDYBOX_URL . 'assets/css/rules-admin.css', [], MYDYBOX_VERSION );
+		wp_enqueue_script( 'mydybox-taiwan-for-woocommerce-rules-js', MYDYBOX_URL . 'assets/js/rules-admin.js', [ 'jquery', 'sweetalert2' ], MYDYBOX_VERSION, true );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab/type params, no data mutation
 		$type = sanitize_key( wp_unslash( $_GET['type'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -48,7 +48,7 @@ class Rules_UI {
 			$type = 'payment';
 		}
 
-		$rules = get_option( "mydyma_tcs_rules_{$type}", [] );
+		$rules = get_option( "mydybox_rules_{$type}", [] );
 
 		// Prepare metadata for the editor
 		$gateways = [];
@@ -62,7 +62,7 @@ class Rules_UI {
 		if ( function_exists( 'WC' ) ) {
 			$zones = \WC_Shipping_Zones::get_zones();
 			// Add locations not covered by other zones
-			$zones[] = [ 'zone_id' => 0, 'zone_name' => __( 'Locations not covered by your other zones', 'mydyma-taiwan-commerce-suite' ) ];
+			$zones[] = [ 'zone_id' => 0, 'zone_name' => __( 'Locations not covered by your other zones', 'mydybox-taiwan-for-woocommerce' ) ];
 			
 			foreach ( $zones as $zone_data ) {
 				$zone_obj = new \WC_Shipping_Zone( $zone_data['zone_id'] );
@@ -84,12 +84,12 @@ class Rules_UI {
 			}
 		}
 
-		$samples_data = include MYDYMA_TCS_DIR . 'includes/admin/data/sample-rules.php';
+		$samples_data = include MYDYBOX_DIR . 'includes/admin/data/sample-rules.php';
 
-		wp_localize_script( 'mydyma-taiwan-commerce-suite-rules-js', 'MydymaTcsRulesData', [
+		wp_localize_script( 'mydybox-taiwan-for-woocommerce-rules-js', 'MydyboxRulesData', [
 			'hook'       => $type,
 			'rules'      => $rules,
-			'nonce'      => wp_create_nonce( 'mydyma_tcs_rules' ),
+			'nonce'      => wp_create_nonce( 'mydybox_rules' ),
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 			'gateways'   => $gateways,
 			'shipping'   => $shipping,
@@ -105,7 +105,7 @@ class Rules_UI {
 			<div id="wc-tw-rules-app" data-type="<?php echo esc_attr( $type ); ?>">
 				<div class="rules-loading">
 					<span class="spinner is-active"></span>
-					<?php esc_html_e( '載入規則編輯器中...', 'mydyma-taiwan-commerce-suite' ); ?>
+					<?php esc_html_e( '載入規則編輯器中...', 'mydybox-taiwan-for-woocommerce' ); ?>
 				</div>
 			</div>
 		</div>

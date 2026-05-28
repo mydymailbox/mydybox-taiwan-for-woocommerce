@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Modules\Order_Number_Tw;
+namespace Mydybox\Modules\Order_Number_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -7,10 +7,10 @@ defined( 'ABSPATH' ) || exit;
  * Taiwan Style Order Number Module.
  * Supports YYYYMMDD-NNNN format for better order management.
  */
-class Module implements \Mydyma_TCS\Module {
+class Module implements \Mydybox\Module {
 
-	private const META_KEY = '_mydyma_tcs_order_number';
-	private const SEQ_OPT  = 'mydyma_tcs_order_seq_';
+	private const META_KEY = '_mydybox_order_number';
+	private const SEQ_OPT  = 'mydybox_order_seq_';
 
 	public function id(): string {
 		return 'order_number_tw';
@@ -26,7 +26,7 @@ class Module implements \Mydyma_TCS\Module {
 	}
 
 	private function enabled(): bool {
-		return 'yes' === get_option( 'mydyma_tcs_custom_order_number_enabled', 'yes' );
+		return 'yes' === get_option( 'mydybox_custom_order_number_enabled', 'yes' );
 	}
 
 	/**
@@ -38,15 +38,15 @@ class Module implements \Mydyma_TCS\Module {
 		if ( ! $order || $order->get_meta( self::META_KEY ) ) return;
 
 		$date    = wp_date( 'Ymd' );
-		$prefix  = (string) get_option( 'mydyma_tcs_order_number_prefix', 'TW' );
-		$padding = max( 1, (int) get_option( 'mydyma_tcs_order_number_digits', 4 ) );
+		$prefix  = (string) get_option( 'mydybox_order_number_prefix', 'TW' );
+		$padding = max( 1, (int) get_option( 'mydybox_order_number_digits', 4 ) );
 
 		$seq_key = self::SEQ_OPT . $date;
 		$seq     = (int) get_option( $seq_key, 0 ) + 1;
 		update_option( $seq_key, $seq );
 
 		$random = '';
-		if ( get_option( 'mydyma_tcs_order_number_random_suffix', 'no' ) === 'yes' ) {
+		if ( get_option( 'mydybox_order_number_random_suffix', 'no' ) === 'yes' ) {
 			$random = '-' . strtoupper( wp_generate_password( 2, false, false ) );
 		}
 

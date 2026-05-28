@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Modules\Checkout_Tw;
+namespace Mydybox\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -14,7 +14,7 @@ class CVS_Shipping {
 	const API_LIVE  = 'https://logistics.ecpay.com.tw/Express/map';
 
 	public function boot(): void {
-		if ( 'yes' !== get_option( 'mydyma_tcs_cvs_enabled', 'no' ) ) {
+		if ( 'yes' !== get_option( 'mydybox_cvs_enabled', 'no' ) ) {
 			return;
 		}
 
@@ -29,12 +29,12 @@ class CVS_Shipping {
 		add_action( 'woocommerce_checkout_create_order', [ $this, 'save_store_to_order' ], 10, 2 );
 
 		// AJAX: open ECPay map popup
-		add_action( 'wp_ajax_mydyma_tcs_open_cvs_map', [ $this, 'ajax_open_cvs_map' ] );
-		add_action( 'wp_ajax_nopriv_mydyma_tcs_open_cvs_map', [ $this, 'ajax_open_cvs_map' ] );
+		add_action( 'wp_ajax_mydybox_open_cvs_map', [ $this, 'ajax_open_cvs_map' ] );
+		add_action( 'wp_ajax_nopriv_mydybox_open_cvs_map', [ $this, 'ajax_open_cvs_map' ] );
 
 		// AJAX: receive callback from ECPay map
-		add_action( 'wp_ajax_mydyma_tcs_cvs_map_callback', [ $this, 'ajax_map_callback' ] );
-		add_action( 'wp_ajax_nopriv_mydyma_tcs_cvs_map_callback', [ $this, 'ajax_map_callback' ] );
+		add_action( 'wp_ajax_mydybox_cvs_map_callback', [ $this, 'ajax_map_callback' ] );
+		add_action( 'wp_ajax_nopriv_mydybox_cvs_map_callback', [ $this, 'ajax_map_callback' ] );
 
 		// Enqueue scripts on checkout
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
@@ -54,7 +54,7 @@ class CVS_Shipping {
 	}
 
 	public function register_shipping_method( array $methods ): array {
-		$methods['mydyma_tcs_cvs'] = '\Mydyma_TCS\Modules\Checkout_Tw\CVS_Shipping_Method';
+		$methods['mydybox_cvs'] = '\Mydybox\Modules\Checkout_Tw\CVS_Shipping_Method';
 		return $methods;
 	}
 
@@ -62,21 +62,21 @@ class CVS_Shipping {
 		if ( ! is_checkout() ) return;
 
 		wp_enqueue_script(
-			'mydyma-taiwan-commerce-suite-cvs-map',
-			MYDYMA_TCS_URL . 'assets/js/cvs-map.js',
+			'mydybox-taiwan-for-woocommerce-cvs-map',
+			MYDYBOX_URL . 'assets/js/cvs-map.js',
 			[ 'jquery' ],
-			filemtime( MYDYMA_TCS_DIR . 'assets/js/cvs-map.js' ),
+			filemtime( MYDYBOX_DIR . 'assets/js/cvs-map.js' ),
 			true
 		);
 
-		wp_localize_script( 'mydyma-taiwan-commerce-suite-cvs-map', 'mydymaTcsCvs', [
+		wp_localize_script( 'mydybox-taiwan-for-woocommerce-cvs-map', 'mydyboxCvs', [
 			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
-			'nonce'          => wp_create_nonce( 'mydyma_tcs_cvs_map' ),
-			'selectStore'    => __( '選擇門市', 'mydyma-taiwan-commerce-suite' ),
-			'changeStore'    => __( '更換門市', 'mydyma-taiwan-commerce-suite' ),
-			'noStoreSelected'=> __( '尚未選擇門市，請點擊「選擇門市」按鈕', 'mydyma-taiwan-commerce-suite' ),
-			'selectedStore'  => __( '已選擇門市', 'mydyma-taiwan-commerce-suite' ),
-			'callbackUrl'    => admin_url( 'admin-ajax.php?action=mydyma_tcs_cvs_map_callback' ),
+			'nonce'          => wp_create_nonce( 'mydybox_cvs_map' ),
+			'selectStore'    => __( '選擇門市', 'mydybox-taiwan-for-woocommerce' ),
+			'changeStore'    => __( '更換門市', 'mydybox-taiwan-for-woocommerce' ),
+			'noStoreSelected'=> __( '尚未選擇門市，請點擊「選擇門市」按鈕', 'mydybox-taiwan-for-woocommerce' ),
+			'selectedStore'  => __( '已選擇門市', 'mydybox-taiwan-for-woocommerce' ),
+			'callbackUrl'    => admin_url( 'admin-ajax.php?action=mydybox_cvs_map_callback' ),
 		] );
 	}
 
@@ -88,15 +88,15 @@ class CVS_Shipping {
 		<div id="ts-cvs-store-wrap" style="display:none; margin-top: 1rem;">
 			<div id="ts-cvs-store-info" class="ts-cvs-info-box">
 				<span class="ts-cvs-icon">🏪</span>
-				<span id="ts-cvs-store-text"><?php esc_html_e( '尚未選擇門市，請點擊「選擇門市」按鈕', 'mydyma-taiwan-commerce-suite' ); ?></span>
+				<span id="ts-cvs-store-text"><?php esc_html_e( '尚未選擇門市，請點擊「選擇門市」按鈕', 'mydybox-taiwan-for-woocommerce' ); ?></span>
 			</div>
 			<button type="button" id="ts-cvs-select-btn" class="ts-cvs-btn">
-				🗺️ <?php esc_html_e( '選擇門市', 'mydyma-taiwan-commerce-suite' ); ?>
+				🗺️ <?php esc_html_e( '選擇門市', 'mydybox-taiwan-for-woocommerce' ); ?>
 			</button>
-			<input type="hidden" id="mydyma_tcs_cvs_store_id"   name="mydyma_tcs_cvs_store_id"   value="">
-			<input type="hidden" id="mydyma_tcs_cvs_store_name" name="mydyma_tcs_cvs_store_name" value="">
-			<input type="hidden" id="mydyma_tcs_cvs_store_addr" name="mydyma_tcs_cvs_store_addr" value="">
-			<input type="hidden" id="mydyma_tcs_cvs_store_type" name="mydyma_tcs_cvs_store_type" value="">
+			<input type="hidden" id="mydybox_cvs_store_id"   name="mydybox_cvs_store_id"   value="">
+			<input type="hidden" id="mydybox_cvs_store_name" name="mydybox_cvs_store_name" value="">
+			<input type="hidden" id="mydybox_cvs_store_addr" name="mydybox_cvs_store_addr" value="">
+			<input type="hidden" id="mydybox_cvs_store_type" name="mydybox_cvs_store_type" value="">
 		</div>
 		<?php
 	}
@@ -105,16 +105,16 @@ class CVS_Shipping {
 	 * AJAX: Generate ECPay map form and return the HTML to open as popup.
 	 */
 	public function ajax_open_cvs_map(): void {
-		check_ajax_referer( 'mydyma_tcs_cvs_map', 'nonce' );
+		check_ajax_referer( 'mydybox_cvs_map', 'nonce' );
 
 		$cvs_type    = sanitize_text_field( wp_unslash( $_POST['cvs_type'] ?? 'UNIMART' ) );
-		$is_test     = 'yes' === get_option( 'mydyma_tcs_cvs_test_mode', 'yes' );
-		$merchant_id = $is_test ? '3002607' : get_option( 'mydyma_tcs_cvs_merchant_id', '' );
-		$hash_key    = $is_test ? 'pwFHCqoQZGmho4w6' : get_option( 'mydyma_tcs_cvs_hash_key', '' );
-		$hash_iv     = $is_test ? 'EkRm7iFT261dpevs' : get_option( 'mydyma_tcs_cvs_hash_iv', '' );
+		$is_test     = 'yes' === get_option( 'mydybox_cvs_test_mode', 'yes' );
+		$merchant_id = $is_test ? '3002607' : get_option( 'mydybox_cvs_merchant_id', '' );
+		$hash_key    = $is_test ? 'pwFHCqoQZGmho4w6' : get_option( 'mydybox_cvs_hash_key', '' );
+		$hash_iv     = $is_test ? 'EkRm7iFT261dpevs' : get_option( 'mydybox_cvs_hash_iv', '' );
 		$endpoint    = $is_test ? self::API_STAGE : self::API_LIVE;
 
-		$callback_url = admin_url( 'admin-ajax.php?action=mydyma_tcs_cvs_map_callback&nonce=' . wp_create_nonce( 'mydyma_tcs_cvs_callback' ) );
+		$callback_url = admin_url( 'admin-ajax.php?action=mydybox_cvs_map_callback&nonce=' . wp_create_nonce( 'mydybox_cvs_callback' ) );
 
 		$params = [
 			'MerchantID'       => $merchant_id,
@@ -143,7 +143,7 @@ class CVS_Shipping {
 	 * ECPay posts to this URL after user selects a store.
 	 */
 	public function ajax_map_callback(): void {
-		check_ajax_referer( 'mydyma_tcs_cvs_callback', 'nonce' );
+		check_ajax_referer( 'mydybox_cvs_callback', 'nonce' );
 		$store_id   = sanitize_text_field( wp_unslash( $_POST['CVSStoreID'] ?? '' ) );
 		$store_name = sanitize_text_field( wp_unslash( $_POST['CVSStoreName'] ?? '' ) );
 		$store_addr = sanitize_text_field( wp_unslash( $_POST['CVSAddress'] ?? '' ) );
@@ -154,7 +154,7 @@ class CVS_Shipping {
 		}
 
 		// Store in session for checkout to pick up
-		WC()->session->set( 'mydyma_tcs_cvs_store', [
+		WC()->session->set( 'mydybox_cvs_store', [
 			'id'   => $store_id,
 			'name' => $store_name,
 			'addr' => $store_addr,
@@ -174,7 +174,7 @@ class CVS_Shipping {
 		echo '<!DOCTYPE html><html><body>';
 		wp_print_inline_script_tag(
 			'var store = ' . $store_json . ';' .
-			'if (window.opener) { window.opener.postMessage({ type: "mydyma_tcs_cvs_store", store: store }, "*"); window.close(); }'
+			'if (window.opener) { window.opener.postMessage({ type: "mydybox_cvs_store", store: store }, "*"); window.close(); }'
 		);
 		echo '</body></html>';
 		exit;
@@ -186,18 +186,18 @@ class CVS_Shipping {
 	public function save_store_to_order( \WC_Order $order, array $data ): void {
 		// Called via woocommerce_checkout_create_order; WooCommerce verifies the checkout nonce upstream.
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified by WooCommerce checkout
-		$store_id   = sanitize_text_field( wp_unslash( $_POST['mydyma_tcs_cvs_store_id'] ?? '' ) );
-		$store_name = sanitize_text_field( wp_unslash( $_POST['mydyma_tcs_cvs_store_name'] ?? '' ) );
-		$store_addr = sanitize_text_field( wp_unslash( $_POST['mydyma_tcs_cvs_store_addr'] ?? '' ) );
-		$store_type = sanitize_text_field( wp_unslash( $_POST['mydyma_tcs_cvs_store_type'] ?? '' ) );
+		$store_id   = sanitize_text_field( wp_unslash( $_POST['mydybox_cvs_store_id'] ?? '' ) );
+		$store_name = sanitize_text_field( wp_unslash( $_POST['mydybox_cvs_store_name'] ?? '' ) );
+		$store_addr = sanitize_text_field( wp_unslash( $_POST['mydybox_cvs_store_addr'] ?? '' ) );
+		$store_type = sanitize_text_field( wp_unslash( $_POST['mydybox_cvs_store_type'] ?? '' ) );
 		// phpcs:enable
 
 		if ( ! $store_id ) return;
 
-		$order->update_meta_data( 'mydyma_tcs_cvs_store_id',   $store_id );
-		$order->update_meta_data( 'mydyma_tcs_cvs_store_name', $store_name );
-		$order->update_meta_data( 'mydyma_tcs_cvs_store_addr', $store_addr );
-		$order->update_meta_data( 'mydyma_tcs_cvs_store_type', $store_type );
+		$order->update_meta_data( 'mydybox_cvs_store_id',   $store_id );
+		$order->update_meta_data( 'mydybox_cvs_store_name', $store_name );
+		$order->update_meta_data( 'mydybox_cvs_store_addr', $store_addr );
+		$order->update_meta_data( 'mydybox_cvs_store_type', $store_type );
 
 		// Set shipping address to store address
 		$type_label = $this->get_cvs_label( $store_type );
@@ -206,39 +206,39 @@ class CVS_Shipping {
 	}
 
 	public function display_store_in_order( \WC_Order $order ): void {
-		$store_id = $order->get_meta( 'mydyma_tcs_cvs_store_id' );
+		$store_id = $order->get_meta( 'mydybox_cvs_store_id' );
 		if ( ! $store_id ) return;
 		$this->render_store_block( $order );
 	}
 
 	public function display_store_in_email( \WC_Order $order, bool $sent_to_admin, string $plain_text ): void {
-		$store_id = $order->get_meta( 'mydyma_tcs_cvs_store_id' );
+		$store_id = $order->get_meta( 'mydybox_cvs_store_id' );
 		if ( ! $store_id ) return;
 		if ( $plain_text ) {
-			echo "\n" . esc_html__( '取貨門市', 'mydyma-taiwan-commerce-suite' ) . ': ' . esc_html( $order->get_meta( 'mydyma_tcs_cvs_store_name' ) ) . ' - ' . esc_html( $order->get_meta( 'mydyma_tcs_cvs_store_addr' ) ) . "\n";
+			echo "\n" . esc_html__( '取貨門市', 'mydybox-taiwan-for-woocommerce' ) . ': ' . esc_html( $order->get_meta( 'mydybox_cvs_store_name' ) ) . ' - ' . esc_html( $order->get_meta( 'mydybox_cvs_store_addr' ) ) . "\n";
 		} else {
 			$this->render_store_block( $order );
 		}
 	}
 
 	public function display_store_in_admin( \WC_Order $order ): void {
-		$store_id = $order->get_meta( 'mydyma_tcs_cvs_store_id' );
+		$store_id = $order->get_meta( 'mydybox_cvs_store_id' );
 		if ( ! $store_id ) return;
 		echo '<div style="margin-top:10px;padding:10px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;">';
-		echo '<strong>🏪 ' . esc_html__( '超商取貨門市', 'mydyma-taiwan-commerce-suite' ) . '</strong><br>';
-		echo esc_html( $this->get_cvs_label( $order->get_meta( 'mydyma_tcs_cvs_store_type' ) ) ) . ' ';
-		echo esc_html( $order->get_meta( 'mydyma_tcs_cvs_store_name' ) ) . '<br>';
-		echo '<small>' . esc_html( $order->get_meta( 'mydyma_tcs_cvs_store_addr' ) ) . '</small>';
+		echo '<strong>🏪 ' . esc_html__( '超商取貨門市', 'mydybox-taiwan-for-woocommerce' ) . '</strong><br>';
+		echo esc_html( $this->get_cvs_label( $order->get_meta( 'mydybox_cvs_store_type' ) ) ) . ' ';
+		echo esc_html( $order->get_meta( 'mydybox_cvs_store_name' ) ) . '<br>';
+		echo '<small>' . esc_html( $order->get_meta( 'mydybox_cvs_store_addr' ) ) . '</small>';
 		echo '</div>';
 	}
 
 	private function render_store_block( \WC_Order $order ): void {
-		$type  = $order->get_meta( 'mydyma_tcs_cvs_store_type' );
-		$name  = $order->get_meta( 'mydyma_tcs_cvs_store_name' );
-		$addr  = $order->get_meta( 'mydyma_tcs_cvs_store_addr' );
+		$type  = $order->get_meta( 'mydybox_cvs_store_type' );
+		$name  = $order->get_meta( 'mydybox_cvs_store_name' );
+		$addr  = $order->get_meta( 'mydybox_cvs_store_addr' );
 		$label = $this->get_cvs_label( $type );
 		echo '<section class="ts-cvs-order-info" style="margin:1rem 0;padding:1rem;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;">';
-		echo '<h3 style="margin:0 0 .5rem;font-size:1rem;">🏪 ' . esc_html__( '取貨門市資訊', 'mydyma-taiwan-commerce-suite' ) . '</h3>';
+		echo '<h3 style="margin:0 0 .5rem;font-size:1rem;">🏪 ' . esc_html__( '取貨門市資訊', 'mydybox-taiwan-for-woocommerce' ) . '</h3>';
 		echo '<p style="margin:0;">' . esc_html( $label ) . '｜' . esc_html( $name ) . '</p>';
 		echo '<p style="margin:.25rem 0 0;color:#6b7280;font-size:.875rem;">' . esc_html( $addr ) . '</p>';
 		echo '</section>';

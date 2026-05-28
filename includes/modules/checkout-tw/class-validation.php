@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Modules\Checkout_Tw;
+namespace Mydybox\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -14,30 +14,30 @@ class Validation {
 	}
 
 	public function validate_fields( array $data, \WP_Error $errors ): void {
-		$type    = $data['billing_mydyma_tcs_invoice_type'] ?? '';
-		$tax_id  = $data['billing_mydyma_tcs_company_tax_id'] ?? '';
-		$title   = $data['billing_mydyma_tcs_company_title'] ?? '';
+		$type    = $data['billing_mydybox_invoice_type'] ?? '';
+		$tax_id  = $data['billing_mydybox_company_tax_id'] ?? '';
+		$title   = $data['billing_mydybox_company_title'] ?? '';
 		$phone   = $data['billing_phone'] ?? '';
 
 		// 1. Tax ID Validation (Only if enabled in settings)
-		if ( 'company' === $type && 'yes' === get_option( 'mydyma_tcs_checkout_show_tax_id', 'yes' ) ) {
+		if ( 'company' === $type && 'yes' === get_option( 'mydybox_checkout_show_tax_id', 'yes' ) ) {
 			if ( empty( $tax_id ) ) {
-				$errors->add( 'billing_mydyma_tcs_company_tax_id', __( 'Please enter your Company Tax ID.', 'mydyma-taiwan-commerce-suite' ) );
-			} elseif ( 'yes' === get_option( 'mydyma_tcs_checkout_validate_tax_id', 'yes' ) ) {
+				$errors->add( 'billing_mydybox_company_tax_id', __( 'Please enter your Company Tax ID.', 'mydybox-taiwan-for-woocommerce' ) );
+			} elseif ( 'yes' === get_option( 'mydybox_checkout_validate_tax_id', 'yes' ) ) {
 				if ( ! $this->is_valid_taiwan_tax_id( $tax_id ) ) {
-					$errors->add( 'billing_mydyma_tcs_company_tax_id', __( '統一編號格式或檢查碼錯誤，請輸入有效的 8 碼統一編號。', 'mydyma-taiwan-commerce-suite' ) );
+					$errors->add( 'billing_mydybox_company_tax_id', __( '統一編號格式或檢查碼錯誤，請輸入有效的 8 碼統一編號。', 'mydybox-taiwan-for-woocommerce' ) );
 				}
 			}
 
 			if ( empty( $title ) ) {
-				$errors->add( 'billing_mydyma_tcs_company_title', __( 'Please enter your Company Title.', 'mydyma-taiwan-commerce-suite' ) );
+				$errors->add( 'billing_mydybox_company_title', __( 'Please enter your Company Title.', 'mydybox-taiwan-for-woocommerce' ) );
 			}
 		}
 
 		// 2. Phone Validation (Only if enabled)
-		if ( 'yes' === get_option( 'mydyma_tcs_checkout_phone_validate', 'yes' ) && ! empty( $phone ) ) {
+		if ( 'yes' === get_option( 'mydybox_checkout_phone_validate', 'yes' ) && ! empty( $phone ) ) {
 			if ( ! preg_match( '/^09[0-9]{8}$/', $phone ) ) {
-				$errors->add( 'billing_phone', __( 'Invalid phone format. Should be 09xxxxxxxx.', 'mydyma-taiwan-commerce-suite' ) );
+				$errors->add( 'billing_phone', __( 'Invalid phone format. Should be 09xxxxxxxx.', 'mydybox-taiwan-for-woocommerce' ) );
 			}
 		}
 	}

@@ -1,8 +1,8 @@
 <?php
-namespace Mydyma_TCS\Rule_Engine\Conditions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydyma_TCS is the plugin prefix
+namespace Mydybox\Rule_Engine\Conditions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydybox is the plugin prefix
 
-use Mydyma_TCS\Rule_Engine\Condition;
-use Mydyma_TCS\Rule_Engine\Context;
+use Mydybox\Rule_Engine\Condition;
+use Mydybox\Rule_Engine\Context;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,7 +21,7 @@ class Product implements Condition {
 	}
 
 	public function label(): string {
-		return __( 'Specific Product', 'mydyma-taiwan-commerce-suite' );
+		return __( 'Specific Product', 'mydybox-taiwan-for-woocommerce' );
 	}
 
 	public function type(): string {
@@ -30,8 +30,8 @@ class Product implements Condition {
 
 	public function operators(): array {
 		return [
-			[ 'id' => 'in',     'label' => __( 'In cart contains', 'mydyma-taiwan-commerce-suite' ) ],
-			[ 'id' => 'not_in', 'label' => __( 'In cart does not contain', 'mydyma-taiwan-commerce-suite' ) ],
+			[ 'id' => 'in',     'label' => __( 'In cart contains', 'mydybox-taiwan-for-woocommerce' ) ],
+			[ 'id' => 'not_in', 'label' => __( 'In cart does not contain', 'mydybox-taiwan-for-woocommerce' ) ],
 		];
 	}
 

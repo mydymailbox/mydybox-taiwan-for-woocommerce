@@ -1,8 +1,8 @@
 <?php
-namespace Mydyma_TCS\Rule_Engine\Conditions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydyma_TCS is the plugin prefix
+namespace Mydybox\Rule_Engine\Conditions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydybox is the plugin prefix
 
-use Mydyma_TCS\Rule_Engine\Condition;
-use Mydyma_TCS\Rule_Engine\Context;
+use Mydybox\Rule_Engine\Condition;
+use Mydybox\Rule_Engine\Context;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,7 +23,7 @@ class Address implements Condition {
 	}
 
 	public function label(): string {
-		return __( 'Shipping Address', 'mydyma-taiwan-commerce-suite' );
+		return __( 'Shipping Address', 'mydybox-taiwan-for-woocommerce' );
 	}
 
 	public function type(): string {
@@ -32,8 +32,8 @@ class Address implements Condition {
 
 	public function operators(): array {
 		return [
-			[ 'id' => 'in',     'label' => __( 'Is one of', 'mydyma-taiwan-commerce-suite' ) ],
-			[ 'id' => 'not_in', 'label' => __( 'Is not one of', 'mydyma-taiwan-commerce-suite' ) ],
+			[ 'id' => 'in',     'label' => __( 'Is one of', 'mydybox-taiwan-for-woocommerce' ) ],
+			[ 'id' => 'not_in', 'label' => __( 'Is not one of', 'mydybox-taiwan-for-woocommerce' ) ],
 		];
 	}
 

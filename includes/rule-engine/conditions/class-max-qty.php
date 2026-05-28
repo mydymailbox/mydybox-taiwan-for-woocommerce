@@ -1,8 +1,8 @@
 <?php
-namespace Mydyma_TCS\Rule_Engine\Conditions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydyma_TCS is the plugin prefix
+namespace Mydybox\Rule_Engine\Conditions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydybox is the plugin prefix
 
-use Mydyma_TCS\Rule_Engine\Condition;
-use Mydyma_TCS\Rule_Engine\Context;
+use Mydybox\Rule_Engine\Condition;
+use Mydybox\Rule_Engine\Context;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,7 +21,7 @@ class Max_Qty implements Condition {
 	}
 
 	public function label(): string {
-		return __( 'Maximum Quantity per Product', 'mydyma-taiwan-commerce-suite' );
+		return __( 'Maximum Quantity per Product', 'mydybox-taiwan-for-woocommerce' );
 	}
 
 	public function type(): string {
@@ -30,7 +30,7 @@ class Max_Qty implements Condition {
 
 	public function operators(): array {
 		return [
-			[ 'id' => 'gt', 'label' => __( 'Quantity is greater than (>)', 'mydyma-taiwan-commerce-suite' ) ],
+			[ 'id' => 'gt', 'label' => __( 'Quantity is greater than (>)', 'mydybox-taiwan-for-woocommerce' ) ],
 		];
 	}
 

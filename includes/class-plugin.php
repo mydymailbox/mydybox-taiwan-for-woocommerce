@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS;
+namespace Mydybox;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -30,20 +30,20 @@ class Plugin {
 
 	public function boot(): void {
 		// 1. Load Helpers & Interfaces
-		require_once MYDYMA_TCS_DIR . 'includes/helpers/class-nonce.php';
-		require_once MYDYMA_TCS_DIR . 'includes/interface-module.php';
-		require_once MYDYMA_TCS_DIR . 'includes/rule-engine/class-rule-engine.php';
+		require_once MYDYBOX_DIR . 'includes/helpers/class-nonce.php';
+		require_once MYDYBOX_DIR . 'includes/interface-module.php';
+		require_once MYDYBOX_DIR . 'includes/rule-engine/class-rule-engine.php';
 
 		// 2. Load Admin UI
 		if ( is_admin() ) {
-			require_once MYDYMA_TCS_DIR . 'includes/admin/class-settings-page.php';
-			( new \Mydyma_TCS\Admin\Settings_Page() )->boot();
+			require_once MYDYBOX_DIR . 'includes/admin/class-settings-page.php';
+			( new \Mydybox\Admin\Settings_Page() )->boot();
 			
-			require_once MYDYMA_TCS_DIR . 'includes/admin/class-rules-ui.php';
-			( new \Mydyma_TCS\Admin\Rules_UI() )->boot();
+			require_once MYDYBOX_DIR . 'includes/admin/class-rules-ui.php';
+			( new \Mydybox\Admin\Rules_UI() )->boot();
 
-			require_once MYDYMA_TCS_DIR . 'includes/admin/class-rules-ajax.php';
-			( new \Mydyma_TCS\Admin\Rules_Ajax() )->boot();
+			require_once MYDYBOX_DIR . 'includes/admin/class-rules-ajax.php';
+			( new \Mydybox\Admin\Rules_Ajax() )->boot();
 		}
 
 		// 3. Load Functional Modules
@@ -57,71 +57,71 @@ class Plugin {
 	 * Manually load and boot enabled modules.
 	 */
 	private function load_modules(): void {
-		$enabled = $this->get_option( 'mydyma_tcs_enabled_modules', [ 'checkout_tw' => 'yes', 'order_number_tw' => 'yes', 'social_login' => 'yes' ] );
+		$enabled = $this->get_option( 'mydybox_enabled_modules', [ 'checkout_tw' => 'yes', 'order_number_tw' => 'yes', 'social_login' => 'yes' ] );
 		if ( ! is_array( $enabled ) ) $enabled = [];
 
 		// Checkout TW Module
 		if ( ( $enabled['checkout_tw'] ?? '' ) === 'yes' ) {
-			require_once MYDYMA_TCS_DIR . 'includes/modules/checkout-tw/class-module.php';
-			$this->modules['checkout_tw'] = new \Mydyma_TCS\Modules\Checkout_Tw\Module();
+			require_once MYDYBOX_DIR . 'includes/modules/checkout-tw/class-module.php';
+			$this->modules['checkout_tw'] = new \Mydybox\Modules\Checkout_Tw\Module();
 			$this->modules['checkout_tw']->boot();
 
 			// Product UI is dependent on Checkout TW
-			require_once MYDYMA_TCS_DIR . 'includes/modules/checkout-tw/class-product-ui.php';
-			$this->modules['product_ui'] = new \Mydyma_TCS\Modules\Checkout_Tw\Product_UI();
+			require_once MYDYBOX_DIR . 'includes/modules/checkout-tw/class-product-ui.php';
+			$this->modules['product_ui'] = new \Mydybox\Modules\Checkout_Tw\Product_UI();
 			$this->modules['product_ui']->boot();
 		}
 
 		// Order Number Module
 		if ( ( $enabled['order_number_tw'] ?? '' ) === 'yes' ) {
-			require_once MYDYMA_TCS_DIR . 'includes/modules/order-number-tw/class-module.php';
-			$this->modules['order_number'] = new \Mydyma_TCS\Modules\Order_Number_Tw\Module();
+			require_once MYDYBOX_DIR . 'includes/modules/order-number-tw/class-module.php';
+			$this->modules['order_number'] = new \Mydybox\Modules\Order_Number_Tw\Module();
 			$this->modules['order_number']->boot();
 		}
 
 		// Social Login Module
 		if ( ( $enabled['social_login'] ?? '' ) === 'yes' ) {
-			require_once MYDYMA_TCS_DIR . 'includes/modules/social-login/class-module.php';
-			$this->modules['social_login'] = new \Mydyma_TCS\Modules\Social_Login\Module();
+			require_once MYDYBOX_DIR . 'includes/modules/social-login/class-module.php';
+			$this->modules['social_login'] = new \Mydybox\Modules\Social_Login\Module();
 			$this->modules['social_login']->boot();
 		}
 
 		// ECPay Payment Gateway
-		require_once MYDYMA_TCS_DIR . 'includes/modules/payment-gateway/class-module.php';
-		$this->modules['payment_gateway'] = new \Mydyma_TCS\Modules\Payment_Gateway\Module();
+		require_once MYDYBOX_DIR . 'includes/modules/payment-gateway/class-module.php';
+		$this->modules['payment_gateway'] = new \Mydybox\Modules\Payment_Gateway\Module();
 		$this->modules['payment_gateway']->boot();
 
 		// Rule Engine Modules
 		$rule_modules = [
-			'payment_rules'  => \Mydyma_TCS\Modules\Payment_Rules\Module::class,
-			'shipping_rules' => \Mydyma_TCS\Modules\Shipping_Rules\Module::class,
-			'cart_rules'     => \Mydyma_TCS\Modules\Cart_Rules\Module::class,
+			'payment_rules'  => \Mydybox\Modules\Payment_Rules\Module::class,
+			'shipping_rules' => \Mydybox\Modules\Shipping_Rules\Module::class,
+			'cart_rules'     => \Mydybox\Modules\Cart_Rules\Module::class,
 		];
 
 		foreach ( $rule_modules as $key => $class ) {
 			$path = str_replace( '_', '-', $key );
-			require_once MYDYMA_TCS_DIR . "includes/modules/{$path}/class-module.php";
+			require_once MYDYBOX_DIR . "includes/modules/{$path}/class-module.php";
 			$this->modules[ $key ] = new $class();
 			$this->modules[ $key ]->boot();
 		}
 
 		// Abandoned Cart Module
-		require_once MYDYMA_TCS_DIR . 'includes/modules/abandoned-cart/class-module.php';
-		$this->modules['abandoned_cart'] = new \Mydyma_TCS\Modules\Abandoned_Cart\Module();
+		require_once MYDYBOX_DIR . 'includes/modules/abandoned-cart/class-module.php';
+		$this->modules['abandoned_cart'] = new \Mydybox\Modules\Abandoned_Cart\Module();
 		$this->modules['abandoned_cart']->boot();
 
 		// Logs Module
-		require_once MYDYMA_TCS_DIR . 'includes/modules/logs/class-module.php';
-		$this->modules['logs'] = new \Mydyma_TCS\Modules\Logs\Module();
+		require_once MYDYBOX_DIR . 'includes/modules/logs/class-module.php';
+		$this->modules['logs'] = new \Mydybox\Modules\Logs\Module();
 		$this->modules['logs']->boot();
 	}
 
 	public function show_activation_notice(): void {
-		if ( ! get_transient( 'mydyma_tcs_activated' ) ) return;
-		delete_transient( 'mydyma_tcs_activated' );
+		if ( ! get_transient( 'mydybox_activated' ) ) return;
+		delete_transient( 'mydybox_activated' );
 		?>
 		<div class="notice notice-success is-dismissible">
-			<p><?php esc_html_e( '「台灣商店：核心助手」已成功啟動。請前往設定頁面配置您的結帳與在地化選項。', 'mydyma-taiwan-commerce-suite' ); ?></p>
+			<p><?php esc_html_e( '「台灣商店：核心助手」已成功啟動。請前往設定頁面配置您的結帳與在地化選項。', 'mydybox-taiwan-for-woocommerce' ); ?></p>
 		</div>
 		<?php
 	}

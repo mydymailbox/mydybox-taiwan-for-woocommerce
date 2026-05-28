@@ -1,10 +1,10 @@
 /**
- * Mydyma TCS — Logs & Stats Dashboard
+ * Mydybox — Logs & Stats Dashboard
  */
 (function($) {
     'use strict';
 
-    const D = typeof MydymaTcsLogStats !== 'undefined' ? MydymaTcsLogStats : null;
+    const D = typeof MydyboxLogStats !== 'undefined' ? MydyboxLogStats : null;
     if (!D) return;
 
     function renderStats(data) {
@@ -12,8 +12,8 @@
         const total = data.total;
         
         if (total === 0) {
-            $('#mydyma-taiwan-commerce-suite-logs-root').html(`
-                <div class="mydyma-taiwan-commerce-suite-empty-state">
+            $('#mydybox-taiwan-for-woocommerce-logs-root').html(`
+                <div class="mydybox-taiwan-for-woocommerce-empty-state">
                     <span class="dashicons dashicons-chart-pie"></span>
                     <p>今日尚無訂單數據</p>
                     <p style="font-size:12px;color:#aaa">數據將在今日產生首筆訂單後顯示</p>
@@ -69,26 +69,26 @@
             </div>
         `;
 
-        $('#mydyma-taiwan-commerce-suite-logs-root').html(chartHtml);
+        $('#mydybox-taiwan-for-woocommerce-logs-root').html(chartHtml);
     }
 
     function init() {
-        $('#mydyma-taiwan-commerce-suite-logs-root').html('<div class="mydyma-taiwan-commerce-suite-spinner active"></div> 正在讀取數據...');
+        $('#mydybox-taiwan-for-woocommerce-logs-root').html('<div class="mydybox-taiwan-for-woocommerce-spinner active"></div> 正在讀取數據...');
         
         $.post(D.ajaxUrl, {
-            action: 'mydyma_tcs_get_stats',
+            action: 'mydybox_get_stats',
             nonce: D.nonce
         }).done(function(res) {
             if (res.success) {
                 renderStats(res.data);
             } else {
-                $('#mydyma-taiwan-commerce-suite-logs-root').text('無法載入數據');
+                $('#mydybox-taiwan-for-woocommerce-logs-root').text('無法載入數據');
             }
         });
     }
 
     $(function() {
-        if ($('#mydyma-taiwan-commerce-suite-logs-root').length) {
+        if ($('#mydybox-taiwan-for-woocommerce-logs-root').length) {
             init();
         }
     });

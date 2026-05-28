@@ -1,16 +1,16 @@
 <?php
-namespace Mydyma_TCS\Modules\Abandoned_Cart;
+namespace Mydybox\Modules\Abandoned_Cart;
 
 defined( 'ABSPATH' ) || exit;
 
-class Module implements \Mydyma_TCS\Module {
+class Module implements \Mydybox\Module {
 
 	public function id(): string {
 		return 'abandoned_cart';
 	}
 
 	public function boot(): void {
-		if ( 'yes' !== get_option( 'mydyma_tcs_checkout_abandoned_cart', 'no' ) ) return;
+		if ( 'yes' !== get_option( 'mydybox_checkout_abandoned_cart', 'no' ) ) return;
 
 		require_once __DIR__ . '/class-tracker.php';
 		require_once __DIR__ . '/class-notifier.php';

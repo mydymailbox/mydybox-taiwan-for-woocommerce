@@ -1,8 +1,8 @@
 <?php
-namespace Mydyma_TCS\Rule_Engine\Actions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydyma_TCS is the plugin prefix
+namespace Mydybox\Rule_Engine\Actions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydybox is the plugin prefix
 
-use Mydyma_TCS\Rule_Engine\Action;
-use Mydyma_TCS\Rule_Engine\Context;
+use Mydybox\Rule_Engine\Action;
+use Mydybox\Rule_Engine\Context;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,12 +26,12 @@ class Block_Checkout implements Action {
 	}
 
 	public function label(): string {
-		return __( 'Block Checkout', 'mydyma-taiwan-commerce-suite' );
+		return __( 'Block Checkout', 'mydybox-taiwan-for-woocommerce' );
 	}
 
 	public function args(): array {
 		return [
-			[ 'id' => 'message', 'label' => __( 'Error message to show', 'mydyma-taiwan-commerce-suite' ), 'type' => 'textarea' ]
+			[ 'id' => 'message', 'label' => __( 'Error message to show', 'mydybox-taiwan-for-woocommerce' ), 'type' => 'textarea' ]
 		];
 	}
 

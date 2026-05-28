@@ -4,14 +4,14 @@
 (function ($) {
 	$( window ).scroll( function () {
 		if ( $( this ).scrollTop() > 600 ) {
-			$( '#mydyma-taiwan-commerce-suite-sticky-cart' ).addClass( 'is-visible' );
+			$( '#mydybox-taiwan-for-woocommerce-sticky-cart' ).addClass( 'is-visible' );
 		} else {
-			$( '#mydyma-taiwan-commerce-suite-sticky-cart' ).removeClass( 'is-visible' );
+			$( '#mydybox-taiwan-for-woocommerce-sticky-cart' ).removeClass( 'is-visible' );
 		}
 	} );
 
 	// Sticky buy button → click the hidden WC add-to-cart button.
-	$( document ).on( 'click', '.mydyma-taiwan-commerce-suite-sticky-btn', function () {
+	$( document ).on( 'click', '.mydybox-taiwan-for-woocommerce-sticky-btn', function () {
 		var btn = document.querySelector( '.single_add_to_cart_button' );
 		if ( btn ) btn.click();
 	} );

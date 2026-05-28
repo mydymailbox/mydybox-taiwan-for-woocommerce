@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Rule_Engine;
+namespace Mydybox\Rule_Engine;
 
 defined( 'ABSPATH' ) || exit;
 

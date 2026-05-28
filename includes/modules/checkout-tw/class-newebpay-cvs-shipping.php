@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Modules\Checkout_Tw;
+namespace Mydybox\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,18 +19,18 @@ class NewebPay_CVS_Shipping {
 	const MAP_URL = 'https://cvsmap.newebpay.com/search/select';
 
 	public function boot(): void {
-		if ( 'yes' !== get_option( 'mydyma_tcs_newebpay_cvs_enabled', 'no' ) ) {
+		if ( 'yes' !== get_option( 'mydybox_newebpay_cvs_enabled', 'no' ) ) {
 			return;
 		}
 
 		add_filter( 'woocommerce_shipping_methods', [ $this, 'register_shipping_method' ] );
 		add_action( 'woocommerce_shipping_init', [ $this, 'load_shipping_method' ] );
 
-		add_action( 'wp_ajax_mydyma_tcs_open_newebpay_cvs_map', [ $this, 'ajax_open_map' ] );
-		add_action( 'wp_ajax_nopriv_mydyma_tcs_open_newebpay_cvs_map', [ $this, 'ajax_open_map' ] );
+		add_action( 'wp_ajax_mydybox_open_newebpay_cvs_map', [ $this, 'ajax_open_map' ] );
+		add_action( 'wp_ajax_nopriv_mydybox_open_newebpay_cvs_map', [ $this, 'ajax_open_map' ] );
 
-		add_action( 'wp_ajax_mydyma_tcs_newebpay_cvs_callback', [ $this, 'ajax_map_callback' ] );
-		add_action( 'wp_ajax_nopriv_mydyma_tcs_newebpay_cvs_callback', [ $this, 'ajax_map_callback' ] );
+		add_action( 'wp_ajax_mydybox_newebpay_cvs_callback', [ $this, 'ajax_map_callback' ] );
+		add_action( 'wp_ajax_nopriv_mydybox_newebpay_cvs_callback', [ $this, 'ajax_map_callback' ] );
 
 		add_action( 'woocommerce_checkout_create_order', [ $this, 'save_store_to_order' ], 10, 2 );
 
@@ -46,7 +46,7 @@ class NewebPay_CVS_Shipping {
 	}
 
 	public function register_shipping_method( array $methods ): array {
-		$methods['taiwan_store_newebpay_cvs'] = '\Mydyma_TCS\Modules\Checkout_Tw\NewebPay_CVS_Shipping_Method';
+		$methods['taiwan_store_newebpay_cvs'] = '\Mydybox\Modules\Checkout_Tw\NewebPay_CVS_Shipping_Method';
 		return $methods;
 	}
 
@@ -54,15 +54,15 @@ class NewebPay_CVS_Shipping {
 	 * AJAX：產生藍新地圖選店表單並回傳。
 	 */
 	public function ajax_open_map(): void {
-		check_ajax_referer( 'mydyma_tcs_cvs_map', 'nonce' );
+		check_ajax_referer( 'mydybox_cvs_map', 'nonce' );
 
 		$cvs_type    = sanitize_text_field( wp_unslash( $_POST['cvs_type'] ?? 'SEVEN' ) );
-		$is_test     = 'yes' === get_option( 'mydyma_tcs_newebpay_cvs_test_mode', 'yes' );
-		$merchant_id = $is_test ? 'TestMerchant' : get_option( 'mydyma_tcs_newebpay_cvs_merchant_id', '' );
-		$hash_key    = $is_test ? 'TestKey123456789' : get_option( 'mydyma_tcs_newebpay_cvs_hash_key', '' );
-		$hash_iv     = $is_test ? 'TestIV1234567890' : get_option( 'mydyma_tcs_newebpay_cvs_hash_iv', '' );
+		$is_test     = 'yes' === get_option( 'mydybox_newebpay_cvs_test_mode', 'yes' );
+		$merchant_id = $is_test ? 'TestMerchant' : get_option( 'mydybox_newebpay_cvs_merchant_id', '' );
+		$hash_key    = $is_test ? 'TestKey123456789' : get_option( 'mydybox_newebpay_cvs_hash_key', '' );
+		$hash_iv     = $is_test ? 'TestIV1234567890' : get_option( 'mydybox_newebpay_cvs_hash_iv', '' );
 
-		$callback_url = admin_url( 'admin-ajax.php?action=mydyma_tcs_newebpay_cvs_callback&nonce=' . wp_create_nonce( 'mydyma_tcs_newebpay_cvs_callback' ) );
+		$callback_url = admin_url( 'admin-ajax.php?action=mydybox_newebpay_cvs_callback&nonce=' . wp_create_nonce( 'mydybox_newebpay_cvs_callback' ) );
 
 		$params = [
 			'MerchantID'  => $merchant_id,
@@ -86,7 +86,7 @@ class NewebPay_CVS_Shipping {
 	 * 藍新回傳欄位：CVSStoreID、CVSStoreName、CVSAddress、CVSType
 	 */
 	public function ajax_map_callback(): void {
-		check_ajax_referer( 'mydyma_tcs_newebpay_cvs_callback', 'nonce' );
+		check_ajax_referer( 'mydybox_newebpay_cvs_callback', 'nonce' );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verified via check_ajax_referer above
 		$store_id   = sanitize_text_field( wp_unslash( $_POST['CVSStoreID']   ?? $_GET['CVSStoreID']   ?? '' ) );
 		$store_name = sanitize_text_field( wp_unslash( $_POST['CVSStoreName'] ?? $_GET['CVSStoreName'] ?? '' ) );
@@ -97,7 +97,7 @@ class NewebPay_CVS_Shipping {
 			wp_die( 'Missing store data', 400 );
 		}
 
-		WC()->session->set( 'mydyma_tcs_newebpay_cvs_store', [
+		WC()->session->set( 'mydybox_newebpay_cvs_store', [
 			'id'   => $store_id,
 			'name' => $store_name,
 			'addr' => $store_addr,
@@ -115,7 +115,7 @@ class NewebPay_CVS_Shipping {
 		echo '<!DOCTYPE html><html><body>';
 		wp_print_inline_script_tag(
 			'var store = ' . $store_json . ';' .
-			'if (window.opener) { window.opener.postMessage({ type: "mydyma_tcs_cvs_store", store: store }, "*"); window.close(); }'
+			'if (window.opener) { window.opener.postMessage({ type: "mydybox_cvs_store", store: store }, "*"); window.close(); }'
 		);
 		echo '</body></html>';
 		exit;
@@ -135,19 +135,19 @@ class NewebPay_CVS_Shipping {
 
 		// Called via woocommerce_checkout_create_order; WooCommerce verifies the checkout nonce upstream.
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce verified by WooCommerce checkout
-		$store_id   = sanitize_text_field( wp_unslash( $_POST['mydyma_tcs_cvs_store_id']   ?? '' ) );
-		$store_name = sanitize_text_field( wp_unslash( $_POST['mydyma_tcs_cvs_store_name'] ?? '' ) );
-		$store_addr = sanitize_text_field( wp_unslash( $_POST['mydyma_tcs_cvs_store_addr'] ?? '' ) );
-		$store_type = sanitize_text_field( wp_unslash( $_POST['mydyma_tcs_cvs_store_type'] ?? '' ) );
+		$store_id   = sanitize_text_field( wp_unslash( $_POST['mydybox_cvs_store_id']   ?? '' ) );
+		$store_name = sanitize_text_field( wp_unslash( $_POST['mydybox_cvs_store_name'] ?? '' ) );
+		$store_addr = sanitize_text_field( wp_unslash( $_POST['mydybox_cvs_store_addr'] ?? '' ) );
+		$store_type = sanitize_text_field( wp_unslash( $_POST['mydybox_cvs_store_type'] ?? '' ) );
 		// phpcs:enable
 
 		if ( ! $store_id ) return;
 
-		$order->update_meta_data( 'mydyma_tcs_cvs_store_id',       $store_id );
-		$order->update_meta_data( 'mydyma_tcs_cvs_store_name',     $store_name );
-		$order->update_meta_data( 'mydyma_tcs_cvs_store_addr',     $store_addr );
-		$order->update_meta_data( 'mydyma_tcs_cvs_store_type',     $store_type );
-		$order->update_meta_data( 'mydyma_tcs_cvs_store_provider', 'newebpay' );
+		$order->update_meta_data( 'mydybox_cvs_store_id',       $store_id );
+		$order->update_meta_data( 'mydybox_cvs_store_name',     $store_name );
+		$order->update_meta_data( 'mydybox_cvs_store_addr',     $store_addr );
+		$order->update_meta_data( 'mydybox_cvs_store_type',     $store_type );
+		$order->update_meta_data( 'mydybox_cvs_store_provider', 'newebpay' );
 
 		$type_label = $this->get_cvs_label( $store_type );
 		$order->set_shipping_address_1( "[{$type_label}] {$store_name}" );
@@ -155,38 +155,38 @@ class NewebPay_CVS_Shipping {
 	}
 
 	public function display_store_in_order( \WC_Order $order ): void {
-		if ( $order->get_meta( 'mydyma_tcs_cvs_store_provider' ) !== 'newebpay' ) return;
-		if ( ! $order->get_meta( 'mydyma_tcs_cvs_store_id' ) ) return;
+		if ( $order->get_meta( 'mydybox_cvs_store_provider' ) !== 'newebpay' ) return;
+		if ( ! $order->get_meta( 'mydybox_cvs_store_id' ) ) return;
 		$this->render_store_block( $order );
 	}
 
 	public function display_store_in_email( \WC_Order $order, bool $sent_to_admin, string $plain_text ): void {
-		if ( $order->get_meta( 'mydyma_tcs_cvs_store_provider' ) !== 'newebpay' ) return;
-		if ( ! $order->get_meta( 'mydyma_tcs_cvs_store_id' ) ) return;
+		if ( $order->get_meta( 'mydybox_cvs_store_provider' ) !== 'newebpay' ) return;
+		if ( ! $order->get_meta( 'mydybox_cvs_store_id' ) ) return;
 		if ( $plain_text ) {
-			echo "\n" . esc_html__( '取貨門市', 'mydyma-taiwan-commerce-suite' ) . ': ' . esc_html( $order->get_meta( 'mydyma_tcs_cvs_store_name' ) ) . ' - ' . esc_html( $order->get_meta( 'mydyma_tcs_cvs_store_addr' ) ) . "\n";
+			echo "\n" . esc_html__( '取貨門市', 'mydybox-taiwan-for-woocommerce' ) . ': ' . esc_html( $order->get_meta( 'mydybox_cvs_store_name' ) ) . ' - ' . esc_html( $order->get_meta( 'mydybox_cvs_store_addr' ) ) . "\n";
 		} else {
 			$this->render_store_block( $order );
 		}
 	}
 
 	public function display_store_in_admin( \WC_Order $order ): void {
-		if ( $order->get_meta( 'mydyma_tcs_cvs_store_provider' ) !== 'newebpay' ) return;
-		if ( ! $order->get_meta( 'mydyma_tcs_cvs_store_id' ) ) return;
+		if ( $order->get_meta( 'mydybox_cvs_store_provider' ) !== 'newebpay' ) return;
+		if ( ! $order->get_meta( 'mydybox_cvs_store_id' ) ) return;
 		echo '<div style="margin-top:10px;padding:10px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;">';
-		echo '<strong>🏪 ' . esc_html__( '超商取貨門市（藍新）', 'mydyma-taiwan-commerce-suite' ) . '</strong><br>';
-		echo esc_html( $this->get_cvs_label( $order->get_meta( 'mydyma_tcs_cvs_store_type' ) ) ) . ' ';
-		echo esc_html( $order->get_meta( 'mydyma_tcs_cvs_store_name' ) ) . '<br>';
-		echo '<small>' . esc_html( $order->get_meta( 'mydyma_tcs_cvs_store_addr' ) ) . '</small>';
+		echo '<strong>🏪 ' . esc_html__( '超商取貨門市（藍新）', 'mydybox-taiwan-for-woocommerce' ) . '</strong><br>';
+		echo esc_html( $this->get_cvs_label( $order->get_meta( 'mydybox_cvs_store_type' ) ) ) . ' ';
+		echo esc_html( $order->get_meta( 'mydybox_cvs_store_name' ) ) . '<br>';
+		echo '<small>' . esc_html( $order->get_meta( 'mydybox_cvs_store_addr' ) ) . '</small>';
 		echo '</div>';
 	}
 
 	private function render_store_block( \WC_Order $order ): void {
-		$label = $this->get_cvs_label( $order->get_meta( 'mydyma_tcs_cvs_store_type' ) );
-		$name  = $order->get_meta( 'mydyma_tcs_cvs_store_name' );
-		$addr  = $order->get_meta( 'mydyma_tcs_cvs_store_addr' );
+		$label = $this->get_cvs_label( $order->get_meta( 'mydybox_cvs_store_type' ) );
+		$name  = $order->get_meta( 'mydybox_cvs_store_name' );
+		$addr  = $order->get_meta( 'mydybox_cvs_store_addr' );
 		echo '<section class="ts-cvs-order-info" style="margin:1rem 0;padding:1rem;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;">';
-		echo '<h3 style="margin:0 0 .5rem;font-size:1rem;">🏪 ' . esc_html__( '取貨門市資訊（藍新）', 'mydyma-taiwan-commerce-suite' ) . '</h3>';
+		echo '<h3 style="margin:0 0 .5rem;font-size:1rem;">🏪 ' . esc_html__( '取貨門市資訊（藍新）', 'mydybox-taiwan-for-woocommerce' ) . '</h3>';
 		echo '<p style="margin:0;">' . esc_html( $label ) . '｜' . esc_html( $name ) . '</p>';
 		echo '<p style="margin:.25rem 0 0;color:#6b7280;font-size:.875rem;">' . esc_html( $addr ) . '</p>';
 		echo '</section>';

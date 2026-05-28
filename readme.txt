@@ -1,4 +1,4 @@
-=== Mydyma Taiwan Commerce Suite for WooCommerce ===
+=== Mydybox Taiwan for WooCommerce ===
 Contributors: mydymaibox
 Tags: woocommerce, taiwan, checkout, shipping, social-login
 Requires at least: 6.5
@@ -12,7 +12,7 @@ Localization toolkit for WooCommerce in Taiwan: checkout fields, tax ID, postcod
 
 == Description ==
 
-Mydyma Taiwan Commerce Suite for WooCommerce is a localization toolkit built for stores selling to customers in Taiwan. It adapts the WooCommerce checkout to Taiwanese conventions, integrates with local logistics and payment providers, and provides a visual rule engine for common business logic.
+Mydybox Taiwan for WooCommerce is a localization toolkit built for stores selling to customers in Taiwan. It adapts the WooCommerce checkout to Taiwanese conventions, integrates with local logistics and payment providers, and provides a visual rule engine for common business logic.
 
 = Core Features =
 * **Taiwan Checkout Optimization** — City/District cascading dropdowns and 3+2 digit postcode auto-fill.
@@ -28,9 +28,9 @@ Mydyma Taiwan Commerce Suite for WooCommerce is a localization toolkit built for
 
 == Installation ==
 
-1. Upload the `mydyma-taiwan-commerce-suite` folder to `/wp-content/plugins/`.
+1. Upload the `mydybox-taiwan-for-woocommerce` folder to `/wp-content/plugins/`.
 2. Activate the plugin from the WordPress "Plugins" screen.
-3. Configure under **Mydyma TCS** in the admin menu.
+3. Configure under **Mydybox** in the admin menu.
 
 == Frequently Asked Questions ==
 
@@ -100,7 +100,7 @@ This plugin can connect to several third-party services. Each connection only ha
 == Changelog ==
 
 = 1.0.7 =
-* Renamed to **Mydyma Taiwan Commerce Suite for WooCommerce** for wp.org distinctiveness.
+* Renamed to **Mydybox Taiwan for WooCommerce** for wp.org distinctiveness.
 * Removed the locked electronic-invoice module that was previously gated behind a Pro plugin (Guideline 5 compliance).
 * GCIS Tax ID lookup is now **opt-in and off by default**, with a server-side guard.
 * Hardened social-login OAuth flow with a random, browser-bound `state` cookie (login-CSRF fix).

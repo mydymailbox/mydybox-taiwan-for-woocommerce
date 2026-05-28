@@ -1,14 +1,14 @@
 /**
  * Checkout Countdown — reservation timer banner.
- * Data is provided by wp_localize_script via window.mydymaTcsCountdown.
+ * Data is provided by wp_localize_script via window.mydyboxCountdown.
  */
 (function ($) {
-	if ( typeof window.mydymaTcsCountdown === 'undefined' ) return;
+	if ( typeof window.mydyboxCountdown === 'undefined' ) return;
 
-	var minutes = parseInt( window.mydymaTcsCountdown.minutes, 10 ) || 0;
+	var minutes = parseInt( window.mydyboxCountdown.minutes, 10 ) || 0;
 	var seconds = 0;
-	var $banner = $( '#mydyma-taiwan-commerce-suite-checkout-timer' );
-	var $clock  = $( '#mydyma-taiwan-commerce-suite-countdown-clock' );
+	var $banner = $( '#mydybox-taiwan-for-woocommerce-checkout-timer' );
+	var $clock  = $( '#mydybox-taiwan-for-woocommerce-countdown-clock' );
 	if ( ! $banner.length || ! $clock.length ) return;
 
 	var timer = setInterval( function () {
@@ -16,8 +16,8 @@
 			if ( minutes === 0 ) {
 				clearInterval( timer );
 				$banner.addClass( 'is-expired' )
-					.find( '.mydyma-taiwan-commerce-suite-timer-text' )
-					.text( window.mydymaTcsCountdown.expiredMsg );
+					.find( '.mydybox-taiwan-for-woocommerce-timer-text' )
+					.text( window.mydyboxCountdown.expiredMsg );
 				return;
 			}
 			minutes--;

@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Modules\Social_Login;
+namespace Mydybox\Modules\Social_Login;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -11,7 +11,7 @@ class Module {
 
 	public function boot(): void {
 		add_filter( 'woocommerce_get_settings_tw_core', [ $this, 'add_settings_fields' ], 10, 2 );
-		add_action( 'mydyma_tcs_settings_before_output_social_login', [ $this, 'output_guide' ] );
+		add_action( 'mydybox_settings_before_output_social_login', [ $this, 'output_guide' ] );
 		
 		// Display hooks for My Account / Login
 		// Removed woocommerce_before_customer_login_form to prevent duplication
@@ -35,10 +35,10 @@ class Module {
 			'facebook' => add_query_arg( 'taiwan_store_social', 'facebook', $home_url ),
 		];
 		?>
-		<div class="mydyma-taiwan-commerce-suite-social-guide" style="background:#fff; padding:20px; border:1px solid #e2e8f0; border-radius:12px; margin-top:20px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">
-			<h3 style="margin-top:0; color:#1e293b;"><?php esc_html_e( 'Social Login Setup Guide', 'mydyma-taiwan-commerce-suite' ); ?></h3>
-			<p style="color:#64748b; font-size:14px;"><?php esc_html_e( 'Please use the following URLs as the Callback URL or Redirect URI in your developer consoles:', 'mydyma-taiwan-commerce-suite' ); ?></p>
-			<div class="mydyma-taiwan-commerce-suite-callback-box" style="background:#f8fafc; padding:15px; border-left:4px solid #3b82f6; border-radius:4px; font-family:monospace; font-size:13px; line-height:1.6;">
+		<div class="mydybox-taiwan-for-woocommerce-social-guide" style="background:#fff; padding:20px; border:1px solid #e2e8f0; border-radius:12px; margin-top:20px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">
+			<h3 style="margin-top:0; color:#1e293b;"><?php esc_html_e( 'Social Login Setup Guide', 'mydybox-taiwan-for-woocommerce' ); ?></h3>
+			<p style="color:#64748b; font-size:14px;"><?php esc_html_e( 'Please use the following URLs as the Callback URL or Redirect URI in your developer consoles:', 'mydybox-taiwan-for-woocommerce' ); ?></p>
+			<div class="mydybox-taiwan-for-woocommerce-callback-box" style="background:#f8fafc; padding:15px; border-left:4px solid #3b82f6; border-radius:4px; font-family:monospace; font-size:13px; line-height:1.6;">
 				<strong>LINE Callback:</strong> <code><?php echo esc_url( $callbacks['line'] ); ?></code><br>
 				<strong>Google Redirect:</strong> <code><?php echo esc_url( $callbacks['google'] ); ?></code><br>
 				<strong>Facebook Redirect:</strong> <code><?php echo esc_url( $callbacks['facebook'] ); ?></code>
@@ -50,45 +50,45 @@ class Module {
 	public function add_settings_fields( array $settings, string $current_section ): array {
 		if ( 'social_login' !== $current_section ) return $settings;
 		return [
-			[ 'title' => __( 'LINE Login Settings', 'mydyma-taiwan-commerce-suite' ), 'type' => 'title', 'id' => 'mydyma_tcs_social_line_options' ],
-			[ 'title' => __( 'Enable LINE', 'mydyma-taiwan-commerce-suite' ), 'id' => 'mydyma_tcs_social_line_enabled', 'type' => 'checkbox' ],
-			[ 'title' => __( 'Channel ID', 'mydyma-taiwan-commerce-suite' ), 'id' => 'mydyma_tcs_social_line_client_id', 'type' => 'text' ],
-			[ 'title' => __( 'Channel Secret', 'mydyma-taiwan-commerce-suite' ), 'id' => 'mydyma_tcs_social_line_client_secret', 'type' => 'password' ],
-			[ 'type' => 'sectionend', 'id' => 'mydyma_tcs_social_line_options' ],
+			[ 'title' => __( 'LINE Login Settings', 'mydybox-taiwan-for-woocommerce' ), 'type' => 'title', 'id' => 'mydybox_social_line_options' ],
+			[ 'title' => __( 'Enable LINE', 'mydybox-taiwan-for-woocommerce' ), 'id' => 'mydybox_social_line_enabled', 'type' => 'checkbox' ],
+			[ 'title' => __( 'Channel ID', 'mydybox-taiwan-for-woocommerce' ), 'id' => 'mydybox_social_line_client_id', 'type' => 'text' ],
+			[ 'title' => __( 'Channel Secret', 'mydybox-taiwan-for-woocommerce' ), 'id' => 'mydybox_social_line_client_secret', 'type' => 'password' ],
+			[ 'type' => 'sectionend', 'id' => 'mydybox_social_line_options' ],
 		];
 	}
 
 	public function display_login_buttons(): void {
 		if ( is_user_logged_in() ) return;
 		
-		$line_enabled   = get_option( 'mydyma_tcs_social_line_enabled' ) === 'yes';
-		$google_enabled = get_option( 'mydyma_tcs_social_google_enabled' ) === 'yes';
-		$fb_enabled     = get_option( 'mydyma_tcs_social_fb_enabled' ) === 'yes';
+		$line_enabled   = get_option( 'mydybox_social_line_enabled' ) === 'yes';
+		$google_enabled = get_option( 'mydybox_social_google_enabled' ) === 'yes';
+		$fb_enabled     = get_option( 'mydybox_social_fb_enabled' ) === 'yes';
 
 		if ( ! $line_enabled && ! $google_enabled && ! $fb_enabled ) return;
 		
-		echo '<div class="mydyma-taiwan-commerce-suite-social-login-wrap" style="margin: 20px 0; text-align:center; display:flex; flex-direction:column; gap:12px; align-items:center;">';
-		echo '<div style="width: 100%; max-width: 300px; border-bottom: 1px solid #eee; margin-bottom: 5px; position: relative;"><span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #fff; padding: 0 10px; color: #999; font-size: 12px;">' . esc_html__( '使用社群帳號快速登入', 'mydyma-taiwan-commerce-suite' ) . '</span></div>';
+		echo '<div class="mydybox-taiwan-for-woocommerce-social-login-wrap" style="margin: 20px 0; text-align:center; display:flex; flex-direction:column; gap:12px; align-items:center;">';
+		echo '<div style="width: 100%; max-width: 300px; border-bottom: 1px solid #eee; margin-bottom: 5px; position: relative;"><span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #fff; padding: 0 10px; color: #999; font-size: 12px;">' . esc_html__( '使用社群帳號快速登入', 'mydybox-taiwan-for-woocommerce' ) . '</span></div>';
 		
 		if ( $line_enabled ) {
 			$line_url = add_query_arg( 'taiwan_store_social', 'line', home_url( '/' ) );
 			$line_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M24 10.304c0-5.232-5.383-9.5-12-9.5-6.617 0-12 4.268-12 9.5 0 4.69 4.263 8.605 10.008 9.341l-.708 2.626c-.114.423.51.701.815.399l3.812-3.774c4.686-.343 8.073-3.665 8.073-8.592zm-14.195 4.193h-2.196c-.302 0-.549-.248-.549-.551V9.324c0-.303.247-.551.549-.551.302 0 .549.248.549.551v3.978h1.647c.303 0 .549.247.549.551 0 .303-.246.551-.549.551zm3.627 0h-2.195c-.303 0-.551-.248-.551-.551V9.324c0-.303.248-.551.551-.551s.551.248.551.551v4.193c0 .303-.248.551-.551.551zm2.148 0c-.303 0-.551-.248-.551-.551V9.324c0-.303.248-.551.551-.551s.551.248.551.551v4.193c0 .303-.248.551-.551.551zm5.155-4.193h-2.195c-.303 0-.551-.248-.551-.551V9.324c0-.303.248-.551.551-.551s.551.248.551.551v3.978h1.647c.303 0 .549.247.549.551s-.246.551-.549.551zm-1.647-1.647h1.647c.303 0 .549.248.549.551 0 .303-.246.551-.549.551h-1.647c-.303 0-.551-.248-.551-.551s.248-.551.551-.551z"/></svg>';
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $line_svg is a hardcoded SVG string, not user input
-			echo '<a href="' . esc_url( $line_url ) . '" class="mydyma-taiwan-commerce-suite-social-btn line" style="background:#06C755; color:#fff; width:280px; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1); text-align:center; display:flex; align-items:center; justify-content:center; gap:10px;">' . $line_svg . ' LINE ' . esc_html__( '快速登入', 'mydyma-taiwan-commerce-suite' ) . '</a>';
+			echo '<a href="' . esc_url( $line_url ) . '" class="mydybox-taiwan-for-woocommerce-social-btn line" style="background:#06C755; color:#fff; width:280px; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1); text-align:center; display:flex; align-items:center; justify-content:center; gap:10px;">' . $line_svg . ' LINE ' . esc_html__( '快速登入', 'mydybox-taiwan-for-woocommerce' ) . '</a>';
 		}
 
 		if ( $google_enabled ) {
 			$google_url = add_query_arg( 'taiwan_store_social', 'google', home_url( '/' ) );
 			$google_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" style="flex-shrink:0;"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285f4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34a853"/><path d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#fbbc05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.167 6.656 3.58 9 3.58z" fill="#ea4335"/></svg>';
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $google_svg is a hardcoded SVG string, not user input
-			echo '<a href="' . esc_url( $google_url ) . '" class="mydyma-taiwan-commerce-suite-social-btn google" style="background:#fff; color:#444; width:280px; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1); border:1px solid #ddd; text-align:center; display:flex; align-items:center; justify-content:center; gap:10px;">' . $google_svg . ' Google ' . esc_html__( '快速登入', 'mydyma-taiwan-commerce-suite' ) . '</a>';
+			echo '<a href="' . esc_url( $google_url ) . '" class="mydybox-taiwan-for-woocommerce-social-btn google" style="background:#fff; color:#444; width:280px; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1); border:1px solid #ddd; text-align:center; display:flex; align-items:center; justify-content:center; gap:10px;">' . $google_svg . ' Google ' . esc_html__( '快速登入', 'mydybox-taiwan-for-woocommerce' ) . '</a>';
 		}
 
 		if ( $fb_enabled ) {
 			$fb_url = add_query_arg( 'taiwan_store_social', 'facebook', home_url( '/' ) );
 			$fb_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>';
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $fb_svg is a hardcoded SVG string, not user input
-			echo '<a href="' . esc_url( $fb_url ) . '" class="mydyma-taiwan-commerce-suite-social-btn facebook" style="background:#1877F2; color:#fff; width:280px; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1); text-align:center; display:flex; align-items:center; justify-content:center; gap:10px;">' . $fb_svg . ' Facebook ' . esc_html__( '快速登入', 'mydyma-taiwan-commerce-suite' ) . '</a>';
+			echo '<a href="' . esc_url( $fb_url ) . '" class="mydybox-taiwan-for-woocommerce-social-btn facebook" style="background:#1877F2; color:#fff; width:280px; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1); text-align:center; display:flex; align-items:center; justify-content:center; gap:10px;">' . $fb_svg . ' Facebook ' . esc_html__( '快速登入', 'mydybox-taiwan-for-woocommerce' ) . '</a>';
 		}
 
 		echo '</div>';
@@ -100,7 +100,7 @@ class Module {
 	 * callback only succeeds if both match. This prevents login CSRF where an attacker
 	 * tricks a victim into clicking a pre-baked callback URL.
 	 */
-	private const OAUTH_STATE_COOKIE = 'mydyma_tcs_oauth_state';
+	private const OAUTH_STATE_COOKIE = 'mydybox_oauth_state';
 
 	/**
 	 * Generate a fresh random state and pin it to this browser via an HTTP-only cookie.
@@ -165,7 +165,7 @@ class Module {
 		// crafts a callback URL using their own captured state.
 		$state_from_request = isset( $_GET['state'] ) ? sanitize_text_field( wp_unslash( $_GET['state'] ) ) : '';
 		if ( ! $this->verify_oauth_state( $state_from_request ) ) {
-			wp_die( esc_html__( 'Security check failed: OAuth state mismatch. Please retry the login from this browser.', 'mydyma-taiwan-commerce-suite' ) );
+			wp_die( esc_html__( 'Security check failed: OAuth state mismatch. Please retry the login from this browser.', 'mydybox-taiwan-for-woocommerce' ) );
 		}
 
 		if ( 'line' === $provider ) $this->process_line_login( sanitize_text_field( wp_unslash( $_GET['code'] ) ) );
@@ -174,7 +174,7 @@ class Module {
 	}
 
 	private function redirect_to_line_authorize(): void {
-		$client_id = get_option( 'mydyma_tcs_social_line_client_id' );
+		$client_id = get_option( 'mydybox_social_line_client_id' );
 		if ( ! $client_id ) wp_die( 'LINE Channel ID not set.' );
 		$redirect_uri = add_query_arg( 'taiwan_store_social', 'line', home_url( '/' ) );
 		$state = $this->start_oauth_state();
@@ -184,7 +184,7 @@ class Module {
 	}
 
 	private function redirect_to_google_authorize(): void {
-		$client_id = get_option( 'mydyma_tcs_social_google_client_id' );
+		$client_id = get_option( 'mydybox_social_google_client_id' );
 		if ( ! $client_id ) wp_die( 'Google Client ID not set.' );
 		$redirect_uri = add_query_arg( 'taiwan_store_social', 'google', home_url( '/' ) );
 		$state = $this->start_oauth_state();
@@ -194,7 +194,7 @@ class Module {
 	}
 
 	private function redirect_to_fb_authorize(): void {
-		$client_id = get_option( 'mydyma_tcs_social_fb_client_id' );
+		$client_id = get_option( 'mydybox_social_fb_client_id' );
 		if ( ! $client_id ) wp_die( 'Facebook App ID not set.' );
 		$redirect_uri = add_query_arg( 'taiwan_store_social', 'facebook', home_url( '/' ) );
 		$state = $this->start_oauth_state();
@@ -204,8 +204,8 @@ class Module {
 	}
 
 	private function process_line_login( string $code ): void {
-		$client_id     = get_option( 'mydyma_tcs_social_line_client_id' );
-		$client_secret = get_option( 'mydyma_tcs_social_line_client_secret' );
+		$client_id     = get_option( 'mydybox_social_line_client_id' );
+		$client_secret = get_option( 'mydybox_social_line_client_secret' );
 		$redirect_uri  = add_query_arg( 'taiwan_store_social', 'line', home_url( '/' ) );
 
 		$response = wp_remote_post( 'https://api.line.me/oauth2/v2.1/token', [ 'body' => [ 'grant_type' => 'authorization_code', 'code' => $code, 'redirect_uri' => $redirect_uri, 'client_id' => $client_id, 'client_secret' => $client_secret ] ] );
@@ -226,8 +226,8 @@ class Module {
 	}
 
 	private function process_google_login( string $code ): void {
-		$client_id     = get_option( 'mydyma_tcs_social_google_client_id' );
-		$client_secret = get_option( 'mydyma_tcs_social_google_client_secret' );
+		$client_id     = get_option( 'mydybox_social_google_client_id' );
+		$client_secret = get_option( 'mydybox_social_google_client_secret' );
 		$redirect_uri  = add_query_arg( 'taiwan_store_social', 'google', home_url( '/' ) );
 
 		$response = wp_remote_post( 'https://oauth2.googleapis.com/token', [ 'body' => [ 'grant_type' => 'authorization_code', 'code' => $code, 'redirect_uri' => $redirect_uri, 'client_id' => $client_id, 'client_secret' => $client_secret ] ] );
@@ -242,8 +242,8 @@ class Module {
 	}
 
 	private function process_fb_login( string $code ): void {
-		$client_id     = get_option( 'mydyma_tcs_social_fb_client_id' );
-		$client_secret = get_option( 'mydyma_tcs_social_fb_client_secret' );
+		$client_id     = get_option( 'mydybox_social_fb_client_id' );
+		$client_secret = get_option( 'mydybox_social_fb_client_secret' );
 		$redirect_uri  = add_query_arg( 'taiwan_store_social', 'facebook', home_url( '/' ) );
 
 		$response = wp_remote_get( 'https://graph.facebook.com/v12.0/oauth/access_token?' . http_build_query( [ 'client_id' => $client_id, 'client_secret' => $client_secret, 'redirect_uri' => $redirect_uri, 'code' => $code ] ) );
@@ -257,7 +257,7 @@ class Module {
 	}
 
 	private function finish_login( string $provider, string $social_id, string $email, string $display_name = '', string $avatar_url = '' ): void {
-		$meta_key = "_mydyma_tcs_{$provider}_user_id";
+		$meta_key = "_mydybox_{$provider}_user_id";
 		$users    = get_users( [ 'meta_key' => $meta_key, 'meta_value' => $social_id, 'number' => 1 ] );
 
 		if ( ! empty( $users ) ) {
@@ -289,7 +289,7 @@ class Module {
 			wp_update_user( [ 'ID' => $wp_user->ID, 'display_name' => $display_name ] );
 		}
 		if ( $avatar_url ) {
-			update_user_meta( $wp_user->ID, "_mydyma_tcs_{$provider}_avatar", $avatar_url );
+			update_user_meta( $wp_user->ID, "_mydybox_{$provider}_avatar", $avatar_url );
 		}
 
 		wp_set_current_user( $wp_user->ID );

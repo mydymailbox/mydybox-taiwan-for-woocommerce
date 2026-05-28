@@ -1,9 +1,9 @@
 <?php
-namespace Mydyma_TCS\Modules\Logs;
+namespace Mydybox\Modules\Logs;
 
 defined( 'ABSPATH' ) || exit;
 
-class Module implements \Mydyma_TCS\Module {
+class Module implements \Mydybox\Module {
 
 	private static bool $debug = false;
 
@@ -12,16 +12,16 @@ class Module implements \Mydyma_TCS\Module {
 	}
 
 	public function boot(): void {
-		self::$debug = 'yes' === get_option( 'mydyma_tcs_debug', 'no' );
+		self::$debug = 'yes' === get_option( 'mydybox_debug', 'no' );
 		if ( is_admin() ) {
-			add_action( 'wp_ajax_mydyma_tcs_get_stats', [ $this, 'ajax_get_stats' ] );
+			add_action( 'wp_ajax_mydybox_get_stats', [ $this, 'ajax_get_stats' ] );
 		}
 	}
 
 	public function is_admin_only(): bool { return false; }
 
 	public function ajax_get_stats(): void {
-		check_ajax_referer( 'mydyma_tcs_admin', 'nonce' );
+		check_ajax_referer( 'mydybox_admin', 'nonce' );
 		if ( ! current_user_can( 'manage_woocommerce' ) ) wp_send_json_error( 'Forbidden' );
 
 		$today_start = gmdate( 'Y-m-d 00:00:00' );
@@ -43,10 +43,10 @@ class Module implements \Mydyma_TCS\Module {
 
 	public static function info( string $msg, array $ctx = [] ): void {
 		if ( ! self::$debug ) return;
-		wc_get_logger()->info( $msg, array_merge( [ 'source' => 'mydyma-taiwan-commerce-suite' ], $ctx ) );
+		wc_get_logger()->info( $msg, array_merge( [ 'source' => 'mydybox-taiwan-for-woocommerce' ], $ctx ) );
 	}
 
 	public static function error( string $msg, array $ctx = [] ): void {
-		wc_get_logger()->error( $msg, array_merge( [ 'source' => 'mydyma-taiwan-commerce-suite' ], $ctx ) );
+		wc_get_logger()->error( $msg, array_merge( [ 'source' => 'mydybox-taiwan-for-woocommerce' ], $ctx ) );
 	}
 }

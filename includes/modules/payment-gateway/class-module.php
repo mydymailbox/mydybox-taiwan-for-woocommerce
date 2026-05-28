@@ -1,9 +1,9 @@
 <?php
-namespace Mydyma_TCS\Modules\Payment_Gateway;
+namespace Mydybox\Modules\Payment_Gateway;
 
 defined( 'ABSPATH' ) || exit;
 
-class Module implements \Mydyma_TCS\Module {
+class Module implements \Mydybox\Module {
 
 	public function id(): string {
 		return 'payment_gateway';
@@ -15,7 +15,7 @@ class Module implements \Mydyma_TCS\Module {
 
 	public function register_gateway( array $gateways ): array {
 		require_once __DIR__ . '/class-ecpay-gateway.php';
-		$gateways[] = '\Mydyma_TCS\Modules\Payment_Gateway\ECPay_Gateway';
+		$gateways[] = '\Mydybox\Modules\Payment_Gateway\ECPay_Gateway';
 		return $gateways;
 	}
 

@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Modules\Checkout_Tw;
+namespace Mydybox\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -11,8 +11,8 @@ class NewebPay_CVS_Shipping_Method extends \WC_Shipping_Method {
 	public function __construct( $instance_id = 0 ) {
 		$this->id                 = 'taiwan_store_newebpay_cvs';
 		$this->instance_id        = absint( $instance_id );
-		$this->method_title       = __( '超商取貨（藍新）', 'mydyma-taiwan-commerce-suite' );
-		$this->method_description = __( '7-ELEVEN、全家、萊爾富、OK 超商取貨（藍新物流）', 'mydyma-taiwan-commerce-suite' );
+		$this->method_title       = __( '超商取貨（藍新）', 'mydybox-taiwan-for-woocommerce' );
+		$this->method_description = __( '7-ELEVEN、全家、萊爾富、OK 超商取貨（藍新物流）', 'mydybox-taiwan-for-woocommerce' );
 		$this->supports           = [ 'shipping-zones', 'instance-settings' ];
 		$this->init();
 	}
@@ -21,7 +21,7 @@ class NewebPay_CVS_Shipping_Method extends \WC_Shipping_Method {
 		$this->init_form_fields();
 		$this->init_settings();
 
-		$this->title      = $this->get_option( 'title', __( '超商取貨（藍新）', 'mydyma-taiwan-commerce-suite' ) );
+		$this->title      = $this->get_option( 'title', __( '超商取貨（藍新）', 'mydybox-taiwan-for-woocommerce' ) );
 		$this->tax_status = 'none';
 
 		add_action( 'woocommerce_update_options_shipping_' . $this->id, [ $this, 'process_admin_options' ] );
@@ -30,24 +30,24 @@ class NewebPay_CVS_Shipping_Method extends \WC_Shipping_Method {
 	public function init_form_fields(): void {
 		$this->instance_form_fields = [
 			'title' => [
-				'title'   => __( '方式名稱', 'mydyma-taiwan-commerce-suite' ),
+				'title'   => __( '方式名稱', 'mydybox-taiwan-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => __( '超商取貨（藍新）', 'mydyma-taiwan-commerce-suite' ),
+				'default' => __( '超商取貨（藍新）', 'mydybox-taiwan-for-woocommerce' ),
 			],
 			'cost' => [
-				'title'       => __( '運費', 'mydyma-taiwan-commerce-suite' ),
+				'title'       => __( '運費', 'mydybox-taiwan-for-woocommerce' ),
 				'type'        => 'price',
 				'default'     => '60',
-				'description' => __( '超商取貨運費，0 表示免運', 'mydyma-taiwan-commerce-suite' ),
+				'description' => __( '超商取貨運費，0 表示免運', 'mydybox-taiwan-for-woocommerce' ),
 			],
 			'free_min' => [
-				'title'       => __( '免運門檻（NT$）', 'mydyma-taiwan-commerce-suite' ),
+				'title'       => __( '免運門檻（NT$）', 'mydybox-taiwan-for-woocommerce' ),
 				'type'        => 'price',
 				'default'     => '0',
-				'description' => __( '訂單滿此金額免運，0 表示停用', 'mydyma-taiwan-commerce-suite' ),
+				'description' => __( '訂單滿此金額免運，0 表示停用', 'mydybox-taiwan-for-woocommerce' ),
 			],
 			'cvs_type' => [
-				'title'   => __( '超商類型', 'mydyma-taiwan-commerce-suite' ),
+				'title'   => __( '超商類型', 'mydybox-taiwan-for-woocommerce' ),
 				'type'    => 'select',
 				'default' => 'SEVEN',
 				'options' => [
@@ -78,8 +78,8 @@ class NewebPay_CVS_Shipping_Method extends \WC_Shipping_Method {
 	}
 
 	public function is_available( $package ): bool {
-		$is_test = 'yes' === get_option( 'mydyma_tcs_newebpay_cvs_test_mode', 'yes' );
-		if ( ! $is_test && ! get_option( 'mydyma_tcs_newebpay_cvs_merchant_id' ) ) {
+		$is_test = 'yes' === get_option( 'mydybox_newebpay_cvs_test_mode', 'yes' );
+		if ( ! $is_test && ! get_option( 'mydybox_newebpay_cvs_merchant_id' ) ) {
 			return false;
 		}
 		return parent::is_available( $package );

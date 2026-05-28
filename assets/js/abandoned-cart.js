@@ -4,7 +4,7 @@ jQuery( function ( $ ) {
 	function capture( email ) {
 		if ( captured || ! email ) return;
 		$.post( tsAbandonedCart.ajaxUrl, {
-			action: 'mydyma_tcs_capture_checkout_email',
+			action: 'mydybox_capture_checkout_email',
 			nonce:  tsAbandonedCart.nonce,
 			email:  email,
 		} );

@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Modules\Payment_Gateway;
+namespace Mydybox\Modules\Payment_Gateway;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -16,20 +16,20 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 	const QUERY_LIVE  = 'https://payment.ecpay.com.tw/Cashier/QueryTradeInfo/V5';
 
 	public function __construct() {
-		$this->id                 = 'mydyma_tcs_ecpay';
-		$this->method_title       = __( 'ECPay 綠界金流', 'mydyma-taiwan-commerce-suite' );
-		$this->method_description = __( '支援信用卡、ATM、超商代碼、WebATM、TWQR（LINE Pay）', 'mydyma-taiwan-commerce-suite' );
+		$this->id                 = 'mydybox_ecpay';
+		$this->method_title       = __( 'ECPay 綠界金流', 'mydybox-taiwan-for-woocommerce' );
+		$this->method_description = __( '支援信用卡、ATM、超商代碼、WebATM、TWQR（LINE Pay）', 'mydybox-taiwan-for-woocommerce' );
 		$this->has_fields         = false;
 		$this->supports           = [ 'products', 'refunds' ];
 
 		$this->init_form_fields();
 		$this->init_settings();
 
-		$this->title       = $this->get_option( 'title', __( 'ECPay 綠界金流', 'mydyma-taiwan-commerce-suite' ) );
+		$this->title       = $this->get_option( 'title', __( 'ECPay 綠界金流', 'mydybox-taiwan-for-woocommerce' ) );
 		$this->description = $this->get_option( 'description', '' );
 
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, [ $this, 'process_admin_options' ] );
-		add_action( 'woocommerce_api_mydyma_tcs_ecpay', [ $this, 'handle_callback' ] );
+		add_action( 'woocommerce_api_mydybox_ecpay', [ $this, 'handle_callback' ] );
 		add_action( 'woocommerce_receipt_' . $this->id, [ $this, 'render_payment_form' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_redirect_script' ] );
 	}
@@ -44,9 +44,9 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 		}
 		wp_enqueue_script(
 			'mydyma-tcs-form-auto-submit',
-			MYDYMA_TCS_URL . 'assets/js/form-auto-submit.js',
+			MYDYBOX_URL . 'assets/js/form-auto-submit.js',
 			[],
-			MYDYMA_TCS_VERSION,
+			MYDYBOX_VERSION,
 			true
 		);
 	}
@@ -54,41 +54,41 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 	public function init_form_fields(): void {
 		$this->form_fields = [
 			'enabled' => [
-				'title'   => __( '啟用', 'mydyma-taiwan-commerce-suite' ),
+				'title'   => __( '啟用', 'mydybox-taiwan-for-woocommerce' ),
 				'type'    => 'checkbox',
 				'default' => 'no',
 			],
 			'title' => [
-				'title'   => __( '付款方式名稱', 'mydyma-taiwan-commerce-suite' ),
+				'title'   => __( '付款方式名稱', 'mydybox-taiwan-for-woocommerce' ),
 				'type'    => 'text',
 				'default' => 'ECPay 綠界金流',
 			],
 			'description' => [
-				'title'   => __( '說明文字', 'mydyma-taiwan-commerce-suite' ),
+				'title'   => __( '說明文字', 'mydybox-taiwan-for-woocommerce' ),
 				'type'    => 'textarea',
 				'default' => '支援信用卡、ATM 轉帳、超商代碼繳費',
 			],
 			'test_mode' => [
-				'title'   => __( '測試模式', 'mydyma-taiwan-commerce-suite' ),
+				'title'   => __( '測試模式', 'mydybox-taiwan-for-woocommerce' ),
 				'type'    => 'checkbox',
 				'default' => 'yes',
-				'description' => __( '開啟時使用 ECPay Staging（MerchantID: 3002607）', 'mydyma-taiwan-commerce-suite' ),
+				'description' => __( '開啟時使用 ECPay Staging（MerchantID: 3002607）', 'mydybox-taiwan-for-woocommerce' ),
 			],
 			'merchant_id' => [
-				'title'       => __( '正式 MerchantID', 'mydyma-taiwan-commerce-suite' ),
+				'title'       => __( '正式 MerchantID', 'mydybox-taiwan-for-woocommerce' ),
 				'type'        => 'text',
-				'description' => __( '測試模式時無需填寫', 'mydyma-taiwan-commerce-suite' ),
+				'description' => __( '測試模式時無需填寫', 'mydybox-taiwan-for-woocommerce' ),
 			],
 			'hash_key' => [
-				'title' => __( '正式 HashKey', 'mydyma-taiwan-commerce-suite' ),
+				'title' => __( '正式 HashKey', 'mydybox-taiwan-for-woocommerce' ),
 				'type'  => 'password',
 			],
 			'hash_iv' => [
-				'title' => __( '正式 HashIV', 'mydyma-taiwan-commerce-suite' ),
+				'title' => __( '正式 HashIV', 'mydybox-taiwan-for-woocommerce' ),
 				'type'  => 'password',
 			],
 			'choose_payment' => [
-				'title'   => __( '預設付款方式', 'mydyma-taiwan-commerce-suite' ),
+				'title'   => __( '預設付款方式', 'mydybox-taiwan-for-woocommerce' ),
 				'type'    => 'select',
 				'default' => 'ALL',
 				'options' => [
@@ -101,17 +101,17 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 				],
 			],
 			'installment' => [
-				'title'       => __( '信用卡分期', 'mydyma-taiwan-commerce-suite' ),
+				'title'       => __( '信用卡分期', 'mydybox-taiwan-for-woocommerce' ),
 				'type'        => 'text',
 				'default'     => '',
-				'description' => __( '填入可分期期數，逗號分隔，例如：3,6,12。空白表示不啟用分期。', 'mydyma-taiwan-commerce-suite' ),
+				'description' => __( '填入可分期期數，逗號分隔，例如：3,6,12。空白表示不啟用分期。', 'mydybox-taiwan-for-woocommerce' ),
 			],
 		];
 	}
 
 	public function process_payment( $order_id ): array {
 		$order = wc_get_order( $order_id );
-		$order->update_status( 'pending', __( '等待 ECPay 付款確認', 'mydyma-taiwan-commerce-suite' ) );
+		$order->update_status( 'pending', __( '等待 ECPay 付款確認', 'mydybox-taiwan-for-woocommerce' ) );
 
 		return [
 			'result'   => 'success',
@@ -134,7 +134,7 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 		$trade_no = 'TW' . gmdate( 'ymdHis' ) . substr( (string) $order_id, -3 ) . wp_rand( 10, 99 );
 
 		// Save trade_no to order for callback matching
-		$order->update_meta_data( 'mydyma_tcs_ecpay_trade_no', $trade_no );
+		$order->update_meta_data( 'mydybox_ecpay_trade_no', $trade_no );
 		$order->save();
 
 		$item_name = implode( '#', array_map(
@@ -153,7 +153,7 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 			'TotalAmount'       => (int) $order->get_total(),
 			'TradeDesc'         => urlencode( get_bloginfo( 'name' ) . ' 訂單' ),
 			'ItemName'          => $item_name,
-			'ReturnURL'         => home_url( '/?wc-api=mydyma_tcs_ecpay' ),
+			'ReturnURL'         => home_url( '/?wc-api=mydybox_ecpay' ),
 			'OrderResultURL'    => $this->get_return_url( $order ),
 			'ChoosePayment'     => $choose_payment,
 			'EncryptType'       => '1',
@@ -169,7 +169,7 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 		$params['CheckMacValue'] = $this->generate_check_mac( $params, $hash_key, $hash_iv );
 
 		// Render auto-submit form
-		echo '<p>' . esc_html__( '即將跳轉至綠界付款頁面...', 'mydyma-taiwan-commerce-suite' ) . '</p>';
+		echo '<p>' . esc_html__( '即將跳轉至綠界付款頁面...', 'mydybox-taiwan-for-woocommerce' ) . '</p>';
 		echo '<form id="ts-ecpay-form" method="post" action="' . esc_url( $endpoint ) . '">';
 		foreach ( $params as $k => $v ) {
 			echo '<input type="hidden" name="' . esc_attr( $k ) . '" value="' . esc_attr( $v ) . '">';
@@ -227,14 +227,14 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 			$order->payment_complete( $trade_no );
 			$order->add_order_note( sprintf(
 				// translators: %1$s is ECPay transaction ID, %2$s is payment method string
-				__( 'ECPay 付款成功。交易編號：%1$s，付款方式：%2$s', 'mydyma-taiwan-commerce-suite' ),
+				__( 'ECPay 付款成功。交易編號：%1$s，付款方式：%2$s', 'mydybox-taiwan-for-woocommerce' ),
 				$trade_no,
 				$payment_type
 			) );
 		} else {
 			$order->update_status( 'failed', sprintf(
 				// translators: %1$s is ECPay RtnCode number, %2$s is error message string
-				__( 'ECPay 付款失敗。RtnCode：%1$s，訊息：%2$s', 'mydyma-taiwan-commerce-suite' ),
+				__( 'ECPay 付款失敗。RtnCode：%1$s，訊息：%2$s', 'mydybox-taiwan-for-woocommerce' ),
 				$rtn_code,
 				$rtn_msg
 			) );
@@ -249,10 +249,10 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 	 */
 	public function process_refund( $order_id, $amount = null, $reason = '' ): bool|\WP_Error {
 		$order    = wc_get_order( $order_id );
-		$trade_no = $order->get_meta( 'mydyma_tcs_ecpay_trade_no' );
+		$trade_no = $order->get_meta( 'mydybox_ecpay_trade_no' );
 
 		if ( ! $trade_no ) {
-			return new \WP_Error( 'no_trade_no', __( '找不到 ECPay 交易編號，無法退款', 'mydyma-taiwan-commerce-suite' ) );
+			return new \WP_Error( 'no_trade_no', __( '找不到 ECPay 交易編號，無法退款', 'mydybox-taiwan-for-woocommerce' ) );
 		}
 
 		$is_test     = 'yes' === $this->get_option( 'test_mode', 'yes' );
@@ -285,11 +285,11 @@ class ECPay_Gateway extends \WC_Payment_Gateway {
 		parse_str( wp_remote_retrieve_body( $response ), $result );
 		if ( ( $result['RtnCode'] ?? '' ) === '1' ) {
 			// translators: %s is refund amount
-			$order->add_order_note( sprintf( __( 'ECPay 退款成功：NT$ %s', 'mydyma-taiwan-commerce-suite' ), $amount ) );
+			$order->add_order_note( sprintf( __( 'ECPay 退款成功：NT$ %s', 'mydybox-taiwan-for-woocommerce' ), $amount ) );
 			return true;
 		}
 
-		return new \WP_Error( 'refund_failed', $result['RtnMsg'] ?? __( '退款失敗', 'mydyma-taiwan-commerce-suite' ) );
+		return new \WP_Error( 'refund_failed', $result['RtnMsg'] ?? __( '退款失敗', 'mydybox-taiwan-for-woocommerce' ) );
 	}
 
 	/**

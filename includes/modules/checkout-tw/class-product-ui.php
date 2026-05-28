@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Modules\Checkout_Tw;
+namespace Mydybox\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 class Product_UI {
 
 	public function boot(): void {
-		if ( 'yes' !== get_option( 'mydyma_tcs_product_sticky_bar', 'yes' ) ) {
+		if ( 'yes' !== get_option( 'mydybox_product_sticky_bar', 'yes' ) ) {
 			return;
 		}
 		add_action( 'woocommerce_after_single_product', [ $this, 'display_sticky_add_to_cart' ] );
@@ -22,15 +22,15 @@ class Product_UI {
 
 		wp_enqueue_style(
 			'mydyma-tcs-product-ui',
-			MYDYMA_TCS_URL . 'assets/css/product-ui.css',
+			MYDYBOX_URL . 'assets/css/product-ui.css',
 			[],
-			MYDYMA_TCS_VERSION
+			MYDYBOX_VERSION
 		);
 		wp_enqueue_script(
 			'mydyma-tcs-product-ui',
-			MYDYMA_TCS_URL . 'assets/js/product-ui.js',
+			MYDYBOX_URL . 'assets/js/product-ui.js',
 			[ 'jquery' ],
-			MYDYMA_TCS_VERSION,
+			MYDYBOX_VERSION,
 			true
 		);
 	}
@@ -42,30 +42,30 @@ class Product_UI {
 		$image_url    = get_the_post_thumbnail_url( $product->get_id(), 'thumbnail' );
 		$price_html   = $product->get_price_html();
 		$is_low_stock = $product->get_stock_quantity() > 0 && $product->get_stock_quantity() <= 5;
-		$stock_label  = $is_low_stock ? __( '最後倒數', 'mydyma-taiwan-commerce-suite' ) : __( '庫存充足', 'mydyma-taiwan-commerce-suite' );
+		$stock_label  = $is_low_stock ? __( '最後倒數', 'mydybox-taiwan-for-woocommerce' ) : __( '庫存充足', 'mydybox-taiwan-for-woocommerce' );
 
 		?>
-		<div id="mydyma-taiwan-commerce-suite-sticky-cart" class="mydyma-taiwan-commerce-suite-sticky-cart-wrap">
-			<div class="mydyma-taiwan-commerce-suite-sticky-cart-container">
-				<div class="mydyma-taiwan-commerce-suite-sticky-info">
+		<div id="mydybox-taiwan-for-woocommerce-sticky-cart" class="mydybox-taiwan-for-woocommerce-sticky-cart-wrap">
+			<div class="mydybox-taiwan-for-woocommerce-sticky-cart-container">
+				<div class="mydybox-taiwan-for-woocommerce-sticky-info">
 					<img src="<?php echo esc_url( $image_url ); ?>" alt="product thumb">
-					<div class="mydyma-taiwan-commerce-suite-sticky-text">
-						<span class="mydyma-taiwan-commerce-suite-sticky-title"><?php echo esc_html( $product->get_name() ); ?></span>
+					<div class="mydybox-taiwan-for-woocommerce-sticky-text">
+						<span class="mydybox-taiwan-for-woocommerce-sticky-title"><?php echo esc_html( $product->get_name() ); ?></span>
 						<div style="display:flex; align-items:center; gap:10px;">
-							<span class="mydyma-taiwan-commerce-suite-sticky-price"><?php echo wp_kses_post( $price_html ); ?></span>
+							<span class="mydybox-taiwan-for-woocommerce-sticky-price"><?php echo wp_kses_post( $price_html ); ?></span>
 							<span class="ts-stock-badge <?php echo $is_low_stock ? 'low' : ''; ?>"><?php echo esc_html( $stock_label ); ?></span>
 						</div>
 					</div>
 				</div>
-				<div class="mydyma-taiwan-commerce-suite-sticky-action">
-					<div class="mydyma-taiwan-commerce-suite-sticky-qty-wrap">
+				<div class="mydybox-taiwan-for-woocommerce-sticky-action">
+					<div class="mydybox-taiwan-for-woocommerce-sticky-qty-wrap">
 						<button type="button" class="ts-sticky-qty-btn minus">−</button>
 						<input type="number" class="ts-sticky-qty-input" value="1" min="1" step="1" readonly>
 						<button type="button" class="ts-sticky-qty-btn plus">+</button>
 					</div>
-					<button type="button" class="mydyma-taiwan-commerce-suite-sticky-btn">
+					<button type="button" class="mydybox-taiwan-for-woocommerce-sticky-btn">
 						<span class="dashicons dashicons-cart" style="vertical-align:middle; margin-right:5px;"></span>
-						<?php esc_html_e( '立即購買', 'mydyma-taiwan-commerce-suite' ); ?>
+						<?php esc_html_e( '立即購買', 'mydybox-taiwan-for-woocommerce' ); ?>
 					</button>
 				</div>
 			</div>

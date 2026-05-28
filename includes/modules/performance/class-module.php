@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Modules\Performance; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydyma_TCS is the plugin prefix
+namespace Mydybox\Modules\Performance; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Mydybox is the plugin prefix
 
 defined( 'ABSPATH' ) || exit;
 
@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Note: Most per-module gating is already handled in each module's own boot()
  * via is_checkout() / is_cart(). This module provides cross-cutting guards.
  */
-class Module implements \Mydyma_TCS\Module {
+class Module implements \Mydybox\Module {
 
 	public function id(): string {
 		return 'performance';

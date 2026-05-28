@@ -1,9 +1,9 @@
 <?php
-namespace Mydyma_TCS\Tests\Unit\RuleEngine\Conditions;
+namespace Mydybox\Tests\Unit\RuleEngine\Conditions;
 
 use PHPUnit\Framework\TestCase;
-use Mydyma_TCS\Rule_Engine\Conditions\Address;
-use Mydyma_TCS\Rule_Engine\Context;
+use Mydybox\Rule_Engine\Conditions\Address;
+use Mydybox\Rule_Engine\Context;
 use ReflectionProperty;
 
 class AddressTest extends TestCase {

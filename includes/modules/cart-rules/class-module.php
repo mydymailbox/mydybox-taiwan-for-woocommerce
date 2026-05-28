@@ -1,5 +1,5 @@
 <?php
-namespace Mydyma_TCS\Modules\Cart_Rules;
+namespace Mydybox\Modules\Cart_Rules;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
  * Cart Rules Module.
  * Enforces purchase restrictions based on rule engine conditions.
  */
-class Module implements \Mydyma_TCS\Module {
+class Module implements \Mydybox\Module {
 	public function id(): string { return 'cart_rules'; }
 	public function boot(): void {
 		add_action( 'woocommerce_check_cart_items', [ $this, 'validate_cart' ] );
@@ -25,17 +25,17 @@ class Module implements \Mydyma_TCS\Module {
 	}
 
 	private function run_engine( $errors = null ): void {
-		$engine = \Mydyma_TCS\Rule_Engine\Rule_Engine::instance();
-		$rules  = get_option( 'mydyma_tcs_rules_cart_rules', [] );
+		$engine = \Mydybox\Rule_Engine\Rule_Engine::instance();
+		$rules  = get_option( 'mydybox_rules_cart_rules', [] );
 		if ( empty( $rules ) ) return;
 
-		$ctx = new \Mydyma_TCS\Rule_Engine\Context();
+		$ctx = new \Mydybox\Rule_Engine\Context();
 		$actions = $engine->evaluate_rules( $rules, $ctx->get_data() );
 
 		foreach ( $actions as $action_list ) {
 			foreach ( $action_list as $action ) {
 				if ( $action['type'] === 'block_checkout' ) {
-					$msg = $action['message'] ?: __( 'Checkout is currently blocked due to purchase restrictions.', 'mydyma-taiwan-commerce-suite' );
+					$msg = $action['message'] ?: __( 'Checkout is currently blocked due to purchase restrictions.', 'mydybox-taiwan-for-woocommerce' );
 					if ( $errors ) {
 						$errors->add( 'rule_block', $msg );
 					} else {
