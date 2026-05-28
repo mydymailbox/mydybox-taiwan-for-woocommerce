@@ -1,0 +1,31 @@
+# Files & directories excluded from the distributed plugin ZIP (wordpress.org).
+# Used by `wp dist-archive`. Keeps the release clean of dev-only artifacts.
+
+# Version control
+/.git
+/.gitignore
+/.distignore
+
+# Dependencies & build sources (build/ output IS shipped)
+/node_modules
+/src
+
+# Dev tooling & config
+/composer.json
+/composer.lock
+/package.json
+/package-lock.json
+/phpunit.xml
+/phpcs.xml
+/.editorconfig
+
+# Tests
+/tests
+
+# Developer documentation (ADRs, dev book, internal checklists)
+/docs
+
+# Translation build scripts (compiled .po/.mo/.pot are shipped)
+/languages/build-mo.py
+/languages/compile-mo.py
+/languages/make-pot.py

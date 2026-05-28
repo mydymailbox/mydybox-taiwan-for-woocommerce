@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 namespace Taiwan_Store_Core\Rule_Engine\Conditions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
 
 use Taiwan_Store_Core\Rule_Engine\Condition;
@@ -18,6 +18,20 @@ class Max_Qty implements Condition {
 
 	public function id(): string {
 		return 'max_qty';
+	}
+
+	public function label(): string {
+		return __( 'Maximum Quantity per Product', 'taiwan-store-core' );
+	}
+
+	public function type(): string {
+		return 'number';
+	}
+
+	public function operators(): array {
+		return [
+			[ 'id' => 'gt', 'label' => __( 'Quantity is greater than (>)', 'taiwan-store-core' ) ],
+		];
 	}
 
 	public function matches( Context $ctx, array $config ): bool {

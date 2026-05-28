@@ -1,266 +1,334 @@
-﻿<?php
-namespace Taiwan_Store_Core\Modules\Checkout_Tw; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
+<?php
+namespace Taiwan_Store_Core\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Taiwan checkout locale:
- *   - Registers ISO 3166-2:TW state list (22 蝮??).
- *   - Overrides WooCommerce field labels, required flags, and priorities
- *     for the TW locale so the form follows Taiwan's conventional order:
- *     憪? | ?? ??蝮?? | ?撣? ???菟??????閰喟敦?啣? ???砍嚗憛恬?
+ * Locale Module.
+ * Overrides WooCommerce default checkout fields for Taiwan specific labels and ordering.
  */
 class Locale {
 
 	public function boot(): void {
+		add_filter( 'woocommerce_default_address_fields', [ $this, 'override_default_fields' ] );
+		add_filter( 'woocommerce_billing_fields', [ $this, 'override_billing_fields' ], 999 );
+		add_filter( 'woocommerce_shipping_fields', [ $this, 'override_shipping_fields' ], 999 );
+		add_filter( 'woocommerce_checkout_fields', [ $this, 'global_reorder_fields' ], 999 );
 		add_filter( 'woocommerce_states', [ $this, 'register_tw_states' ] );
-		add_filter( 'woocommerce_get_country_locale', [ $this, 'tw_locale' ] );
-		add_filter( 'woocommerce_checkout_fields', [ $this, 'reorder_checkout_fields' ], 9999 );
-
-		// Classic Checkout invoice fields (parallel to Blocks Additional Fields API)
-		add_filter( 'woocommerce_checkout_fields', [ $this, 'add_invoice_fields_classic' ], 20 );
-		add_action( 'woocommerce_checkout_update_order_meta', [ $this, 'save_invoice_fields_classic' ] );
+		
+		// Additional Checkout Translations
+		add_filter( 'woocommerce_checkout_fields', [ $this, 'override_order_notes' ], 20 );
+		add_filter( 'woocommerce_order_button_text', [ $this, 'override_order_button_text' ] );
+		add_filter( 'gettext', [ $this, 'translate_checkout_strings' ], 20, 3 );
+		
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_cascading_scripts' ] );
 	}
 
-	// ?? States ????????????????????????????????????????????????????????????????
+	public function enqueue_cascading_scripts(): void {
+		if ( ! is_checkout() ) return;
 
-	public function register_tw_states( array $states ): array {
-		$states['TW'] = require Taiwan_Store_Core_DIR . 'includes/modules/checkout-tw/data/tw-states.php';
-		return $states;
+		$districts = include __DIR__ . '/data/tw-districts.php';
+		$postcodes = include __DIR__ . '/data/tw-postcodes.php';
+
+		wp_add_inline_script( 'jquery', "
+			jQuery(document).ready(function($) {
+				var twDistricts = " . json_encode( $districts ) . ";
+				var twPostcodes = " . json_encode( $postcodes ) . ";
+
+				function updateDistricts(type) {
+					var state = $('#' + type + '_state').val();
+					var \$citySelect = $('#' + type + '_city');
+					var currentCity = \$citySelect.val();
+
+					if (!twDistricts[state]) {
+						if (\$citySelect.is('select')) {
+							\$citySelect.replaceWith('<input type=\"text\" class=\"input-text\" name=\"' + type + '_city\" id=\"' + type + '_city\" value=\"' + currentCity + '\">');
+						}
+						return;
+					}
+
+					var options = '<option value=\"\">" . esc_js( __( '─ 請選擇 ─', 'taiwan-store-core' ) ) . "</option>';
+					$.each(twDistricts[state], function(k, v) {
+						options += '<option value=\"' + k + '\"' + (k === currentCity ? ' selected' : '') + '>' + v + '</option>';
+					});
+
+					if (\$citySelect.is('input')) {
+						\$citySelect.replaceWith('<select name=\"' + type + '_city\" id=\"' + type + '_city\" class=\"select\">' + options + '</select>');
+					} else {
+						\$citySelect.html(options);
+					}
+				}
+
+				$('body').on('change', 'select.state_select', function() {
+					var type = $(this).attr('id').replace('_state', '');
+					updateDistricts(type);
+				});
+
+				$('body').on('change', 'select[id$=\"_city\"]', function() {
+					var type = $(this).attr('id').replace('_city', '');
+					var state = $('#' + type + '_state').val();
+					var city = $(this).val();
+					if (twPostcodes[state] && twPostcodes[state][city]) {
+						$('#' + type + '_postcode').val(twPostcodes[state][city]).trigger('change');
+					}
+				});
+
+				// Init on load — use both ready and updated_checkout to cover classic + AJAX refresh
+				updateDistricts('billing');
+				updateDistricts('shipping');
+				$(document.body).on('updated_checkout', function() {
+					updateDistricts('billing');
+					updateDistricts('shipping');
+				});
+			});
+		" );
 	}
 
-	// ?? Locale overrides (address fields) ?????????????????????????????????????
-
-	public function tw_locale( array $locale ): array {
-		$locale['TW'] = array_merge(
-			$locale['TW'] ?? [],
-			[
-				// ?啁蝧嚗???雿萇銝??雿?(雿輻 last_name 雿銝餉?甈?嚗??first_name)
-				'last_name'  => ( 'yes' === get_option( 'Taiwan_Store_Core_checkout_name_consolidate', 'yes' ) ) ? [
-					'label'    => __( '憪?', 'taiwan-store-core' ),
-					'placeholder' => __( '隢撓?交隞嗡犖?典?', 'taiwan-store-core' ),
-					'priority' => 10,
-					'class'    => [ 'form-row-wide' ],
-				] : [
-					'label'    => __( '憪?', 'taiwan-store-core' ),
-					'priority' => 10,
-					'class'    => [ 'form-row-first' ],
-				],
-				'first_name' => ( 'yes' === get_option( 'Taiwan_Store_Core_checkout_name_consolidate', 'yes' ) ) ? [
-					'label'    => __( '??', 'taiwan-store-core' ),
-					'required' => false,
-					'priority' => 11,
-					'class'    => [ 'form-row-wide', 'wctw-hidden-field' ],
-				] : [
-					'label'    => __( '??', 'taiwan-store-core' ),
-					'priority' => 20,
-					'class'    => [ 'form-row-last' ],
-				],
-				// ????Email
-				'phone'      => [
-					'label'    => __( '???Ⅳ', 'taiwan-store-core' ),
-					'required' => true,
-					'priority' => 20,
-					'class'    => [ 'form-row-first' ],
-				],
-				'email'      => [
-					'label'    => __( '?餃??萎辣', 'taiwan-store-core' ),
-					'priority' => 30,
-					'class'    => [ 'form-row-last' ],
-				],
-				// ?啣??憛?蝮??(撌? | ?菟?????? ???撣?(?典祝)
-				'state'      => [
-					'label'    => __( '蝮??', 'taiwan-store-core' ),
-					'required' => true,
-					'priority' => 50,
-					'class'    => [ 'form-row-first' ],
-				],
-				'postcode'   => [
-					'label'       => __( '?菟????, 'taiwan-store-core' ),
-					'placeholder' => __( '?芸?撣嗅', 'taiwan-store-core' ),
-					'required'    => false,
-					'priority'    => 55,
-					'class'       => [ 'form-row-last' ],
-					'autocomplete' => 'postal-code',
-				],
-				'city'       => [
-					'label'    => __( '?撣?', 'taiwan-store-core' ),
-					'required' => true,
-					'priority' => 60,
-					'class'    => [ 'form-row-wide' ],
-				],
-				'address_1'  => [
-					'label'       => __( '閰喟敦?啣?', 'taiwan-store-core' ),
-					'placeholder' => __( '銵??楝?挾?毽????', 'taiwan-store-core' ),
-					'priority'    => 80,
-					'class'       => [ 'form-row-wide' ],
-				],
-				'address_2'  => [
-					'label'       => __( '璅惜 / 摰?, 'taiwan-store-core' ),
-					'placeholder' => __( '撟暹??嗾摰扎撖??詨‵嚗?, 'taiwan-store-core' ),
-					'priority'    => 90,
-					'class'       => [ 'form-row-wide' ],
-				],
-				'company'    => [
-					'label'    => __( '?砍?迂', 'taiwan-store-core' ),
-					'required' => false,
-					'priority' => 95,
-					'class'    => [ 'form-row-wide' ],
-				],
-			]
-		);
-
-		return $locale;
-	}
-
-	public function reorder_checkout_fields( array $fields ): array {
-		$consolidate = ( 'yes' === get_option( 'Taiwan_Store_Core_checkout_name_consolidate', 'yes' ) );
-
-		// ????甈??梯?
-		if ( $consolidate ) {
-			if ( isset( $fields['billing']['billing_first_name'] ) ) {
-				$fields['billing']['billing_first_name']['class'][] = 'wctw-hidden-field';
-				$fields['billing']['billing_first_name']['required'] = false;
-				$fields['billing']['billing_first_name']['label'] = '';
-			}
-			if ( isset( $fields['shipping']['shipping_first_name'] ) ) {
-				$fields['shipping']['shipping_first_name']['class'][] = 'wctw-hidden-field';
-				$fields['shipping']['shipping_first_name']['required'] = false;
-				$fields['shipping']['shipping_first_name']['label'] = '';
-			}
-		}
-
-		// ?? ??Email嚗蝯∟?閮?嚗憪?銋???銋?嚗?		if ( isset( $fields['billing']['billing_phone'] ) ) {
-			$fields['billing']['billing_phone']['priority'] = 20;
-			$fields['billing']['billing_phone']['class']    = [ 'form-row-first' ];
-			$fields['billing']['billing_phone']['label']    = __( '???Ⅳ', 'taiwan-store-core' );
-			$fields['billing']['billing_phone']['required'] = true;
-		}
-		if ( isset( $fields['billing']['billing_email'] ) ) {
-			$fields['billing']['billing_email']['priority'] = 30;
-			$fields['billing']['billing_email']['class']    = [ 'form-row-last' ];
-			$fields['billing']['billing_email']['required'] = true;
-		}
-
-		// ?梯??振甈?嚗???摨?閮?TW嚗??雿輻???		if ( isset( $fields['billing']['billing_country'] ) ) {
-			$fields['billing']['billing_country']['type']     = 'hidden';
-			$fields['billing']['billing_country']['class']    = [ 'hidden' ];
-			$fields['billing']['billing_country']['priority'] = 1;
-			$fields['billing']['billing_country']['default']  = 'TW';
-		}
-		if ( isset( $fields['shipping']['shipping_country'] ) ) {
-			$fields['shipping']['shipping_country']['type']    = 'hidden';
-			$fields['shipping']['shipping_country']['class']   = [ 'hidden' ];
-			$fields['shipping']['shipping_country']['priority'] = 1;
-			$fields['shipping']['shipping_country']['default'] = 'TW';
-		}
-
-		// ?? ?啣?甈????芸? (蝮?? + ?雿菜?) ??
-		if ( isset( $fields['billing']['billing_state'] ) ) {
-			$fields['billing']['billing_state']['priority'] = 70;
-			$fields['billing']['billing_state']['class']    = [ 'form-row-first' ];
-		}
-		if ( isset( $fields['billing']['billing_city'] ) ) {
-			$fields['billing']['billing_city']['priority'] = 71;
-			$fields['billing']['billing_city']['class']    = [ 'form-row-last' ];
-			$fields['billing']['billing_city']['label']    = __( '?撣?', 'taiwan-store-core' );
-		}
-		if ( isset( $fields['billing']['billing_postcode'] ) ) {
-			$fields['billing']['billing_postcode']['priority'] = 80;
-			$fields['billing']['billing_postcode']['class']    = [ 'form-row-wide' ];
-			$fields['billing']['billing_postcode']['placeholder'] = __( '?芸?憛怠', 'taiwan-store-core' );
-		}
-		if ( isset( $fields['billing']['billing_address_1'] ) ) {
-			$fields['billing']['billing_address_1']['priority'] = 90;
-		}
-
+	public function override_default_fields( $fields ): array {
+		$fields['state']['label']        = __( '縣市', 'taiwan-store-core' );
+		$fields['state']['priority']     = 50;
+		
+		$fields['city']['label']         = __( '鄉鎮市區', 'taiwan-store-core' );
+		$fields['city']['priority']      = 60;
+		
+		$fields['postcode']['label']     = __( '郵遞區號', 'taiwan-store-core' );
+		$fields['postcode']['priority']  = 45;
+		
+		$fields['address_1']['label']    = __( '地址', 'taiwan-store-core' );
+		$fields['address_1']['priority'] = 70;
+		
+		$fields['address_2']['priority'] = 80;
+		
 		return $fields;
 	}
 
-	// ?? Classic Checkout: invoice fields ??????????????????????????????????????
+	public function override_billing_fields( $fields ): array {
+		// Respect Name Consolidation setting (if added later, default to yes)
+		$consolidate = 'yes' === get_option( 'ts_checkout_name_consolidate', 'yes' );
+		$is_autofill = 'yes' === get_option( 'ts_checkout_postcode_autofill', 'yes' );
 
-	public function add_invoice_fields_classic( array $fields ): array {
-		if ( 'yes' !== get_option( 'Taiwan_Store_Core_checkout_tax_id_enabled', 'yes' ) ) {
-			return $fields;
-		}
-		// Skip if Blocks checkout is being rendered (handled by register_invoice_fields)
-		if ( function_exists( 'wc_current_theme_is_fse_theme' ) && did_action( 'woocommerce_blocks_loaded' ) ) {
-			$page_id = wc_get_page_id( 'checkout' );
-			if ( $page_id && has_block( 'woocommerce/checkout', $page_id ) ) {
-				return $fields;
-			}
-		}
-
-		$fields['billing']['billing_wctw_invoice_type'] = [
-			'type'     => 'select',
-			'label'    => __( '?潛巨憿?', 'taiwan-store-core' ),
-			'required' => true,
-			'class'    => [ 'form-row-wide' ],
-			'priority' => 120,
-			'options'  => [
-				''              => __( '? 隢???', 'taiwan-store-core' ),
-				'personal'      => __( '?犖?餃??潛巨嚗蝡荔?', 'taiwan-store-core' ),
-				'carrier_phone' => __( '??璇Ⅳ', 'taiwan-store-core' ),
-				'carrier_cert'  => __( '?芰鈭箸?霅?蝣?, 'taiwan-store-core' ),
-				'donate'        => __( '??蝣?, 'taiwan-store-core' ),
-				'company'       => __( '?砍銝撘??蝯梁楊嚗?, 'taiwan-store-core' ),
+		$tw = [
+			'country' => [
+				'priority' => 5,
+				'class'    => [ 'form-row-wide' ],
+			],
+			'last_name' => [
+				'label'    => $consolidate ? __( '姓名', 'taiwan-store-core' ) : __( '姓氏', 'taiwan-store-core' ),
+				'priority' => 10,
+				'class'    => $consolidate ? [ 'form-row-wide' ] : [ 'form-row-first' ],
+			],
+			'first_name' => $consolidate ? [ 'type' => 'hidden', 'default' => '-' ] : [
+				'label'    => __( '名字', 'taiwan-store-core' ),
+				'priority' => 15,
+				'class'    => [ 'form-row-last' ],
+			],
+			'phone' => [
+				'label'             => __( '行動電話', 'taiwan-store-core' ),
+				'required'          => true,
+				'priority'          => 20,
+				'class'             => [ 'form-row-first' ],
+				'custom_attributes' => [
+					'inputmode' => 'numeric',
+					'pattern'   => '[0-9\-]*',
+				],
+			],
+			'email' => [
+				'label'    => __( '電子郵件', 'taiwan-store-core' ),
+				'priority' => 30,
+				'class'    => [ 'form-row-last' ],
+			],
+			'postcode' => [
+				'label'       => __( '郵遞區號', 'taiwan-store-core' ),
+				'placeholder' => $is_autofill ? __( '自動帶入', 'taiwan-store-core' ) : '',
+				'required'    => false,
+				'priority'    => 45,
+				'class'       => [ 'form-row-wide' ],
+				'custom_attributes' => $is_autofill ? [ 'readonly' => 'readonly' ] : [],
+			],
+			'state' => [
+				'label'    => __( '縣市', 'taiwan-store-core' ),
+				'required' => true,
+				'priority' => 50,
+				'class'    => [ 'form-row-first' ],
+			],
+			'city' => [
+				'type'     => 'select',
+				'label'    => __( '鄉鎮市區', 'taiwan-store-core' ),
+				'required' => true,
+				'priority' => 60,
+				'class'    => [ 'form-row-last' ],
+				'options'  => [ '' => __( '─ 請選擇 ─', 'taiwan-store-core' ) ],
+			],
+			'address_1' => [
+				'label'       => __( '路名／街道', 'taiwan-store-core' ),
+				'placeholder' => __( '例如：中山北路二段', 'taiwan-store-core' ),
+				'priority'    => 70,
+				'class'       => [ 'form-row-first' ],
+			],
+			'address_2' => [
+				'label'       => __( '巷弄號碼／樓層', 'taiwan-store-core' ),
+				'placeholder' => __( '例如：12巷3弄5號4樓', 'taiwan-store-core' ),
+				'required'    => false,
+				'priority'    => 80,
+				'class'       => [ 'form-row-last' ],
 			],
 		];
-		$fields['billing']['billing_wctw_carrier_number'] = [
-			'type'        => 'text',
-			'label'       => __( '頛 / ??蝣?, 'taiwan-store-core' ),
-			'placeholder' => __( '/ABC+123?B12345678901234 ??3?? 蝣潭?韐Ⅳ', 'taiwan-store-core' ),
-			'required'    => false,
-			'class'       => [ 'form-row-wide' ],
-			'priority'    => 130,
-		];
-		$fields['billing']['billing_wctw_company_tax_id'] = [
-			'type'        => 'text',
-			'label'       => __( '蝯曹?蝺刻?', 'taiwan-store-core' ),
-			'placeholder' => __( '8 蝣潭摮??砍?嗅?憛?, 'taiwan-store-core' ),
-			'required'    => false,
-			'class'       => [ 'form-row-first' ],
-			'maxlength'   => 8,
-			'priority'    => 140,
-		];
-		$fields['billing']['billing_wctw_company_title'] = [
-			'type'        => 'text',
-			'label'       => __( '?砍?迂', 'taiwan-store-core' ),
-			'placeholder' => __( '?砍?嗅?憛恬??舐蝯梁楊?芸?撣嗅嚗?, 'taiwan-store-core' ),
-			'required'    => false,
-			'class'       => [ 'form-row-last' ],
-			'priority'    => 150,
-		];
+
+		foreach ( $tw as $key => $val ) {
+			if ( isset( $fields[ 'billing_' . $key ] ) ) {
+				$fields[ 'billing_' . $key ] = array_merge( $fields[ 'billing_' . $key ], $val );
+			}
+		}
+
+		// Extra safety: If consolidated, remove first_name entirely to prevent labels from showing
+		if ( $consolidate ) {
+			unset( $fields['billing_first_name'] );
+		}
 
 		return $fields;
 	}
 
-	public function save_invoice_fields_classic( int $order_id ): void {
-		if ( 'yes' !== get_option( 'Taiwan_Store_Core_checkout_tax_id_enabled', 'yes' ) ) {
-			return;
-		}
-		$order = wc_get_order( $order_id );
-		if ( ! $order ) {
-			return;
-		}
-		$map = [
-			'billing_wctw_invoice_type'   => '_wctw/invoice-type',
-			'billing_wctw_carrier_number' => '_wctw/carrier-number',
-			'billing_wctw_company_tax_id' => '_wctw/company-tax-id',
-			'billing_wctw_company_title'  => '_wctw/company-title',
+	public function override_shipping_fields( $fields ): array {
+		$consolidate = 'yes' === get_option( 'ts_checkout_name_consolidate', 'yes' );
+
+		$tw = [
+			'last_name' => [
+				'label'    => $consolidate ? __( '姓名', 'taiwan-store-core' ) : __( '姓氏', 'taiwan-store-core' ),
+				'priority' => 10,
+				'class'    => $consolidate ? [ 'form-row-wide' ] : [ 'form-row-first' ],
+			],
+			'first_name' => $consolidate ? [ 'type' => 'hidden', 'default' => '-' ] : [
+				'label'    => __( '名字', 'taiwan-store-core' ),
+				'priority' => 15,
+				'class'    => [ 'form-row-last' ],
+			],
+			'postcode' => [
+				'label'    => __( '郵遞區號', 'taiwan-store-core' ),
+				'required' => false,
+				'priority' => 35,
+				'class'    => [ 'form-row-wide' ],
+			],
+			'state' => [
+				'label'    => __( '縣市', 'taiwan-store-core' ),
+				'required' => true,
+				'priority' => 40,
+				'class'    => [ 'form-row-first' ],
+			],
+			'city' => [
+				'type'     => 'select',
+				'label'    => __( '鄉鎮市區', 'taiwan-store-core' ),
+				'required' => true,
+				'priority' => 50,
+				'class'    => [ 'form-row-last' ],
+				'options'  => [ '' => __( '─ 請選擇 ─', 'taiwan-store-core' ) ],
+			],
+			'address_1' => [
+				'label'       => __( '路名／街道', 'taiwan-store-core' ),
+				'placeholder' => __( '例如：中山北路二段', 'taiwan-store-core' ),
+				'priority'    => 60,
+				'class'       => [ 'form-row-first' ],
+			],
+			'address_2' => [
+				'label'       => __( '巷弄號碼／樓層', 'taiwan-store-core' ),
+				'placeholder' => __( '例如：12巷3弄5號4樓', 'taiwan-store-core' ),
+				'required'    => false,
+				'priority'    => 70,
+				'class'       => [ 'form-row-last' ],
+			],
 		];
-		$saved = false;
-		foreach ( $map as $post_key => $meta_key ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by WC checkout process
-			$raw = sanitize_text_field( wp_unslash( $_POST[ $post_key ] ?? '' ) );
-			if ( '' !== $raw ) {
-				$order->update_meta_data( $meta_key, $raw );
-				$saved = true;
+
+		foreach ( $tw as $key => $val ) {
+			if ( isset( $fields[ 'shipping_' . $key ] ) ) {
+				$fields[ 'shipping_' . $key ] = array_merge( $fields[ 'shipping_' . $key ], $val );
 			}
 		}
-		if ( $saved ) {
-			$order->save();
+
+		if ( $consolidate ) {
+			unset( $fields['shipping_first_name'] );
 		}
+
+		// Sort fields by priority to ensure correct order
+		uasort( $fields, function( $a, $b ) {
+			$a_prio = isset( $a['priority'] ) ? (int) $a['priority'] : 0;
+			$b_prio = isset( $b['priority'] ) ? (int) $b['priority'] : 0;
+			return $a_prio <=> $b_prio;
+		});
+
+		return $fields;
+	}
+
+	public function override_order_notes( $fields ): array {
+		if ( isset( $fields['order']['order_comments'] ) ) {
+			$fields['order']['order_comments']['label']       = __( '訂單備註', 'taiwan-store-core' );
+			$fields['order']['order_comments']['placeholder'] = __( '關於您的訂單的備註，例如：送貨時的特殊注意事項。', 'taiwan-store-core' );
+		}
+		return $fields;
+	}
+
+	public function override_order_button_text(): string {
+		return __( '立即結帳', 'taiwan-store-core' );
+	}
+
+	/**
+	 * Translate standard WooCommerce checkout strings that are often missing in Taiwan.
+	 */
+	public function translate_checkout_strings( $translated_text, $text, $domain ) {
+		if ( 'woocommerce' !== $domain && 'taiwan-store-core' !== $domain ) return $translated_text;
+
+		$map = [
+			'Billing details'               => '帳單資訊',
+			'Ship to a different address?'  => '運送到不同的地址？',
+			'Your order'                    => '您的訂單',
+			'Apply coupon'                  => '使用優惠券',
+			'I have read and agree to the website terms and conditions' => '我已閱讀並同意網站的條款與細節',
+		];
+
+		return $map[$text] ?? $translated_text;
+	}
+
+	public function global_reorder_fields( $fields ): array {
+		foreach ( [ 'billing', 'shipping' ] as $group ) {
+			if ( ! isset( $fields[$group] ) ) continue;
+			
+			$prefix = $group . '_';
+			$order = [
+				$prefix . 'country',
+				$prefix . 'last_name',
+				$prefix . 'first_name',
+				$prefix . 'phone',
+				$prefix . 'email',
+				$prefix . 'postcode',
+				$prefix . 'state',
+				$prefix . 'city',
+				$prefix . 'address_1',
+				$prefix . 'address_2',
+			];
+			// address_1 and address_2 are side-by-side, no reordering needed beyond priority
+
+			$ordered_fields = [];
+			foreach ( $order as $key ) {
+				if ( isset( $fields[$group][$key] ) ) {
+					$ordered_fields[$key] = $fields[$group][$key];
+					unset( $fields[$group][$key] );
+				}
+			}
+
+			// Merge back any remaining fields (like custom fields)
+			$fields[$group] = array_merge( $ordered_fields, $fields[$group] );
+
+			// Still apply uasort as a backup
+			uasort( $fields[$group], function( $a, $b ) {
+				$a_p = isset( $a['priority'] ) ? (int) $a['priority'] : 100;
+				$b_p = isset( $b['priority'] ) ? (int) $b['priority'] : 100;
+				if ( $a_p === $b_p ) return 0;
+				return ( $a_p < $b_p ) ? -1 : 1;
+			});
+		}
+		return $fields;
+	}
+
+	public function register_tw_states( $states ): array {
+		$states['TW'] = include __DIR__ . '/data/tw-states.php';
+		return $states;
 	}
 }
-

@@ -1,5 +1,5 @@
-﻿<?php
-namespace Taiwan_Store_Core\Rule_Engine\Actions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
+<?php
+namespace Taiwan_Store_Core\Rule_Engine\Actions;
 
 use Taiwan_Store_Core\Rule_Engine\Action;
 use Taiwan_Store_Core\Rule_Engine\Context;
@@ -7,16 +7,16 @@ use Taiwan_Store_Core\Rule_Engine\Context;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Removes specified payment gateways from the available gateways array.
- * Used on the woocommerce_available_payment_gateways filter.
- *
- * Config:
- *   ['gateways' => string[]]  ??list of gateway IDs to hide (e.g. ['cod', 'bacs'])
+ * Hide Payment Action.
  */
 class Hide_Payment implements Action {
 
-	public function id(): string {
-		return 'hide_payment';
+	public function id(): string { return 'hide_payment'; }
+	public function label(): string { return __( 'Hide Payment Gateways', 'taiwan-store-core' ); }
+	public function args(): array {
+		return [
+			[ 'id' => 'gateways', 'label' => __( 'Select gateways to hide', 'taiwan-store-core' ), 'type' => 'multiselect', 'source' => 'gateways' ]
+		];
 	}
 
 	public function execute( Context $ctx, array $config, array &$payload ): void {
@@ -26,4 +26,3 @@ class Hide_Payment implements Action {
 		}
 	}
 }
-

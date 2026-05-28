@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 namespace Taiwan_Store_Core; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
 
 defined( 'ABSPATH' ) || exit;

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 namespace Taiwan_Store_Core\Rule_Engine\Conditions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
 
 use Taiwan_Store_Core\Rule_Engine\Condition;
@@ -12,14 +12,29 @@ defined( 'ABSPATH' ) || exit;
  * Config:
  *   ['field' => 'country'|'state', 'op' => 'in'|'not_in', 'values' => string[]]
  *
- * For Taiwan states use ISO 3166-2:TW codes:
+ * For Taiwan states use standard WooCommerce codes:
  *   TPE, NWT, TAO, TXG, TNN, KHH, KEE, HSZ, HSQ, MIA, CHA, NAN,
- *   YUN, CYI, CYQ, IUH, TTT, HUA, ILA, PEN, KIN, LIE
+ *   YUN, CYI, CYQ, PIF, TTT, HUA, ILA, PEN, KIN, LIE
  */
 class Address implements Condition {
 
 	public function id(): string {
 		return 'address';
+	}
+
+	public function label(): string {
+		return __( 'Shipping Address', 'taiwan-store-core' );
+	}
+
+	public function type(): string {
+		return 'address_select'; // Special type for our custom address picker
+	}
+
+	public function operators(): array {
+		return [
+			[ 'id' => 'in',     'label' => __( 'Is one of', 'taiwan-store-core' ) ],
+			[ 'id' => 'not_in', 'label' => __( 'Is not one of', 'taiwan-store-core' ) ],
+		];
 	}
 
 	public function matches( Context $ctx, array $config ): bool {

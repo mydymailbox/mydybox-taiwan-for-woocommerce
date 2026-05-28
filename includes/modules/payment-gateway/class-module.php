@@ -1,0 +1,25 @@
+<?php
+namespace Taiwan_Store_Core\Modules\Payment_Gateway;
+
+defined( 'ABSPATH' ) || exit;
+
+class Module implements \Taiwan_Store_Core\Module {
+
+	public function id(): string {
+		return 'payment_gateway';
+	}
+
+	public function boot(): void {
+		add_filter( 'woocommerce_payment_gateways', [ $this, 'register_gateway' ] );
+	}
+
+	public function register_gateway( array $gateways ): array {
+		require_once __DIR__ . '/class-ecpay-gateway.php';
+		$gateways[] = '\Taiwan_Store_Core\Modules\Payment_Gateway\ECPay_Gateway';
+		return $gateways;
+	}
+
+	public function is_admin_only(): bool {
+		return false;
+	}
+}

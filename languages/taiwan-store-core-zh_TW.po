@@ -1,0 +1,382 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Taiwan Store Core 1.0.7\n"
+"Report-Msgid-Bugs-To: https://github.com/mydymailbox/taiwan-store-core/issues\n"
+"POT-Creation-Date: 2026-05-12T14:30+00:00\n"
+"PO-Revision-Date: 2026-05-12T14:30+00:00\n"
+"Last-Translator: Taiwan Store Core <dev@example.com>\n"
+"Language-Team: Chinese (Traditional)\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: taiwan-store-core\n"
+
+msgid "Taiwan Store"
+msgstr "台灣商店"
+
+msgid "Taiwan Store Core"
+msgstr "台灣商店：核心助手"
+
+msgid "Marketing"
+msgstr "行銷推廣助手"
+
+msgid "Notifier"
+msgstr "通知與追蹤助手"
+
+msgid "Invoice"
+msgstr "電子發票專業版"
+
+msgid "Documentation"
+msgstr "使用手冊"
+
+msgid "General"
+msgstr "一般"
+
+msgid "Checkout Settings"
+msgstr "結帳設定"
+
+msgid "Payment Rules"
+msgstr "付款規則"
+
+msgid "Shipping Rules"
+msgstr "運費規則"
+
+msgid "Cart Rules"
+msgstr "購物車規則"
+
+msgid "Social Login"
+msgstr "社群登入"
+
+msgid "Logs"
+msgstr "日誌"
+
+msgid "Help"
+msgstr "說明"
+
+msgid "Custom Order Number"
+msgstr "自訂訂單編號"
+
+msgid "Once enabled, new orders will use the \"Prefix + Date (YYYYMMDD) + Serial Number\" format."
+msgstr "啟用後，新訂單將以「前綴 + 日期（YYYYMMDD）+ 流水號」格式顯示。"
+
+msgid "Enable Custom Order Number"
+msgstr "啟用自訂訂單編號"
+
+msgid "Order Number Prefix"
+msgstr "訂單編號前綴"
+
+msgid "For example, TW results in TW20260508-0001."
+msgstr "例如填入 TW 則編號為 TW20260508-0001。"
+
+msgid "Serial Number Digits"
+msgstr "流水號位數"
+
+msgid "Minimum digits for the serial number (padded with zeros if needed)."
+msgstr "流水號的最少顯示位數（不足時補零）。"
+
+msgid "Random Suffix"
+msgstr "編號隨機後綴"
+
+msgid "Adds 2 random alphanumeric characters after the serial number to prevent competitors from estimating order volume."
+msgstr "啟用後會在流水號後方增加 2 碼隨機英數（例：TW20240511-0001-X9），防範競爭對手推估單量。"
+
+msgid "Checkout Announcement"
+msgstr "結帳頁公告"
+
+msgid "Display important announcements at the top of the checkout page."
+msgstr "在結帳頁面頂端顯示重要公告（例如：連假出貨公告、全館免運提示）。"
+
+msgid "Enable Announcement"
+msgstr "啟用公告"
+
+msgid "Announcement Content"
+msgstr "公告內容"
+
+msgid "Enter checkout announcement content here..."
+msgstr "請在此輸入結帳頁公告內容..."
+
+msgid "HTML tags are supported."
+msgstr "支援 HTML 標籤。"
+
+msgid "Connected Extensions"
+msgstr "已連結的擴充模組"
+
+msgid "Detected installed family plugins:"
+msgstr "偵測到已安裝的家族成員外掛："
+
+msgid "Running"
+msgstr "運行中"
+
+msgid "Inactive"
+msgstr "未啟用"
+
+msgid "Save General Settings"
+msgstr "儲存一般設定"
+
+msgid "Checkout Fields"
+msgstr "結帳欄位優化"
+
+msgid "Show Tax ID Field"
+msgstr "顯示統一編號欄位"
+
+msgid "Consolidate Name Fields"
+msgstr "合併姓名欄位"
+
+msgid "Merge \"First Name\" and \"Last Name\" into a single \"Full Name\" field."
+msgstr "將「姓氏」與「名字」合併為單一「姓名」欄位（符合台灣習慣）。"
+
+msgid "Validate Tax ID"
+msgstr "驗證統一編號"
+
+msgid "Validate Tax ID format (8 digits, MOD11 weighting)."
+msgstr "填寫統一編號時驗證格式（8 碼、MOD11 加權）。"
+
+msgid "Tax ID Auto-lookup"
+msgstr "統編自動查詢公司名稱"
+
+msgid "Automatically fetch company name when a Tax ID is entered."
+msgstr "輸入統一編號後自動呼叫 API 查詢並帶入公司名稱。"
+
+msgid "Mobile Phone Validation"
+msgstr "手機號碼格式驗證"
+
+msgid "Validate mobile phone format (09xxxxxxxx)."
+msgstr "驗證手機號碼格式（09xxxxxxxx）。"
+
+msgid "Postcode Auto-fill"
+msgstr "郵遞區號自動填入"
+
+msgid "Automatically fill postcode after selecting district."
+msgstr "選擇鄉鎮市區後自動填入郵遞區號。"
+
+msgid "Advanced Checkout Features"
+msgstr "進階結帳功能"
+
+msgid "Abandoned Cart Reminder"
+msgstr "遺棄購物車提醒"
+
+msgid "Checkout Countdown Timer"
+msgstr "結帳倒數計時"
+
+msgid "Countdown Minutes"
+msgstr "倒數時間 (分鐘)"
+
+msgid "Set the reservation time displayed on the checkout page (default 15 minutes)."
+msgstr "設定結帳頁面顯示的保留時間（預設為 15 分鐘）。"
+
+msgid "Sticky Add to Cart Bar"
+msgstr "置底購物車列"
+
+msgid "Save Checkout Settings"
+msgstr "儲存結帳設定"
+
+msgid "Save Social Settings"
+msgstr "儲存社群設定"
+
+msgid "Today's Overview"
+msgstr "今日營運概況"
+
+msgid "Debug Log Mode"
+msgstr "偵錯日誌模式"
+
+msgid "Debug Viewer"
+msgstr "日誌查看器 (Debug Viewer)"
+
+msgid "When enabled, detailed API requests and errors will be recorded in WooCommerce system logs."
+msgstr "啟用「偵錯日誌模式」後，系統會將詳細的 API 請求與錯誤資訊記錄在 WooCommerce 的系統日誌中。"
+
+msgid "View System Logs"
+msgstr "前往查看系統日誌"
+
+msgid "Save Log Settings"
+msgstr "儲存日誌設定"
+
+msgid "How can we help you today?"
+msgstr "您好，需要什麼協助嗎？"
+
+msgid "Welcome to the Taiwan Store series. we provide all-in-one localization tools specifically designed for e-commerce in Taiwan."
+msgstr "歡迎使用 Taiwan Store 系列外掛。我們為台灣電商量身打造了全方位的在地化工具。"
+
+msgid "System Health Check"
+msgstr "系統健康診斷"
+
+msgid "Mandatory for Social Login."
+msgstr "社群登入必要條件。"
+
+msgid "Core Features"
+msgstr "核心功能指南"
+
+msgid "Localized Checkout"
+msgstr "在地化結帳體驗"
+
+msgid "Tax ID & Company"
+msgstr "統編與公司名"
+
+msgid "Built-in Tax ID validation and auto-lookup for company names from government databases."
+msgstr "內建統編檢核邏輯，並可自動串接政府資料庫代入公司名稱。"
+
+msgid "Cascading Address"
+msgstr "地址級聯選擇"
+
+msgid "Rapid selection of cities, districts, and postcodes to improve checkout success rates."
+msgstr "全台縣市、鄉鎮、郵遞區號快速選單，大幅提升結帳成功率。"
+
+msgid "Format & Name"
+msgstr "格式與姓名"
+
+msgid "Supports name consolidation and mobile phone (09xxxxxxxx) validation."
+msgstr "支援姓名合併、手機格式 (09xxxxxxxx) 驗證，減少輸入錯誤。"
+
+msgid "Invoice Type"
+msgstr "發票類型"
+
+msgid "Select Invoice Type"
+msgstr "請選擇發票類型"
+
+msgid "Individual (Cloud)"
+msgstr "個人電子發票（雲端）"
+
+msgid "Mobile Carrier"
+msgstr "手機條碼載具"
+
+msgid "Citizen Digital Certificate"
+msgstr "自然人憑證"
+
+msgid "Donation"
+msgstr "發票捐贈"
+
+msgid "Company (3-Part)"
+msgstr "公司三聯式（需統編）"
+
+msgid "Tax ID"
+msgstr "統一編號"
+
+msgid "8 digits"
+msgstr "8 碼數字"
+
+msgid "Company Name"
+msgstr "公司名稱"
+
+msgid "Required for companies (can be auto-filled)"
+msgstr "公司戶必填（可由統編自動帶入）"
+
+msgid "Carrier / Donation Code"
+msgstr "載具 / 捐贈碼"
+
+msgid "/ABC+123 or 3-7 digits"
+msgstr "/ABC+123 或 3-7 碼捐贈碼"
+
+msgid "City/County"
+msgstr "縣市"
+
+msgid "District"
+msgstr "鄉鎮市區"
+
+msgid "Invalid Tax ID format."
+msgstr "統編格式錯誤（需為 8 碼數字）。"
+
+msgid "Lookup failed. Please fill manually."
+msgstr "查詢失敗，請手動填寫。"
+
+msgid "No company found."
+msgstr "查無此公司資料。"
+
+msgid "Looking up..."
+msgstr "查詢中..."
+
+msgid "Manual entry required"
+msgstr "請手動填寫名稱"
+
+msgid "Network error. Please fill manually."
+msgstr "連線超時，請手動填寫名稱。"
+
+msgid "Pro Extensions"
+msgstr "專業擴充外掛"
+
+msgid "台灣"
+msgstr "台灣"
+
+msgid "超商取貨"
+msgstr "超商取貨"
+
+msgid "統一編號查詢 API 發生錯誤："
+msgstr "統一編號查詢 API 發生錯誤："
+
+msgid "前往設定頁更新 UUID"
+msgstr "前往設定頁更新 UUID"
+
+msgid "HTTP %s：UUID 可能已失效，請至後台結帳設定更新 GCIS API UUID。"
+msgstr "HTTP %s：UUID 可能已失效，請至後台結帳設定更新 GCIS API UUID。"
+
+msgid "手動開立發票失敗：%s"
+msgstr "手動開立發票失敗：%s"
+
+msgid "作廢發票失敗：%s"
+msgstr "作廢發票失敗：%s"
+
+msgid "開立電子發票"
+msgstr "開立電子發票"
+
+msgid "作廢電子發票"
+msgstr "作廢電子發票"
+
+msgid "消費者"
+msgstr "消費者"
+
+msgid "網路購物"
+msgstr "網路購物"
+
+msgid "開立失敗"
+msgstr "開立失敗"
+
+msgid "電子發票開立成功。發票號碼：%1$s，日期：%2$s，隨機碼：%3$s"
+msgstr "電子發票開立成功。發票號碼：%1$s，日期：%2$s，隨機碼：%3$s"
+
+msgid "此訂單尚未開立發票"
+msgstr "此訂單尚未開立發票"
+
+msgid "訂單取消"
+msgstr "訂單取消"
+
+msgid "作廢失敗"
+msgstr "作廢失敗"
+
+msgid "電子發票已作廢。發票號碼：%s"
+msgstr "電子發票已作廢。發票號碼：%s"
+
+msgid "（已作廢）"
+msgstr "（已作廢）"
+
+msgid "電子發票"
+msgstr "電子發票"
+
+msgid "號碼："
+msgstr "號碼："
+
+msgid "日期："
+msgstr "日期："
+
+msgid "隨機碼："
+msgstr "隨機碼："
+
+msgid "發票號碼："
+msgstr "發票號碼："
+
+msgid "發票已開立，如有需要請洽客服。"
+msgstr "發票已開立，如有需要請洽客服。"
+
+msgid "電子發票號碼：%s"
+msgstr "電子發票號碼：%s"
+
+msgid "電子發票號碼："
+msgstr "電子發票號碼："
+
+msgid "個"
+msgstr "個"
+
+msgid "運費"
+msgstr "運費"
+
+msgid "式"
+msgstr "式"

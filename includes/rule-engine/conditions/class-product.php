@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 namespace Taiwan_Store_Core\Rule_Engine\Conditions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
 
 use Taiwan_Store_Core\Rule_Engine\Condition;
@@ -18,6 +18,21 @@ class Product implements Condition {
 
 	public function id(): string {
 		return 'product';
+	}
+
+	public function label(): string {
+		return __( 'Specific Product', 'taiwan-store-core' );
+	}
+
+	public function type(): string {
+		return 'product_select';
+	}
+
+	public function operators(): array {
+		return [
+			[ 'id' => 'in',     'label' => __( 'In cart contains', 'taiwan-store-core' ) ],
+			[ 'id' => 'not_in', 'label' => __( 'In cart does not contain', 'taiwan-store-core' ) ],
+		];
 	}
 
 	public function matches( Context $ctx, array $config ): bool {

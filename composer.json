@@ -1,0 +1,22 @@
+{
+    "name": "taiwan-store/core",
+    "description": "Taiwan Store Core Plugin",
+    "type": "wordpress-plugin",
+    "require-dev": {
+        "phpunit/phpunit": "^9.6",
+        "yoast/phpunit-polyfills": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Taiwan_Store_Core\\": "includes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Taiwan_Store_Core\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

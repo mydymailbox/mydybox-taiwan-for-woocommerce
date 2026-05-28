@@ -1,0 +1,935 @@
+/* Taiwan Store Core — Admin Dashboard */
+/* Design System: Apple clarity · Google utility · Nike boldness */
+
+/* ── Design Tokens ────────────────────────────────────────────────────────── */
+:root {
+    --ts-blue:        #2563eb;
+    --ts-blue-light:  #eff6ff;
+    --ts-blue-mid:    #bfdbfe;
+    --ts-green:       #10b981;
+    --ts-green-light: #ecfdf5;
+    --ts-amber:       #f59e0b;
+    --ts-amber-light: #fffbeb;
+    --ts-red:         #ef4444;
+    --ts-purple:      #8b5cf6;
+    --ts-sky:         #0ea5e9;
+
+    --ts-ink:         #0f172a;
+    --ts-ink-2:       #1e293b;
+    --ts-ink-3:       #334155;
+    --ts-muted:       #64748b;
+    --ts-subtle:      #94a3b8;
+    --ts-border:      #e2e8f0;
+    --ts-border-soft: #f1f5f9;
+    --ts-surface:     #f8fafc;
+    --ts-white:       #ffffff;
+
+    --ts-radius-sm:   6px;
+    --ts-radius:      10px;
+    --ts-radius-lg:   14px;
+
+    --ts-shadow-sm:   0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --ts-shadow:      0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+    --ts-shadow-md:   0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+
+    --ts-transition:  all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Base Wrap ────────────────────────────────────────────────────────────── */
+.taiwan-store-admin-wrap {
+    max-width: 1100px;
+    margin: 20px 20px 0 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    color: var(--ts-ink-2);
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.taiwan-store-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: var(--ts-ink);
+    border-radius: var(--ts-radius-lg) var(--ts-radius-lg) 0 0;
+    color: var(--ts-white);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.taiwan-store-header h1 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ts-white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.01em;
+}
+
+.taiwan-store-header h1 .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    opacity: 0.8;
+}
+
+.taiwan-store-version {
+    font-size: 11px;
+    font-weight: 500;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.6);
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+
+.taiwan-store-header .btn-white {
+    font-size: 12px;
+    padding: 7px 16px;
+    border-radius: var(--ts-radius-sm);
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.85) !important;
+    border: 1px solid rgba(255,255,255,0.2);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--ts-transition);
+}
+
+.taiwan-store-header .btn-white:hover {
+    background: rgba(255,255,255,0.18);
+    color: var(--ts-white) !important;
+}
+
+/* ── Tab Navigation ───────────────────────────────────────────────────────── */
+.taiwan-store-tabs {
+    display: flex;
+    flex-wrap: wrap;            /* 換行而不是截斷 — 確保每個 tab 都能點到 */
+    background: #1a2535;
+    padding: 0 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    gap: 0;
+    /* 不用 overflow-x:auto — WP admin 的父層 overflow:hidden 會截斷捲軸 */
+}
+
+.taiwan-store-tab-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 13px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.45);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: var(--ts-transition);
+    cursor: pointer;
+    background: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.taiwan-store-tab-link:hover {
+    color: rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.05);
+}
+
+.taiwan-store-tab-link.active {
+    color: var(--ts-white);
+    border-bottom-color: #3b82f6;
+    font-weight: 600;
+}
+
+.taiwan-store-tab-link .dashicons {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+    opacity: 0.6;
+}
+
+.taiwan-store-tab-link.active .dashicons {
+    opacity: 1;
+}
+
+.ts-pro-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: #f59e0b;
+    color: #1a1a1a;
+    vertical-align: middle;
+    margin-left: 2px;
+}
+
+/* ── Tab Body Shell ───────────────────────────────────────────────────────── */
+.taiwan-store-tab-body {
+    background: var(--ts-surface);
+    border: 1px solid var(--ts-border);
+    border-top: none;
+    border-radius: 0 0 var(--ts-radius-lg) var(--ts-radius-lg);
+    padding: 24px;
+    /* 不能用 overflow:hidden，會截斷 SweetAlert2 modal 和 dropdown */
+    overflow: visible;
+}
+
+/* Rules tab — 讓 rules-admin.css 完全接管，不加背景和 padding */
+.taiwan-store-tab-body--rules {
+    background: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+/* ── Tab Content ─────────────────────────────────────────────────────────── */
+.taiwan-store-tab-content {
+    display: none;
+    animation: tsSlideIn 0.15s ease-out;
+}
+
+.taiwan-store-tab-content.active {
+    display: block;
+}
+
+@keyframes tsSlideIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Settings Stack ──────────────────────────────────────────────────────── */
+.ts-settings-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────────── */
+.ts-card {
+    background: var(--ts-white);
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--ts-border-soft);
+    background: var(--ts-white);
+    gap: 12px;
+}
+
+.ts-card-header > div:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.ts-card-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ts-ink-2);
+}
+
+.ts-card-title-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--ts-radius-sm);
+    background: var(--ts-blue-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ts-card-title-icon .dashicons {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    color: var(--ts-blue);
+}
+
+.ts-card-desc {
+    margin: 4px 0 0 39px;     /* 39px = icon 30px + gap 9px */
+    font-size: 12px;
+    color: var(--ts-muted);
+    line-height: 1.5;
+}
+
+.ts-card-body {
+    padding: 0;
+}
+
+/* ── Field Row ────────────────────────────────────────────────────────────── */
+/* 全寬卡片（一般設定、結帳設定）用左右分欄 */
+.ts-field-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    align-items: start;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--ts-border-soft);
+    gap: 16px;
+}
+
+.ts-field-row:last-child {
+    border-bottom: none;
+}
+
+.ts-field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ts-ink-3);
+    line-height: 1.5;
+    padding-top: 7px;           /* 對齊 input 高度 */
+}
+
+.ts-field-label small {
+    display: block;
+    font-weight: 400;
+    color: var(--ts-muted);
+    font-size: 11.5px;
+    margin-top: 2px;
+}
+
+.ts-field-control {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ts-field-hint,
+.ts-field-control .description {
+    font-size: 12px;
+    color: var(--ts-muted);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ── Inputs ───────────────────────────────────────────────────────────────── */
+/* 覆蓋 WP 的 .regular-text, .large-text, .small-text 在我們的容器內 */
+.ts-field-control input[type="text"],
+.ts-field-control input[type="password"],
+.ts-field-control input[type="number"],
+.ts-field-control select,
+.ts-field-control textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    border: 1.5px solid var(--ts-border) !important;
+    border-radius: var(--ts-radius-sm) !important;
+    padding: 8px 11px !important;
+    font-size: 13px !important;
+    color: var(--ts-ink-2) !important;
+    background: var(--ts-white) !important;
+    transition: var(--ts-transition) !important;
+    font-family: inherit !important;
+    line-height: 1.5 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    height: auto !important;
+}
+
+.ts-field-control input[type="text"]:focus,
+.ts-field-control input[type="password"]:focus,
+.ts-field-control input[type="number"]:focus,
+.ts-field-control select:focus,
+.ts-field-control textarea:focus {
+    border-color: var(--ts-blue) !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1) !important;
+}
+
+.ts-field-control input[type="number"] {
+    max-width: 100px !important;
+}
+
+.ts-field-control textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.ts-field-control input.mono {
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace !important;
+    font-size: 12px !important;
+    letter-spacing: 0.03em;
+}
+
+/* ── Social 卡片：窄卡片改為垂直堆疊欄位 ─────────────────────────────────── */
+/* 在窄卡片裡，label 改為在 input 上方，不用 grid */
+.ts-card--narrow .ts-field-row {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    padding: 12px 16px;
+}
+
+.ts-card--narrow .ts-field-label {
+    padding-top: 0;
+    font-size: 12px;
+    color: var(--ts-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.ts-card--narrow .ts-card-header {
+    padding: 14px 16px;
+}
+
+.ts-card--narrow .ts-card-title {
+    font-size: 13.5px;
+}
+
+/* ── Toggle Switch ────────────────────────────────────────────────────────── */
+.ts-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.ts-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.ts-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #cbd5e1;
+    transition: 0.22s ease;
+    border-radius: 22px;
+}
+
+.ts-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background: var(--ts-white);
+    transition: 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+input:checked + .ts-slider {
+    background: var(--ts-blue);
+}
+
+input:focus + .ts-slider {
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+input:checked + .ts-slider:before {
+    transform: translateX(18px);
+}
+
+/* ── Card Accent Colors ───────────────────────────────────────────────────── */
+.ts-card--amber  { border-top: 3px solid var(--ts-amber); }
+.ts-card--blue   { border-top: 3px solid var(--ts-blue); }
+.ts-card--green  { border-top: 3px solid var(--ts-green); }
+.ts-card--purple { border-top: 3px solid var(--ts-purple); }
+.ts-card--sky    { border-top: 3px solid var(--ts-sky); }
+
+.ts-card--amber  .ts-card-title-icon { background: var(--ts-amber-light); }
+.ts-card--amber  .ts-card-title-icon .dashicons { color: var(--ts-amber); }
+.ts-card--green  .ts-card-title-icon { background: var(--ts-green-light); }
+.ts-card--green  .ts-card-title-icon .dashicons { color: var(--ts-green); }
+.ts-card--purple .ts-card-title-icon { background: #f5f3ff; }
+.ts-card--purple .ts-card-title-icon .dashicons { color: var(--ts-purple); }
+.ts-card--sky    .ts-card-title-icon { background: #f0f9ff; }
+.ts-card--sky    .ts-card-title-icon .dashicons { color: var(--ts-sky); }
+
+/* ── Notice Banner ────────────────────────────────────────────────────────── */
+.ts-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 11px 14px;
+    border-radius: var(--ts-radius-sm);
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin: 0 20px 16px;
+}
+
+.ts-notice--warning {
+    background: var(--ts-amber-light);
+    border: 1px solid #fcd34d;
+    color: #92400e;
+}
+
+.ts-notice--info {
+    background: var(--ts-blue-light);
+    border: 1px solid var(--ts-blue-mid);
+    color: #1e40af;
+}
+
+.ts-notice code {
+    background: rgba(0,0,0,0.07);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 11.5px;
+}
+
+/* ── Status Badge ─────────────────────────────────────────────────────────── */
+.ts-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.01em;
+}
+
+.ts-badge--active {
+    background: var(--ts-green-light);
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.ts-badge--inactive {
+    background: var(--ts-surface);
+    color: var(--ts-muted);
+    border: 1px solid var(--ts-border);
+}
+
+.ts-badge--dot::before {
+    content: "●";
+    font-size: 7px;
+}
+
+/* ── Extension Status List ────────────────────────────────────────────────── */
+.ts-ext-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.ts-ext-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--ts-border-soft);
+}
+
+.ts-ext-item:last-child { border-bottom: none; }
+
+.ts-ext-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ts-ink-3);
+}
+
+/* ── Save Button ──────────────────────────────────────────────────────────── */
+.ts-form-footer {
+    padding-top: 18px;
+}
+
+.ts-form-footer .button-primary,
+.ts-form-footer #submit {
+    background: var(--ts-blue) !important;
+    border-color: var(--ts-blue) !important;
+    color: var(--ts-white) !important;
+    padding: 8px 20px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: var(--ts-radius-sm) !important;
+    height: auto !important;
+    line-height: 1.5 !important;
+    box-shadow: var(--ts-shadow-sm) !important;
+    transition: var(--ts-transition) !important;
+    float: none !important;
+    margin: 0 !important;
+}
+
+.ts-form-footer .button-primary:hover,
+.ts-form-footer #submit:hover {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: var(--ts-shadow) !important;
+    transform: translateY(-1px);
+}
+
+/* ── Social Grid ──────────────────────────────────────────────────────────── */
+.ts-social-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+@media (max-width: 900px) {
+    .ts-social-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Guide Card ───────────────────────────────────────────────────────────── */
+.ts-guide-card {
+    background: #f0f7ff;
+    border: 1px solid var(--ts-blue-mid);
+    border-radius: var(--ts-radius-lg);
+    overflow: hidden;
+}
+
+.ts-guide-card-header {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--ts-blue-mid);
+    background: var(--ts-blue-light);
+}
+
+.ts-guide-card-header h3 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e40af;
+}
+
+.ts-guide-card-header .dashicons {
+    color: var(--ts-blue);
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+}
+
+.ts-guide-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.ts-guide-step {
+    padding: 18px 20px;
+    border-right: 1px solid var(--ts-blue-mid);
+}
+
+.ts-guide-step:last-child { border-right: none; }
+
+.ts-guide-step h4 {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ts-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.ts-guide-step ul {
+    margin: 0;
+    padding: 0 0 0 14px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--ts-ink-3);
+}
+
+.ts-guide-step p {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ts-ink-3);
+}
+
+.ts-callback-box {
+    background: var(--ts-white);
+    border: 1px solid var(--ts-blue-mid);
+    border-radius: var(--ts-radius-sm);
+    padding: 9px 12px;
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 11px;
+    line-height: 1.9;
+    overflow-x: auto;
+    margin-top: 8px;
+}
+
+.ts-callback-box code { color: #059669; }
+
+/* ── System Check ─────────────────────────────────────────────────────────── */
+.ts-sys-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    padding: 16px 20px;
+}
+
+.ts-sys-item {
+    padding: 12px 14px;
+    background: var(--ts-surface);
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius);
+}
+
+.ts-sys-item-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ts-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+}
+
+.ts-sys-item-value {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ts-ink-2);
+}
+
+.ts-sys-item-value .dashicons {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+}
+
+.ts-sys-item-value.pass .dashicons { color: var(--ts-green); }
+.ts-sys-item-value.warn .dashicons { color: var(--ts-amber); }
+.ts-sys-item-value.warn { color: var(--ts-red); }
+
+/* ── Section Heading ──────────────────────────────────────────────────────── */
+.ts-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 24px 0 14px;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--ts-ink-2);
+    letter-spacing: -0.02em;
+}
+
+.ts-section-heading:first-child { margin-top: 0; }
+
+.ts-section-heading .dashicons {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+}
+
+/* ── Help Hero ────────────────────────────────────────────────────────────── */
+.ts-help-hero {
+    background: var(--ts-ink);
+    color: var(--ts-white);
+    padding: 24px 28px;
+    border-radius: var(--ts-radius-lg);
+    margin-bottom: 24px;
+}
+
+.ts-help-hero h2 {
+    color: var(--ts-white);
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 5px;
+    letter-spacing: -0.02em;
+}
+
+.ts-help-hero p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin: 0;
+    line-height: 1.6;
+    max-width: 560px;
+}
+
+/* ── Help Grid ────────────────────────────────────────────────────────────── */
+.ts-help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.ts-help-card {
+    background: var(--ts-white);
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius-lg);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: var(--ts-transition);
+    box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-help-card:hover {
+    box-shadow: var(--ts-shadow-md);
+    border-color: #c7d7f8;
+    transform: translateY(-2px);
+}
+
+.ts-help-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.ts-help-icon {
+    width: 38px;
+    height: 38px;
+    background: var(--ts-blue-light);
+    border-radius: var(--ts-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ts-help-icon .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--ts-blue);
+}
+
+.ts-help-card h2 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ts-ink-2);
+}
+
+.ts-help-content p {
+    margin: 0 0 6px;
+    font-size: 12.5px;
+    color: var(--ts-muted);
+    line-height: 1.6;
+}
+
+.ts-help-content p:last-child { margin-bottom: 0; }
+
+.ts-help-content strong {
+    color: var(--ts-ink-3);
+    font-weight: 600;
+}
+
+.ts-help-card .button {
+    align-self: flex-start;
+    font-size: 12px;
+    border-radius: var(--ts-radius-sm);
+}
+
+.ts-help-card--active {
+    border-color: #a7f3d0;
+    border-top: 3px solid var(--ts-green);
+}
+
+.ts-help-card--active .ts-help-icon {
+    background: var(--ts-green-light);
+}
+
+.ts-help-card--active .ts-help-icon .dashicons {
+    color: var(--ts-green);
+}
+
+.ts-help-card--inactive .ts-help-icon {
+    background: var(--ts-surface);
+}
+
+.ts-help-card--inactive .ts-help-icon .dashicons {
+    color: var(--ts-subtle);
+}
+
+/* ── FAQ ──────────────────────────────────────────────────────────────────── */
+.ts-faq-section {
+    background: var(--ts-surface);
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius-lg);
+    overflow: hidden;
+    margin-top: 24px;
+}
+
+.ts-faq-section-title {
+    padding: 16px 20px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ts-ink-2);
+    border-bottom: 1px solid var(--ts-border);
+    background: var(--ts-white);
+}
+
+.ts-faq-item {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--ts-border-soft);
+}
+
+.ts-faq-item:last-child { border-bottom: none; }
+
+.ts-faq-item h4 {
+    margin: 0 0 5px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ts-ink-2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ts-faq-item h4 .dashicons {
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+    color: var(--ts-blue);
+}
+
+.ts-faq-item p {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--ts-muted);
+    line-height: 1.6;
+}
+
+/* ── License Row ──────────────────────────────────────────────────────────── */
+.ts-license-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.ts-license-row input {
+    flex: 1;
+    max-width: 340px !important;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 782px) {
+    .taiwan-store-admin-wrap { margin: 10px 8px 0 0; }
+    .taiwan-store-tab-body   { padding: 14px; }
+    .ts-field-row            { grid-template-columns: 1fr; gap: 5px; }
+    .ts-field-label          { padding-top: 0; }
+    .ts-guide-steps          { grid-template-columns: 1fr; }
+    .ts-guide-step           { border-right: none; border-bottom: 1px solid var(--ts-blue-mid); }
+    .ts-guide-step:last-child { border-bottom: none; }
+}
+
+/* ── WordPress Resets ─────────────────────────────────────────────────────── */
+.taiwan-store-admin-wrap .wrap    { margin: 0; }
+/* 隱藏 WC 注入的多餘 form-table，但保留 extension tab 內的 form-table */
+.taiwan-store-admin-wrap .form-table { display: none !important; }
+.taiwan-store-admin-wrap .taiwan-store-tab-content .form-table { display: table !important; }
+
+/* Legacy .card compat for extension tabs */
+.taiwan-store-admin-wrap .card {
+    background: var(--ts-white);
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius-lg);
+    padding: 20px;
+    box-shadow: var(--ts-shadow-sm);
+    margin-bottom: 14px;
+    max-width: none;
+}

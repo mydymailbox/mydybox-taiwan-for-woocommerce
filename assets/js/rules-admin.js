@@ -2,7 +2,7 @@
 (function ($) {
     'use strict';
 
-    const D = window.WCTWRulesData;
+    const D = window.TaiwanStoreCoreRulesData;
     if (!D) return;
 
     const hook = D.hook;
@@ -113,6 +113,10 @@
     }
 
     function toast(msg, type) {
+        if (typeof Swal === 'undefined') {
+            alert(msg);
+            return;
+        }
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -137,60 +141,73 @@
 
         let listHtml;
         if (rules.length) {
-            listHtml = '<div class="wctw-rules-list">' +
+            listHtml = '<div class="taiwan-store-core-rules-list">' +
                 rules.map((r, i) => renderCard(r, i)).join('') +
                 '</div>';
         } else {
             listHtml = `
-                <div class="wctw-empty-state">
+                <div class="taiwan-store-core-empty-state">
                     <span class="dashicons ${icon}"></span>
-                    <p>尚無任何規則</p>
-                    <p style="font-size:12px;color:#aaa;margin-bottom:20px">點擊右上角「新增規則」開始設定條件與動作${(D.samples||[]).length ? '，或先匯入範例規則作為起手式' : ''}</p>
-                    ${(D.samples||[]).length ? `<button type="button" class="wctw-btn-secondary" id="wctw-empty-samples-btn">
+                    <h3>尚無任何規則</h3>
+                    <p>點擊右上角「新增規則」開始設定條件與動作${Object.keys(D.samples||{}).length ? '，或先匯入範例規則作為起手式' : ''}</p>
+                    ${Object.keys(D.samples||{}).length ? `<button type="button" class="taiwan-store-core-btn-secondary" id="taiwan-store-core-empty-samples-btn" style="margin: 0 auto">
                         <span class="dashicons dashicons-download"></span>載入範例規則
                     </button>` : ''}
                 </div>`;
         }
 
         $('#wc-tw-rules-app').html(`
-            <div class="wctw-page-header">
+            <div class="taiwan-store-core-page-header">
                 <h2>
                     <span class="dashicons ${icon}"></span>
                     ${esc(title)}
-                    <span class="wctw-badge">${rules.length}</span>
+                    <span class="taiwan-store-core-badge">${rules.length}</span>
                 </h2>
-                ${(D.samples||[]).length ? `<button type="button" class="wctw-btn-secondary" id="wctw-samples-btn" style="margin-right:8px">
+                ${Object.keys(D.samples||{}).length ? `<button type="button" class="taiwan-store-core-btn-secondary" id="taiwan-store-core-samples-btn" style="margin-right:8px">
                     <span class="dashicons dashicons-download"></span>載入範例
                 </button>` : ''}
-                <button type="button" class="wctw-btn-primary" id="wctw-add-btn">
+                <button type="button" class="taiwan-store-core-btn-primary" id="taiwan-store-core-add-btn">
                     <span class="dashicons dashicons-plus-alt2"></span>新增規則
                 </button>
             </div>
             ${listHtml}
         `);
 
-        $('#wctw-add-btn').on('click', () => openModal(null));
-        $('#wctw-samples-btn, #wctw-empty-samples-btn').on('click', openSamplesPicker);
-        $('.wctw-edit-btn').on('click', function () { openModal(rules[+$(this).data('idx')]); });
-        $('.wctw-del-btn').on('click', function () {
-            const ruleId = $(this).data('id');
-            const ruleName = $(this).data('name');
-            Swal.fire({
-                title: '確定要刪除嗎？',
-                text: '規則「' + ruleName + '」刪除後將無法復原。',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#646970',
-                confirmButtonText: '確定刪除',
-                cancelButtonText: '取消'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    deleteRule(ruleId);
-                }
-            });
+        // Event Delegation
+        const $app = $('#wc-tw-rules-app');
+        $app.off('click.ts').on('click.ts', '#taiwan-store-core-add-btn', () => openModal(null));
+        $app.on('click.ts', '#taiwan-store-core-samples-btn, #taiwan-store-core-empty-samples-btn', openSamplesPicker);
+        
+        $app.on('click.ts', '.taiwan-store-core-edit-btn', function () { 
+            const idx = +$(this).data('idx');
+            if (rules[idx]) openModal(rules[idx]); 
         });
-        $('.wctw-toggle-input').on('change', function () {
+        
+        $app.on('click.ts', '.taiwan-store-core-del-btn', function () {
+            const idx = +$(this).data('idx');
+            const rule = rules[idx];
+            if (!rule) return;
+            const ruleId = rule.id;
+            const ruleName = rule.name || '（未命名規則）';
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '確定要刪除嗎？',
+                    text: '規則「' + ruleName + '」刪除後將無法復原。',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#646970',
+                    confirmButtonText: '確定刪除',
+                    cancelButtonText: '取消'
+                }).then((result) => {
+                    if (result.isConfirmed) deleteRule(ruleId, idx);
+                });
+            } else if (confirm('確定要刪除規則「' + ruleName + '」嗎？')) {
+                deleteRule(ruleId, idx);
+            }
+        });
+
+        $app.on('change.ts', '.taiwan-store-core-toggle-input', function () {
             const id  = $(this).data('id');
             const r   = rules.find(x => x.id === id);
             if (r) saveToServer({ ...r, enabled: $(this).is(':checked') }, true);
@@ -204,53 +221,56 @@
         const enabled = !!r.enabled;
 
         const condTags = conds.length
-            ? conds.map(c => `<span class="wctw-tag cond">
+            ? conds.map(c => `<span class="taiwan-store-core-tag cond">
                     <span class="dashicons ${COND_ICONS[c.type] || 'dashicons-filter'}"></span>
                     ${esc(COND_LABELS[c.type] || c.type)}
                 </span>`).join('')
-            : '<span class="wctw-tag empty">永遠觸發</span>';
+            : '<span class="taiwan-store-core-tag empty">永遠觸發</span>';
 
         const actTags = acts.length
-            ? acts.map(a => `<span class="wctw-tag action">
+            ? acts.map(a => `<span class="taiwan-store-core-tag action">
                     <span class="dashicons ${ACTION_ICONS[a.type] || 'dashicons-admin-settings'}"></span>
                     ${esc(ACTION_LABELS[a.type] || a.type)}
                 </span>`).join('')
-            : '<span class="wctw-tag empty">無動作</span>';
+            : '<span class="taiwan-store-core-tag empty">無動作</span>';
 
         return `
-            <div class="wctw-rule-card ${enabled ? '' : 'is-disabled'}">
-                <div class="wctw-rule-card-header">
-                    <label class="wctw-switch" title="${enabled ? '點擊停用' : '點擊啟用'}">
-                        <input type="checkbox" class="wctw-toggle-input" data-id="${esc(r.id)}" ${enabled ? 'checked' : ''}>
-                        <span class="wctw-switch-slider"></span>
+            <div class="taiwan-store-core-rule-card ${enabled ? '' : 'is-disabled'}">
+                <div class="taiwan-store-core-rule-card-header">
+                    <label class="taiwan-store-core-switch" title="${enabled ? '點擊停用' : '點擊啟用'}">
+                        <input type="checkbox" class="taiwan-store-core-toggle-input" data-id="${esc(r.id)}" ${enabled ? 'checked' : ''}>
+                        <span class="taiwan-store-core-switch-slider"></span>
                     </label>
-                    <span class="wctw-rule-name">${esc(r.name || '（未命名規則）')}</span>
-                    <span class="wctw-pill ${enabled ? 'on' : 'off'}">
+                    <span class="taiwan-store-core-rule-name">${esc(r.name || '（未命名規則）')}</span>
+                    <span class="taiwan-store-core-pill ${enabled ? 'on' : 'off'}">
                         <span class="dashicons ${enabled ? 'dashicons-yes' : 'dashicons-minus'}"></span>
                         ${enabled ? '啟用中' : '停用'}
                     </span>
-                    <div class="wctw-rule-card-actions">
-                        <button type="button" class="wctw-btn-ghost wctw-edit-btn" data-idx="${i}" title="編輯規則">
+                    <div class="taiwan-store-core-rule-card-actions">
+                        <button type="button" class="taiwan-store-core-btn-ghost taiwan-store-core-edit-btn" data-idx="${i}" title="編輯規則">
                             <span class="dashicons dashicons-edit"></span>編輯
                         </button>
-                        <button type="button" class="wctw-btn-danger wctw-del-btn"
-                            data-id="${esc(r.id)}" data-name="${esc(r.name)}" title="刪除規則">
+                        <button type="button" class="taiwan-store-core-btn-danger taiwan-store-core-del-btn"
+                            data-idx="${i}" title="刪除規則">
                             <span class="dashicons dashicons-trash"></span>刪除
                         </button>
                     </div>
                 </div>
-                <div class="wctw-rule-card-body">
-                    <div class="wctw-rule-section">
-                        <div class="wctw-rule-section-title">
+                <div class="taiwan-store-core-rule-card-body">
+                    <div class="taiwan-store-core-rule-section">
+                        <div class="taiwan-store-core-rule-section-title">
                             <span class="dashicons dashicons-filter"></span>觸發條件
                         </div>
-                        <div class="wctw-tags">${condTags}</div>
+                        <div class="taiwan-store-core-tags">${condTags}</div>
                     </div>
-                    <div class="wctw-rule-section">
-                        <div class="wctw-rule-section-title">
+                    <div class="taiwan-store-core-rule-flow-arrow">
+                        <span class="dashicons dashicons-arrow-right-alt2"></span>
+                    </div>
+                    <div class="taiwan-store-core-rule-section">
+                        <div class="taiwan-store-core-rule-section-title">
                             <span class="dashicons dashicons-controls-forward"></span>執行動作
                         </div>
-                        <div class="wctw-tags">${actTags}</div>
+                        <div class="taiwan-store-core-tags">${actTags}</div>
                     </div>
                 </div>
             </div>`;
@@ -262,23 +282,23 @@
             ? JSON.parse(JSON.stringify(rule))
             : { id: '', name: '', hook, enabled: true, conditions: [], actions: [] };
 
-        if ($('#wctw-overlay').length === 0) {
-            $('body').append('<div class="wctw-overlay" id="wctw-overlay"></div>');
+        if ($('#taiwan-store-core-overlay').length === 0) {
+            $('body').append('<div class="taiwan-store-core-overlay" id="taiwan-store-core-overlay"></div>');
         }
 
         renderModal();
-        $('#wctw-overlay').addClass('open');
-        $('#wctw-overlay').on('click.wctw-modal', function (e) {
-            if ($(e.target).is('#wctw-overlay')) closeModal();
+        $('#taiwan-store-core-overlay').addClass('open');
+        $('#taiwan-store-core-overlay').on('click.taiwan-store-core-modal', function (e) {
+            if ($(e.target).is('#taiwan-store-core-overlay')) closeModal();
         });
-        $(document).on('keydown.wctw-modal', function (e) {
+        $(document).on('keydown.taiwan-store-core-modal', function (e) {
             if (e.key === 'Escape') closeModal();
         });
     }
 
     function closeModal() {
-        $('#wctw-overlay').removeClass('open');
-        $(document).off('keydown.wctw-modal');
+        $('#taiwan-store-core-overlay').removeClass('open');
+        $(document).off('keydown.taiwan-store-core-modal');
         editingRule = null;
     }
 
@@ -286,37 +306,37 @@
         const r    = editingRule;
         const isNew = !r.id;
 
-        $('#wctw-overlay').html(`
-            <div class="wctw-modal" id="wctw-modal">
-                <div class="wctw-modal-head">
+        $('#taiwan-store-core-overlay').html(`
+            <div class="taiwan-store-core-modal" id="taiwan-store-core-modal">
+                <div class="taiwan-store-core-modal-head">
                     <h3>
                         <span class="dashicons ${isNew ? 'dashicons-plus-alt2' : 'dashicons-edit'}"></span>
                         ${isNew ? '新增規則' : '編輯規則'}
                     </h3>
-                    <button type="button" class="wctw-modal-x" id="wctw-modal-close" title="關閉">✕</button>
+                    <button type="button" class="taiwan-store-core-modal-x" id="taiwan-store-core-modal-close" title="關閉">✕</button>
                 </div>
-                <div class="wctw-modal-body">
+                <div class="taiwan-store-core-modal-body">
                     
                     <!-- Rule Summary Box -->
-                    <div class="wctw-summary-box">
+                    <div class="taiwan-store-core-summary-box">
                         <span class="dashicons dashicons-info"></span>
-                        <div class="wctw-summary-content" id="wctw-rule-summary">
-                            <span class="wctw-summary-placeholder">正在生成規則摘要...</span>
+                        <div class="taiwan-store-core-summary-content" id="taiwan-store-core-rule-summary">
+                            <span class="taiwan-store-core-summary-placeholder">正在生成規則摘要...</span>
                         </div>
                     </div>
 
-                    <div class="wctw-name-row">
-                        <div class="wctw-form-row">
-                            <label>規則名稱 <span class="wctw-required">*</span></label>
+                    <div class="taiwan-store-core-name-row">
+                        <div class="taiwan-store-core-form-row">
+                            <label>規則名稱 <span class="taiwan-store-core-required">*</span></label>
                             <input type="text" id="e-name" class="large-text"
                                 value="${esc(r.name)}" placeholder="例：台灣以外不提供貨到付款">
                         </div>
-                        <div class="wctw-form-row" style="flex-shrink:0">
+                        <div class="taiwan-store-core-form-row" style="flex-shrink:0">
                             <label>狀態</label>
                             <label style="display:flex;align-items:center;gap:8px;height:30px;margin-top:2px;cursor:pointer">
-                                <span class="wctw-switch" style="display:inline-block">
+                                <span class="taiwan-store-core-switch" style="display:inline-block">
                                     <input type="checkbox" id="e-enabled" ${r.enabled ? 'checked' : ''}>
-                                    <span class="wctw-switch-slider"></span>
+                                    <span class="taiwan-store-core-switch-slider"></span>
                                 </span>
                                 <span id="e-enabled-label" style="font-size:13px;color:#646970">
                                     ${r.enabled ? '啟用' : '停用'}
@@ -325,22 +345,22 @@
                         </div>
                     </div>
 
-                    <hr class="wctw-divider">
+                    <hr class="taiwan-store-core-divider">
 
                     <!-- Conditions -->
-                    <div class="wctw-block">
-                        <div class="wctw-block-head">
-                            <h4 class="wctw-step-title">
-                                <span class="wctw-step-num">1</span>
+                    <div class="taiwan-store-core-block">
+                        <div class="taiwan-store-core-block-head">
+                            <h4 class="taiwan-store-core-step-title">
+                                <span class="taiwan-store-core-step-num">1</span>
                                 <span class="dashicons dashicons-filter"></span>
                                 當滿足以下條件 (Conditions)
-                                <span class="wctw-block-hint">符合下方全部條件即觸發</span>
+                                <span class="taiwan-store-core-block-hint">符合下方全部條件即觸發</span>
                             </h4>
                         </div>
-                        <div class="wctw-block-body">
+                        <div class="taiwan-store-core-block-body">
                             <div id="e-conds">${renderCondItems(r.conditions)}</div>
-                            <div class="wctw-add-item-row" style="border-top:none; padding-top:0;">
-                                <button type="button" class="wctw-btn-secondary" id="e-pick-cond" style="width:100%; justify-content:center; padding:10px; border-style:dashed;">
+                            <div class="taiwan-store-core-add-item-row" style="border-top:none; padding-top:0;">
+                                <button type="button" class="taiwan-store-core-btn-secondary" id="e-pick-cond" style="width:100%; justify-content:center; padding:10px; border-style:dashed;">
                                     <span class="dashicons dashicons-plus-alt2"></span>點擊新增觸發條件
                                 </button>
                             </div>
@@ -348,18 +368,18 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="wctw-block">
-                        <div class="wctw-block-head">
-                            <h4 class="wctw-step-title">
-                                <span class="wctw-step-num">2</span>
+                    <div class="taiwan-store-core-block">
+                        <div class="taiwan-store-core-block-head">
+                            <h4 class="taiwan-store-core-step-title">
+                                <span class="taiwan-store-core-step-num">2</span>
                                 <span class="dashicons dashicons-controls-forward"></span>
                                 則執行這些動作 (Actions)
                             </h4>
                         </div>
-                        <div class="wctw-block-body">
+                        <div class="taiwan-store-core-block-body">
                             <div id="e-acts">${renderActItems(r.actions)}</div>
-                            <div class="wctw-add-item-row" style="border-top:none; padding-top:0;">
-                                <button type="button" class="wctw-btn-secondary" id="e-pick-act" style="width:100%; justify-content:center; padding:10px; border-style:dashed;">
+                            <div class="taiwan-store-core-add-item-row" style="border-top:none; padding-top:0;">
+                                <button type="button" class="taiwan-store-core-btn-secondary" id="e-pick-act" style="width:100%; justify-content:center; padding:10px; border-style:dashed;">
                                     <span class="dashicons dashicons-plus-alt2"></span>點擊新增行銷動作
                                 </button>
                             </div>
@@ -367,11 +387,11 @@
                     </div>
 
                 </div>
-                <div class="wctw-modal-foot">
-                    <button type="button" class="wctw-btn-secondary" id="e-cancel">取消</button>
+                <div class="taiwan-store-core-modal-foot">
+                    <button type="button" class="taiwan-store-core-btn-secondary" id="e-cancel">取消</button>
                     <div class="spacer"></div>
-                    <div class="wctw-spinner" id="e-spinner"></div>
-                    <button type="button" class="wctw-btn-primary" id="e-save" style="padding:10px 24px;">
+                    <div class="taiwan-store-core-spinner" id="e-spinner"></div>
+                    <button type="button" class="taiwan-store-core-btn-primary" id="e-save" style="padding:10px 24px;">
                         <span class="dashicons dashicons-saved"></span>儲存並發佈規則
                     </button>
                 </div>
@@ -384,14 +404,14 @@
 
     // ── Condition items ───────────────────────────────────────────────────────
     function renderCondItems(conds) {
-        if (!conds.length) return '<p class="wctw-block-empty">尚未新增條件。</p>';
+        if (!conds.length) return '<p class="taiwan-store-core-block-empty">尚未新增條件。</p>';
         return conds.map((c, i) => `
-            <div class="wctw-item-row" data-idx="${i}">
-                <span class="wctw-item-type-badge">
+            <div class="taiwan-store-core-item-row" data-idx="${i}">
+                <span class="taiwan-store-core-item-type-badge">
                     ${esc(COND_LABELS[c.type] || c.type)}
                 </span>
-                <div class="wctw-item-fields">${condFields(c)}</div>
-                <button type="button" class="wctw-item-rm wctw-rm-cond" data-idx="${i}" title="移除條件">
+                <div class="taiwan-store-core-item-fields">${condFields(c)}</div>
+                <button type="button" class="taiwan-store-core-item-rm taiwan-store-core-rm-cond" data-idx="${i}" title="移除條件">
                     <span class="dashicons dashicons-no-alt"></span>
                 </button>
             </div>`).join('');
@@ -462,17 +482,17 @@
                     `<option value="${esc(gw.id)}"${(c.methods||[]).includes(gw.id)?' selected':''}>${esc(gw.label)}</option>`
                 ).join('');
                 return `
-                    <select class="cf wctw-sum" data-key="op">
+                    <select class="cf taiwan-store-core-sum" data-key="op">
                         <option value="in"${sel('in',c.op||'in')}>包含</option>
                         <option value="not_in"${sel('not_in',c.op)}>不包含</option>
                     </select>
-                    <select class="cf wctw-sum" data-key="methods" multiple size="4">
+                    <select class="cf taiwan-store-core-sum" data-key="methods" multiple size="4">
                         ${opts||'<option disabled>（無付款方式）</option>'}
                     </select>`;
             }
             case 'product':
                 return `
-                    <select class="cf wctw-sum" data-key="op">
+                    <select class="cf taiwan-store-core-sum" data-key="op">
                         <option value="in"${sel('in',c.op||'in')}>購物車含</option>
                         <option value="not_in"${sel('not_in',c.op)}>購物車不含</option>
                     </select>
@@ -483,18 +503,18 @@
                     `<option value="${esc(m.id)}"${(c.methods||[]).includes(m.id)?' selected':''}>${esc(m.label)}</option>`
                 ).join('');
                 return `
-                    <select class="cf wctw-sum" data-key="op">
+                    <select class="cf taiwan-store-core-sum" data-key="op">
                         <option value="in"${sel('in',c.op||'in')}>包含</option>
                         <option value="not_in"${sel('not_in',c.op)}>不包含</option>
                     </select>
-                    <select class="cf wctw-sum" data-key="methods" multiple size="4">
+                    <select class="cf taiwan-store-core-sum" data-key="methods" multiple size="4">
                         ${opts||'<option disabled>（無配送方式）</option>'}
                     </select>`;
             }
             case 'address_mismatch':
                 return `
                     <span style="color:#646970;font-size:13px">比對</span>
-                    <select class="cf wctw-sum" data-key="compare">
+                    <select class="cf taiwan-store-core-sum" data-key="compare">
                         <option value="country"${sel('country',c.compare||'country')}>國家／地區</option>
                         <option value="state"${sel('state',c.compare)}>縣市 / 州</option>
                     </select>
@@ -505,7 +525,7 @@
                     <input type="number" class="cf small-text" data-key="hours" data-as="number"
                         min="1" step="1" style="width:70px" value="${parseInt(c.hours)||24}">
                     <span style="color:#646970;font-size:13px">小時內訂單數</span>
-                    <select class="cf wctw-sum" data-key="op">
+                    <select class="cf taiwan-store-core-sum" data-key="op">
                         <option value="gte"${sel('gte',c.op||'gte')}>≥</option>
                         <option value="gt"${sel('gt',c.op)}>&gt;</option>
                         <option value="lte"${sel('lte',c.op)}>≤</option>
@@ -517,7 +537,7 @@
                     <span style="color:#646970;font-size:13px">筆</span>`;
             case 'user_role':
                 return `
-                    <select class="cf wctw-sum" data-key="roles" multiple size="4">
+                    <select class="cf taiwan-store-core-sum" data-key="roles" multiple size="4">
                         <option value="customer"${(c.roles||[]).includes('customer')?' selected':''}>顧客 (Customer)</option>
                         <option value="subscriber"${(c.roles||[]).includes('subscriber')?' selected':''}>訂閱者 (Subscriber)</option>
                         <option value="administrator"${(c.roles||[]).includes('administrator')?' selected':''}>管理員 (Administrator)</option>
@@ -564,14 +584,14 @@
 
     // ── Action items ──────────────────────────────────────────────────────────
     function renderActItems(acts) {
-        if (!acts.length) return '<p class="wctw-block-empty">尚未新增動作。</p>';
+        if (!acts.length) return '<p class="taiwan-store-core-block-empty">尚未新增動作。</p>';
         return acts.map((a, i) => `
-            <div class="wctw-item-row wctw-action-row-wrap" data-idx="${i}">
-                <span class="wctw-item-type-badge">
+            <div class="taiwan-store-core-item-row taiwan-store-core-action-row-wrap" data-idx="${i}">
+                <span class="taiwan-store-core-item-type-badge">
                     ${esc(ACTION_LABELS[a.type] || a.type)}
                 </span>
-                <div class="wctw-item-fields">${actFields(a)}</div>
-                <button type="button" class="wctw-item-rm wctw-rm-act" data-idx="${i}" title="移除動作">
+                <div class="taiwan-store-core-item-fields">${actFields(a)}</div>
+                <button type="button" class="taiwan-store-core-item-rm taiwan-store-core-rm-act" data-idx="${i}" title="移除動作">
                     <span class="dashicons dashicons-no-alt"></span>
                 </button>
             </div>`).join('');
@@ -584,7 +604,7 @@
                 const opts = (D.gateways||[]).map(gw =>
                     `<option value="${esc(gw.id)}"${(c.gateways||[]).includes(gw.id)?' selected':''}>${esc(gw.label)}</option>`
                 ).join('');
-                return `<select class="af wctw-sum" data-key="gateways" multiple size="4">
+                return `<select class="af taiwan-store-core-sum" data-key="gateways" multiple size="4">
                     ${opts||'<option disabled>（無可用付款方式）</option>'}
                 </select>`;
             }
@@ -592,7 +612,7 @@
                 const opts = (D.shipping||[]).map(m =>
                     `<option value="${esc(m.id)}"${(c.methods||[]).includes(m.id)?' selected':''}>${esc(m.label)}</option>`
                 ).join('');
-                return `<select class="af wctw-sum" data-key="methods" multiple size="4">
+                return `<select class="af taiwan-store-core-sum" data-key="methods" multiple size="4">
                     ${opts||'<option disabled>（無可用配送方式）</option>'}
                 </select>`;
             }
@@ -601,7 +621,7 @@
                     value="${esc(c.message||'')}" placeholder="顯示給顧客的錯誤訊息">`;
             case 'apply_discount':
                 return `
-                    <select class="af wctw-sum" data-key="type">
+                    <select class="af taiwan-store-core-sum" data-key="type">
                         <option value="fixed"${c.type==='fixed'?' selected':''}>定額折抵</option>
                         <option value="percent"${c.type==='percent'?' selected':''}>比例折抵 (%)</option>
                     </select>
@@ -662,16 +682,16 @@
 
     // ── Modal events ──────────────────────────────────────────────────────────
     function bindModalEvents() {
-        $('#wctw-modal-close, #e-cancel').on('click', closeModal);
+        $('#taiwan-store-core-modal-close, #e-cancel').on('click', closeModal);
 
         $('#e-enabled').on('change', function () {
             $('#e-enabled-label').text($(this).is(':checked') ? '啟用' : '停用');
         });
 
         // Address field toggle
-        $(document).on('change.wctw', '[data-role="addr-field"]', function () {
+        $(document).on('change.TaiwanStoreCore', '[data-role="addr-field"]', function () {
             const isState = $(this).val() === 'state';
-            const $row = $(this).closest('.wctw-item-row');
+            const $row = $(this).closest('.taiwan-store-core-item-row');
             $row.find('.cf-grp[data-for="country"]').toggle(!isState);
             $row.find('.cf-grp[data-for="state"]').toggle(isState);
         });
@@ -688,13 +708,13 @@
             $('#e-acts').html(renderActItems(editingRule.actions));
         });
 
-        $(document).on('click.wctw', '.wctw-rm-cond', function () {
+        $(document).on('click.TaiwanStoreCore', '.taiwan-store-core-rm-cond', function () {
             syncConds();
             editingRule.conditions.splice(+$(this).data('idx'), 1);
             $('#e-conds').html(renderCondItems(editingRule.conditions));
         });
 
-        $(document).on('click.wctw', '.wctw-rm-act', function () {
+        $(document).on('click.TaiwanStoreCore', '.taiwan-store-core-rm-act', function () {
             syncActs();
             editingRule.actions.splice(+$(this).data('idx'), 1);
             $('#e-acts').html(renderActItems(editingRule.actions));
@@ -708,7 +728,7 @@
         $('#e-pick-cond').on('click', () => openPicker('cond'));
         $('#e-pick-act').on('click', () => openPicker('action'));
         
-        $(document).on('change.wctw-sum input.wctw-sum', '.cf, .af, #e-name', updateSummary);
+        $(document).on('change.taiwan-store-core-sum input.taiwan-store-core-sum', '.cf, .af, #e-name', updateSummary);
     }
 
     // ── UIUX Optimization Functions ───────────────────────────────────────────
@@ -719,33 +739,33 @@
         const descs  = isCond ? COND_DESCS  : ACTION_DESCS;
         const icons  = isCond ? COND_ICONS  : ACTION_ICONS;
 
-        if ($('#wctw-picker-overlay').length === 0) {
-            $('body').append('<div class="wctw-picker-overlay" id="wctw-picker-overlay"></div>');
+        if ($('#taiwan-store-core-picker-overlay').length === 0) {
+            $('body').append('<div class="taiwan-store-core-picker-overlay" id="taiwan-store-core-picker-overlay"></div>');
         }
 
         const itemsHtml = types.map(t => `
-            <div class="wctw-picker-item" data-type="${t}">
+            <div class="taiwan-store-core-picker-item" data-type="${t}">
                 <span class="dashicons ${icons[t] || 'dashicons-admin-settings'}"></span>
-                <div class="wctw-picker-item-label">${labels[t]}</div>
-                <div class="wctw-picker-item-desc">${descs[t] || ''}</div>
+                <div class="taiwan-store-core-picker-item-label">${labels[t]}</div>
+                <div class="taiwan-store-core-picker-item-desc">${descs[t] || ''}</div>
             </div>
         `).join('');
 
-        $('#wctw-picker-overlay').html(`
-            <div class="wctw-picker-modal">
-                <div class="wctw-picker-head">
+        $('#taiwan-store-core-picker-overlay').html(`
+            <div class="taiwan-store-core-picker-modal">
+                <div class="taiwan-store-core-picker-head">
                     <strong>新增${isCond ? '觸發條件' : '行銷動作'}</strong>
-                    <button type="button" class="wctw-modal-x" id="wctw-picker-close">✕</button>
+                    <button type="button" class="taiwan-store-core-modal-x" id="taiwan-store-core-picker-close">✕</button>
                 </div>
-                <div class="wctw-picker-grid">${itemsHtml}</div>
+                <div class="taiwan-store-core-picker-grid">${itemsHtml}</div>
             </div>
         `).addClass('open');
 
-        const close = () => $('#wctw-picker-overlay').removeClass('open');
-        $('#wctw-picker-close').on('click', close);
-        $('#wctw-picker-overlay').on('click', e => { if ($(e.target).is('#wctw-picker-overlay')) close(); });
+        const close = () => $('#taiwan-store-core-picker-overlay').removeClass('open');
+        $('#taiwan-store-core-picker-close').on('click', close);
+        $('#taiwan-store-core-picker-overlay').on('click', e => { if ($(e.target).is('#taiwan-store-core-picker-overlay')) close(); });
 
-        $('.wctw-picker-item').on('click', function() {
+        $('.taiwan-store-core-picker-item').on('click', function() {
             const type = $(this).data('type');
             if (isCond) {
                 syncConds();
@@ -774,43 +794,43 @@
                 const cfg = c.config || {};
                 const label = COND_LABELS[c.type];
                 switch(c.type) {
-                    case 'cart_total': return `金額 <span class="wctw-summary-val">${cfg.op||'gte'} ${cfg.amount||0}</span>`;
-                    case 'cart_item_count': return `數量 <span class="wctw-summary-val">${cfg.op||'gte'} ${cfg.count||0}</span>`;
-                    case 'first_purchase': return `<span class="wctw-summary-val">首購</span>`;
-                    case 'user_role': return `身分是 <span class="wctw-summary-val">${(cfg.roles||[]).join(',')}</span>`;
-                    default: return `<span class="wctw-summary-val">${label}</span>`;
+                    case 'cart_total': return `金額 <span class="taiwan-store-core-summary-val">${cfg.op||'gte'} ${cfg.amount||0}</span>`;
+                    case 'cart_item_count': return `數量 <span class="taiwan-store-core-summary-val">${cfg.op||'gte'} ${cfg.count||0}</span>`;
+                    case 'first_purchase': return `<span class="taiwan-store-core-summary-val">首購</span>`;
+                    case 'user_role': return `身分是 <span class="taiwan-store-core-summary-val">${(cfg.roles||[]).join(',')}</span>`;
+                    default: return `<span class="taiwan-store-core-summary-val">${label}</span>`;
                 }
             }).join(' 且 ');
         }
 
-        let actText = '<span class="wctw-summary-placeholder">尚未設定動作</span>';
+        let actText = '<span class="taiwan-store-core-summary-placeholder">尚未設定動作</span>';
         if (r.actions.length) {
             actText = r.actions.map(a => {
                 const cfg = a.config || {};
                 const label = ACTION_LABELS[a.type];
                 switch(a.type) {
-                    case 'apply_discount': return `給予 <span class="wctw-summary-val">${cfg.amount||0}${cfg.type==='percent'?'%':'元'}</span> 折扣`;
-                    case 'add_free_gift': return `贈送 <span class="wctw-summary-val">商品 ID ${cfg.product_id||'?'}</span>`;
-                    case 'free_shipping': return `給予 <span class="wctw-summary-val">免運費</span>`;
-                    case 'cart_progress': return `顯示 <span class="wctw-summary-val">${cfg.target_amount||0}元</span> 進度條`;
-                    default: return `<span class="wctw-summary-val">${label}</span>`;
+                    case 'apply_discount': return `給予 <span class="taiwan-store-core-summary-val">${cfg.amount||0}${cfg.type==='percent'?'%':'元'}</span> 折扣`;
+                    case 'add_free_gift': return `贈送 <span class="taiwan-store-core-summary-val">商品 ID ${cfg.product_id||'?'}</span>`;
+                    case 'free_shipping': return `給予 <span class="taiwan-store-core-summary-val">免運費</span>`;
+                    case 'cart_progress': return `顯示 <span class="taiwan-store-core-summary-val">${cfg.target_amount||0}元</span> 進度條`;
+                    default: return `<span class="taiwan-store-core-summary-val">${label}</span>`;
                 }
             }).join(', ');
         }
 
-        $('#wctw-rule-summary').html(`當 <span class="wctw-summary-val">${condText}</span> 時，${actText}。`);
+        $('#taiwan-store-core-rule-summary').html(`當 <span class="taiwan-store-core-summary-val">${condText}</span> 時，${actText}。`);
     }
 
     // ── Sync helpers ──────────────────────────────────────────────────────────
     function syncConds() {
         editingRule.conditions = editingRule.conditions.map((cond, i) => {
-            const $row = $(`#e-conds .wctw-item-row[data-idx="${i}"]`);
+            const $row = $(`#e-conds .taiwan-store-core-item-row[data-idx="${i}"]`);
             return $row.length ? { type: cond.type, config: collectCondCfg($row) } : cond;
         });
     }
     function syncActs() {
         editingRule.actions = editingRule.actions.map((act, i) => {
-            const $row = $(`#e-acts .wctw-item-row[data-idx="${i}"]`);
+            const $row = $(`#e-acts .taiwan-store-core-item-row[data-idx="${i}"]`);
             return $row.length ? { type: act.type, config: collectActCfg($row) } : act;
         });
     }
@@ -859,70 +879,128 @@
 
     // ── Samples picker ────────────────────────────────────────────────────────
     function openSamplesPicker() {
-        const groups = D.samples || [];
-        if (!groups.length) return;
+        const samplesObj = D.samples || {};
+        const categories = {
+            payment:   { label: '付款規則', icon: 'dashicons-money-alt' },
+            shipping:  { label: '運費規則', icon: 'dashicons-car' },
+            cart:      '購物車規則',
+            marketing: '行銷活動範例',
+        };
 
-        if ($('#wctw-overlay').length === 0) {
-            $('body').append('<div class="wctw-overlay" id="wctw-overlay"></div>');
+        let itemsHtml = '';
+        Object.keys(samplesObj).forEach(catKey => {
+            if (catKey !== hook) return;
+            const group = samplesObj[catKey] || [];
+            if (!group.length) return;
+
+            const catInfo = categories[catKey] || catKey;
+            const catLabel = typeof catInfo === 'object' ? catInfo.label : catInfo;
+            
+            itemsHtml += `
+                <div class="taiwan-store-core-sample-group">
+                    <h4 class="taiwan-store-core-sample-group-title">
+                        <span class="dashicons ${HOOK_ICON[catKey] || 'dashicons-tag'}"></span>
+                        ${esc(catLabel)}
+                    </h4>
+                    <div class="taiwan-store-core-samples-grid">
+            `;
+
+            // Handle sub-categories within groups (like in Marketing)
+            let lastSubCat = '';
+            group.forEach(s => {
+                if (s.category && s.category !== lastSubCat) {
+                    itemsHtml += `<div class="taiwan-store-core-sample-sub-header">${esc(s.category)}</div>`;
+                    lastSubCat = s.category;
+                }
+
+                itemsHtml += `
+                    <div class="taiwan-store-core-sample-card ${catKey === hook ? 'is-current-type' : ''}">
+                        <label class="taiwan-store-core-sample-label">
+                            <input type="checkbox" class="taiwan-store-core-sample-cb" data-cat="${catKey}" value="${esc(s.id)}">
+                            <div class="taiwan-store-core-sample-content">
+                                <div class="taiwan-store-core-sample-icon">
+                                    <span class="dashicons ${s.icon || 'dashicons-admin-settings'}"></span>
+                                </div>
+                                <div class="taiwan-store-core-sample-info">
+                                    <strong class="taiwan-store-core-sample-title">${esc(s.name)}</strong>
+                                    <p class="taiwan-store-core-sample-desc">${esc(s.description || '')}</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                `;
+            });
+
+            itemsHtml += `</div></div>`;
+        });
+
+        if ($('#taiwan-store-core-overlay').length === 0) {
+            $('body').append('<div class="taiwan-store-core-overlay" id="taiwan-store-core-overlay"></div>');
         }
 
-        const itemsHtml = groups.map(g => `
-            <div class="wctw-sample-group" style="margin-bottom:20px;">
-                <h4 style="margin:0 0 10px 0; padding-bottom:5px; border-bottom:1px solid #eee; font-size:14px; color:#1e293b;">${esc(g.group)}</h4>
-                ${(g.items || []).map(s => `
-                    <label class="wctw-sample-item" style="display:block;padding:12px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;cursor:pointer;background:#fff;transition:background 0.2s;">
-                        <div style="display:flex; align-items:flex-start; gap:10px;">
-                            <input type="checkbox" class="wctw-sample-cb" value="${esc(s.key)}" checked style="margin-top:3px;">
-                            <div>
-                                <strong style="display:block; font-size:13px; color:#1e293b;">${esc(s.name)}</strong>
-                                ${s.description ? `<div style="font-size:12px;color:#64748b;margin-top:4px;">${esc(s.description)}</div>` : ''}
-                            </div>
-                        </div>
-                    </label>
-                `).join('')}
-            </div>
-        `).join('');
-
-        $('#wctw-overlay').html(`
-            <div class="wctw-modal" id="wctw-modal" style="max-width:560px">
-                <div class="wctw-modal-head">
-                    <h3><span class="dashicons dashicons-download"></span>載入範例規則</h3>
-                    <button type="button" class="wctw-modal-x" id="wctw-modal-close">✕</button>
+        $('#taiwan-store-core-overlay').html(`
+            <div class="taiwan-store-core-modal" id="taiwan-store-core-modal" style="max-width:800px">
+                <div class="taiwan-store-core-modal-head">
+                    <h3><span class="dashicons dashicons-download"></span>載入常用範例規則</h3>
+                    <button type="button" class="taiwan-store-core-modal-x" id="taiwan-store-core-modal-close">✕</button>
                 </div>
-                <div class="wctw-modal-body">
-                    <p style="margin-top:0;color:#646970;font-size:13px">勾選要匯入的範例。匯入後規則為「停用」狀態，請依需要編輯動作目標（如付款方式、運送方式）後再啟用。</p>
-                    ${itemsHtml}
+                <div class="taiwan-store-core-modal-body" style="max-height:60vh; overflow-y:auto">
+                    <p class="taiwan-store-core-modal-intro">以下為「${HOOK_TITLE[hook] || hook}」的內建範例規則，勾選後點擊匯入即可快速套用。</p>
+                    <div class="taiwan-store-core-samples-container">
+                        ${itemsHtml}
+                    </div>
                 </div>
-                <div class="wctw-modal-foot">
-                    <button type="button" class="wctw-btn-secondary" id="wctw-samples-cancel">取消</button>
+                <div class="taiwan-store-core-modal-foot">
+                    <button type="button" class="taiwan-store-core-btn-secondary" id="taiwan-store-core-samples-cancel">取消</button>
+                    <button type="button" class="taiwan-store-core-btn-ghost" id="taiwan-store-core-samples-select-all">全選</button>
                     <div class="spacer"></div>
-                    <div class="wctw-spinner" id="wctw-samples-spinner"></div>
-                    <button type="button" class="wctw-btn-primary" id="wctw-samples-import">
-                        <span class="dashicons dashicons-yes"></span>匯入所選
+                    <div class="taiwan-store-core-spinner" id="taiwan-store-core-samples-spinner"></div>
+                    <button type="button" class="taiwan-store-core-btn-primary" id="taiwan-store-core-samples-import" style="padding:10px 24px;">
+                        <span class="dashicons dashicons-yes"></span>立即匯入所選項目
                     </button>
                 </div>
             </div>
         `);
-        $('#wctw-overlay').addClass('open');
+        $('#taiwan-store-core-overlay').addClass('open');
 
         const close = () => {
-            $('#wctw-overlay').removeClass('open');
-            $(document).off('keydown.wctw-samples');
+            $('#taiwan-store-core-overlay').removeClass('open');
+            $(document).off('keydown.taiwan-store-core-samples');
         };
-        $('#wctw-modal-close, #wctw-samples-cancel').on('click', close);
-        $('#wctw-overlay').on('click.wctw-samples', e => { if ($(e.target).is('#wctw-overlay')) close(); });
-        $(document).on('keydown.wctw-samples', e => { if (e.key === 'Escape') close(); });
+        $('#taiwan-store-core-modal-close, #taiwan-store-core-samples-cancel').on('click', close);
+        $('#taiwan-store-core-overlay').on('click.taiwan-store-core-samples', e => { if ($(e.target).is('#taiwan-store-core-overlay')) close(); });
+        $(document).on('keydown.taiwan-store-core-samples', e => { if (e.key === 'Escape') close(); });
 
-        $('#wctw-samples-import').on('click', function () {
-            const keys = $('.wctw-sample-cb:checked').map(function () { return $(this).val(); }).get();
-            if (!keys.length) { toast('請至少勾選一項', 'error'); return; }
+        // 全選 / 取消全選 toggle
+        $('#taiwan-store-core-samples-select-all').on('click', function () {
+            const allCbs = $('.taiwan-store-core-sample-cb');
+            const allChecked = allCbs.length === allCbs.filter(':checked').length;
+            allCbs.prop('checked', !allChecked);
+            $(this).text(allChecked ? '全選' : '取消全選');
+        });
+
+        $('#taiwan-store-core-samples-import').on('click', function () {
+            const selected = $('.taiwan-store-core-sample-cb:checked').map(function () { 
+                return { id: $(this).val(), cat: $(this).data('cat') }; 
+            }).get();
+            
+            if (!selected.length) { toast('請至少勾選一項', 'error'); return; }
             $(this).prop('disabled', true);
-            $('#wctw-samples-spinner').addClass('active');
+            $('#taiwan-store-core-samples-spinner').addClass('active');
+
+            // Collect keys by category
+            const keysByCat = {};
+            selected.forEach(item => {
+                if (!keysByCat[item.cat]) keysByCat[item.cat] = [];
+                keysByCat[item.cat].push(item.id);
+            });
+
+            // We only refresh the CURRENT hook's rules after import
             $.post(D.ajaxUrl, {
                 action: 'wc_tw_core_import_samples',
                 nonce:  D.nonce,
-                hook,
-                keys:   keys.join(','),
+                hook, // Still pass current hook to get updated list
+                keys:   JSON.stringify(keysByCat), // Pass as JSON for multi-cat support
             })
             .done(function (res) {
                 if (res.success) {
@@ -936,8 +1014,8 @@
             })
             .fail(() => toast('請求失敗，請重試', 'error'))
             .always(function () {
-                $('#wctw-samples-import').prop('disabled', false);
-                $('#wctw-samples-spinner').removeClass('active');
+                $('#taiwan-store-core-samples-import').prop('disabled', false);
+                $('#taiwan-store-core-samples-spinner').removeClass('active');
             });
         });
     }
@@ -976,7 +1054,14 @@
         });
     }
 
-    function deleteRule(id) {
+    function deleteRule(id, idx) {
+        // If no id, rule was never saved to server — just remove locally
+        if (!id) {
+            rules.splice(idx, 1);
+            render();
+            toast('規則已刪除', 'success');
+            return;
+        }
         $.post(D.ajaxUrl, {
             action:  'wc_tw_core_delete_rule',
             nonce:   D.nonce,
@@ -988,6 +1073,8 @@
                 rules = res.data.rules;
                 render();
                 toast('規則已刪除', 'success');
+            } else {
+                toast('刪除失敗：' + (res.data || '未知錯誤'), 'error');
             }
         })
         .fail(function () {

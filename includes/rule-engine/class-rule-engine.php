@@ -1,162 +1,170 @@
-﻿<?php
-namespace Taiwan_Store_Core\Rule_Engine; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
+<?php
+namespace Taiwan_Store_Core\Rule_Engine;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Rule engine singleton.
- *
- * Usage:
- *   $engine = Rule_Engine::instance();
- *   $engine->register_condition( new Conditions\Cart_Total() );
- *   $engine->register_action( new Actions\Hide_Payment() );
- *
- *   if ( $engine->has_rules( 'payment' ) ) {
- *       $ctx = new Context();
- *       $engine->evaluate( 'payment', $ctx, $gateways );
- *   }
- *
- * Rules are stored in wp_options:
- *   Taiwan_Store_Core_rules_payment  ??array of serialized Rule arrays
- *   Taiwan_Store_Core_rules_shipping ??array of serialized Rule arrays
- *   Taiwan_Store_Core_rules_cart     ??array of serialized Rule arrays
+ * Rule Engine Core.
+ * Evaluates rules based on conditions and triggers actions.
  */
 class Rule_Engine {
 
 	private static ?Rule_Engine $instance = null;
-
-	/** @var array<string, Condition> */
 	private array $conditions = [];
-
-	/** @var array<string, Action> */
 	private array $actions = [];
+	private array $condition_instances = [];
+	private array $action_instances = [];
 
-	/** @var array<string, Rule[]> */
-	private array $rules = [];
-
-	private bool $rules_loaded = false;
-
-	private function __construct() {}
+	private function __construct() {
+		$this->load_core_components();
+	}
 
 	public static function instance(): self {
 		if ( null === self::$instance ) {
-			self::$instance = new self();
+			try {
+				self::$instance = new self();
+			} catch ( \Throwable $e ) {
+				throw $e;
+			}
 		}
 		return self::$instance;
 	}
 
-	// ?? Registration ??????????????????????????????????????????????????????????
+	private function load_core_components(): void {
+		// Load Core Engine Classes
+		require_once __DIR__ . '/class-context.php';
+		require_once __DIR__ . '/interface-condition.php';
+		require_once __DIR__ . '/interface-action.php';
+
+		// Load common conditions
+		require_once __DIR__ . '/conditions/class-address.php';
+		require_once __DIR__ . '/conditions/class-cart-total.php';
+		require_once __DIR__ . '/conditions/class-max-qty.php';
+		require_once __DIR__ . '/conditions/class-category.php';
+		require_once __DIR__ . '/conditions/class-product.php';
+
+		$this->register_condition( new \Taiwan_Store_Core\Rule_Engine\Conditions\Address() );
+		$this->register_condition( new \Taiwan_Store_Core\Rule_Engine\Conditions\Cart_Total() );
+		$this->register_condition( new \Taiwan_Store_Core\Rule_Engine\Conditions\Max_Qty() );
+		$this->register_condition( new \Taiwan_Store_Core\Rule_Engine\Conditions\Category() );
+		$this->register_condition( new \Taiwan_Store_Core\Rule_Engine\Conditions\Product() );
+
+		// Load common actions
+		require_once __DIR__ . '/actions/class-hide-payment.php';
+		require_once __DIR__ . '/actions/class-hide-shipping.php';
+		require_once __DIR__ . '/actions/class-block-checkout.php';
+
+		$this->register_action( new \Taiwan_Store_Core\Rule_Engine\Actions\Hide_Payment() );
+		$this->register_action( new \Taiwan_Store_Core\Rule_Engine\Actions\Hide_Shipping() );
+		$this->register_action( new \Taiwan_Store_Core\Rule_Engine\Actions\Block_Checkout() );
+
+		// Allow other modules to register components
+		do_action( 'taiwan_store_core_register_rule_components', $this );
+	}
 
 	public function register_condition( Condition $condition ): void {
-		$this->conditions[ $condition->id() ] = $condition;
+		$this->condition_instances[ $condition->id() ] = $condition;
+		$this->conditions[ $condition->id() ] = [
+			'id'    => $condition->id(),
+			'label' => $condition->label(),
+			'type'  => $condition->type(),
+			'ops'   => $condition->operators(),
+		];
 	}
 
 	public function register_action( Action $action ): void {
-		$this->actions[ $action->id() ] = $action;
+		$this->action_instances[ $action->id() ] = $action;
+		$this->actions[ $action->id() ] = [
+			'id'    => $action->id(),
+			'label' => $action->label(),
+			'args'  => $action->args(),
+		];
 	}
 
-	// ?? Evaluation ????????????????????????????????????????????????????????????
+	public function get_conditions(): array { return $this->conditions; }
+	public function get_actions(): array { return $this->actions; }
 
 	/**
-	 * Returns true if there is at least one enabled rule for $hook.
-	 * Use this as a short-circuit check before building a Context.
+	 * Checks if a hook has any enabled rules.
 	 */
 	public function has_rules( string $hook ): bool {
-		$this->maybe_load_rules();
-		return ! empty( $this->rules[ $hook ] );
+		$rules = $this->get_rules( $hook );
+		foreach ( $rules as $rule ) {
+			if ( ! empty( $rule['enabled'] ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private array $rules_cache = [];
+
+	/**
+	 * Get rules from WordPress options (with static caching).
+	 */
+	public function get_rules( string $hook ): array {
+		if ( isset( $this->rules_cache[ $hook ] ) ) {
+			return $this->rules_cache[ $hook ];
+		}
+
+		$rules = get_option( "taiwan_store_core_rules_{$hook}" );
+		if ( false === $rules ) {
+			$rules = get_option( "wc_tw_core_rules_{$hook}" );
+		}
+
+		$this->rules_cache[ $hook ] = is_array( $rules ) ? $rules : [];
+		return $this->rules_cache[ $hook ];
 	}
 
 	/**
-	 * Evaluate all rules for $hook and mutate $payload.
-	 *
-	 * @param string  $hook    'payment' | 'shipping' | 'cart'
-	 * @param Context $ctx     Lazy-memoized context.
-	 * @param array   $payload Passed by reference; shape depends on hook.
+	 * Main evaluation entry point (New API).
 	 */
 	public function evaluate( string $hook, Context $ctx, array &$payload ): void {
-		$this->maybe_load_rules();
-		$rules = $this->rules[ $hook ] ?? [];
-
+		$rules = $this->get_rules( $hook );
 		foreach ( $rules as $rule ) {
-			if ( ! $rule->enabled ) {
-				continue;
+			if ( empty( $rule['enabled'] ) ) continue;
+
+			if ( $this->check_conditions( $rule['conditions'] ?? [], $ctx ) ) {
+				$this->apply_actions( $rule['actions'] ?? [], $ctx, $payload );
 			}
-			if ( $this->all_conditions_match( $rule->conditions, $ctx, $rule->logic ) ) {
-				$this->execute_actions( $rule->actions, $ctx, $payload );
-			}
 		}
-	}
-
-	// ?? Internals ?????????????????????????????????????????????????????????????
-
-	private function maybe_load_rules(): void {
-		if ( $this->rules_loaded ) {
-			return;
-		}
-
-		// ??頛?詨?撌脩???摮?
-		$hooks = [ 'payment', 'shipping', 'cart' ];
-		
-		// 霈隞??隞交憓摰儔???摮?蝔?
-		$hooks = apply_filters( 'Taiwan_Store_Core_rule_hooks', $hooks );
-
-		foreach ( $hooks as $hook ) {
-			$raw               = (array) get_option( 'Taiwan_Store_Core_rules_' . $hook, [] );
-			$this->rules[ $hook ] = array_map(
-				[ Rule::class, 'from_array' ],
-				array_filter( $raw, 'is_array' )
-			);
-		}
-		$this->rules_loaded = true;
 	}
 
 	/**
-	 * Evaluate conditions with AND or OR logic.
-	 *
-	 * AND (default): all conditions must match.
-	 * OR: at least one condition must match.
+	 * Legacy evaluation method for older modules.
 	 */
-	private function all_conditions_match( array $conditions, Context $ctx, string $logic = 'AND' ): bool {
-		if ( empty( $conditions ) ) {
-			return true; // No conditions = always apply.
-		}
-
-		$is_or = ( 'OR' === strtoupper( $logic ) );
-
-		foreach ( $conditions as $cond_data ) {
-			$type   = (string) ( $cond_data['type'] ?? '' );
-			$config = (array) ( $cond_data['config'] ?? [] );
-			$cond   = $this->conditions[ $type ] ?? null;
-			if ( ! $cond ) {
-				// Unknown condition type ??skip (fail-open) but log so admin can diagnose.
-				wc_get_logger()->warning(
-					"WC TW Core: unknown condition type '{$type}' encountered in rule engine ??skipped.",
-					[ 'source' => 'taiwan-store-core' ]
-				);
-				continue;
-			}
-			$matched = $cond->matches( $ctx, $config );
-			if ( $is_or && $matched ) {
-				return true;  // OR short-circuit: one match is enough.
-			}
-			if ( ! $is_or && ! $matched ) {
-				return false; // AND short-circuit: one failure fails all.
+	public function evaluate_rules( array $rules, array $context_data ): array {
+		$ctx = new Context();
+		$results = [];
+		foreach ( $rules as $rule ) {
+			if ( empty( $rule['enabled'] ) ) continue;
+			if ( $this->check_conditions( $rule['conditions'] ?? [], $ctx ) ) {
+				$results[] = $rule['actions'] ?? [];
 			}
 		}
-
-		// AND: all matched. OR: none matched.
-		return ! $is_or;
+		return $results;
 	}
 
-	private function execute_actions( array $actions, Context $ctx, array &$payload ): void {
-		foreach ( $actions as $act_data ) {
-			$type   = (string) ( $act_data['type'] ?? '' );
-			$config = (array) ( $act_data['config'] ?? [] );
-			$act    = $this->actions[ $type ] ?? null;
-			if ( $act ) {
-				$act->execute( $ctx, $config, $payload );
+	private function check_conditions( array $conditions, Context $ctx ): bool {
+		if ( empty( $conditions ) ) return true;
+
+		foreach ( $conditions as $cond_data ) {
+			$type = $cond_data['type'] ?? '';
+			if ( ! isset( $this->condition_instances[ $type ] ) ) continue;
+
+			if ( ! $this->condition_instances[ $type ]->matches( $ctx, $cond_data['config'] ?? [] ) ) {
+				return false;
 			}
+		}
+		return true;
+	}
+
+	private function apply_actions( array $actions, Context $ctx, array &$payload ): void {
+		foreach ( $actions as $act_data ) {
+			$type = $act_data['type'] ?? '';
+			if ( ! isset( $this->action_instances[ $type ] ) ) continue;
+
+			$this->action_instances[ $type ]->execute( $ctx, $act_data['config'] ?? [], $payload );
 		}
 	}
 }
-

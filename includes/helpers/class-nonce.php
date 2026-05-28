@@ -1,32 +1,20 @@
-﻿<?php
-namespace Taiwan_Store_Core\Helpers; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
+<?php
+namespace Taiwan_Store_Core\Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Nonce helpers for WC TW Core admin actions.
- */
 class Nonce {
 
-	/**
-	 * Verify a nonce and die on failure.
-	 * Use on all admin POST / AJAX handlers.
-	 *
-	 * @param string $action  Nonce action name.
-	 * @param string $field   $_POST field name. Default '_wpnonce'.
-	 */
-	public static function verify_or_die( string $action, string $field = '_wpnonce' ): void {
-		$nonce = isset( $_POST[ $field ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) : '';
+	public static function verify( string $action, string $key = '_wpnonce' ): void {
+		$nonce = sanitize_text_field( wp_unslash( $_REQUEST[ $key ] ?? '' ) );
 		if ( ! wp_verify_nonce( $nonce, $action ) ) {
-			wp_die( esc_html__( '摰?折?霅仃??隢??唳???岫??, 'taiwan-store-core' ), 403 );
+			wp_die( esc_html__( 'Security verification failed. Please refresh the page and try again.', 'taiwan-store-core' ), 403 );
 		}
 	}
 
-	/**
-	 * Output a nonce field. Use inside admin forms.
-	 */
-	public static function field( string $action ): void {
-		wp_nonce_field( $action );
+	public static function verify_ajax( string $action, string $key = 'nonce' ): void {
+		if ( ! check_ajax_referer( $action, $key, false ) ) {
+			wp_send_json_error( [ 'message' => __( 'Security verification failed', 'taiwan-store-core' ) ], 403 );
+		}
 	}
 }
-

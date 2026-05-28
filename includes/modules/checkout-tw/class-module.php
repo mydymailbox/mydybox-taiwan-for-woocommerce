@@ -1,10 +1,11 @@
-﻿<?php
-namespace Taiwan_Store_Core\Modules\Checkout_Tw; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
+<?php
+namespace Taiwan_Store_Core\Modules\Checkout_Tw;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Checkout TW module ??coordinates locale, fields, and validation sub-classes.
+ * Checkout TW Module.
+ * Coordinates locale, fields, validation, and meta handling for Taiwan checkout.
  */
 class Module implements \Taiwan_Store_Core\Module {
 
@@ -13,22 +14,33 @@ class Module implements \Taiwan_Store_Core\Module {
 	}
 
 	public function boot(): void {
+		// Manually require sub-components since we are not using a full autoloader yet
+		require_once __DIR__ . '/class-locale.php';
+		require_once __DIR__ . '/class-fields.php';
+		require_once __DIR__ . '/class-validation.php';
+		require_once __DIR__ . '/class-order-meta.php';
+		require_once __DIR__ . '/class-order-ui.php';
+		require_once __DIR__ . '/class-invoice-export.php';
+		require_once __DIR__ . '/class-checkout-countdown.php';
+		require_once __DIR__ . '/class-checkout-announcement.php';
+		require_once __DIR__ . '/class-abandoned-cart.php';
+		require_once __DIR__ . '/class-cvs-shipping.php';
+		require_once __DIR__ . '/class-newebpay-cvs-shipping.php';
+
 		( new Locale() )->boot();
 		( new Fields() )->boot();
 		( new Validation() )->boot();
 		( new Order_Meta() )->boot();
+		( new Order_UI() )->boot();
 		( new Invoice_Export() )->boot();
+		( new Checkout_Countdown() )->boot();
+		( new Checkout_Announcement() )->boot();
+		( new Abandoned_Cart() )->boot();
+		( new CVS_Shipping() )->boot();
+		( new NewebPay_CVS_Shipping() )->boot();
 
-		// 閮餃??憛?撣?(Blocks) ???舀
+		// Register Blocks integration
 		add_action( 'woocommerce_blocks_loaded', [ $this, 'register_blocks_integration' ] );
-		
-		// 閮餃? Gutenberg 敺?憛?
-		add_action( 'init', [ $this, 'register_gutenberg_block' ] );
-	}
-
-	public function register_gutenberg_block(): void {
-		// ?? block.json ??函???見 WordPress 撠梁???典??啁楊頛臬頛 editorScript
-		register_block_type( Taiwan_Store_Core_DIR . 'src/invoice-block' );
 	}
 
 	public function register_blocks_integration(): void {
@@ -44,4 +56,3 @@ class Module implements \Taiwan_Store_Core\Module {
 		return false;
 	}
 }
-

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 namespace Taiwan_Store_Core\Rule_Engine\Actions; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound -- Taiwan_Store_Core is the plugin prefix
 
 use Taiwan_Store_Core\Rule_Engine\Action;
@@ -23,6 +23,16 @@ class Block_Checkout implements Action {
 
 	public function id(): string {
 		return 'block_checkout';
+	}
+
+	public function label(): string {
+		return __( 'Block Checkout', 'taiwan-store-core' );
+	}
+
+	public function args(): array {
+		return [
+			[ 'id' => 'message', 'label' => __( 'Error message to show', 'taiwan-store-core' ), 'type' => 'textarea' ]
+		];
 	}
 
 	public function execute( Context $ctx, array $config, array &$payload ): void {
