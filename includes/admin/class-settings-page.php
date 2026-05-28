@@ -34,8 +34,8 @@ class Settings_Page {
 
 	public function add_menu_item(): void {
 		add_menu_page(
-			__( 'Mydybox', 'mydybox-taiwan-for-woocommerce' ),
-			__( 'Mydybox', 'mydybox-taiwan-for-woocommerce' ),
+			__( 'Mydybox TW', 'mydybox-taiwan-for-woocommerce' ),
+			__( 'Mydybox TW', 'mydybox-taiwan-for-woocommerce' ),
 			'manage_options',
 			'mydybox-taiwan-for-woocommerce',
 			[ $this, 'render_page' ],
@@ -102,13 +102,13 @@ class Settings_Page {
 		register_setting( 'mydybox_settings_logs', 'mydybox_debug_log', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 
 		// Extension placeholders
-		if ( is_plugin_active( 'taiwan-store-notifier/taiwan-store-notifier.php' ) ) {
+		if ( is_plugin_active( 'mydybox-notifier-pro/mydybox-notifier-pro.php' ) ) {
 			register_setting( 'mydybox_settings_notifier', 'mydybox_mitake_username', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 			register_setting( 'mydybox_settings_notifier', 'mydybox_mitake_password', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 			register_setting( 'mydybox_settings_notifier', 'mydybox_line_token', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 			register_setting( 'mydybox_settings_notifier', 'mydybox_admin_line_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 		}
-		if ( is_plugin_active( 'taiwan-store-marketing/taiwan-store-marketing.php' ) ) {
+		if ( is_plugin_active( 'mydybox-marketing-pro/mydybox-marketing-pro.php' ) ) {
 			register_setting( 'mydybox_settings_marketing', 'mydybox_marketing_options', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 		}
 	}
@@ -193,10 +193,10 @@ class Settings_Page {
 		$base_url    = admin_url( 'admin.php?page=mydybox-taiwan-for-woocommerce' );
 
 		$extensions = apply_filters( 'mydybox_extension_tabs', [
-			[ 'id' => 'marketing', 'name' => __( '行銷助手', 'mydybox-taiwan-for-woocommerce' ), 'path' => 'taiwan-store-marketing/taiwan-store-marketing.php' ],
-			[ 'id' => 'notifier',  'name' => __( '通知助手', 'mydybox-taiwan-for-woocommerce' ), 'path' => 'taiwan-store-notifier/taiwan-store-notifier.php' ],
-			[ 'id' => 'member',    'name' => __( '會員分級', 'mydybox-taiwan-for-woocommerce' ),    'path' => 'taiwan-store-member/taiwan-store-member.php' ],
-			[ 'id' => 'group_buy', 'name' => __( '拼團購買', 'mydybox-taiwan-for-woocommerce' ),   'path' => 'taiwan-store-group-buy/taiwan-store-group-buy.php' ],
+			[ 'id' => 'marketing', 'name' => __( '行銷助手', 'mydybox-taiwan-for-woocommerce' ), 'path' => 'mydybox-marketing-pro/mydybox-marketing-pro.php' ],
+			[ 'id' => 'notifier',  'name' => __( '通知助手', 'mydybox-taiwan-for-woocommerce' ), 'path' => 'mydybox-notifier-pro/mydybox-notifier-pro.php' ],
+			[ 'id' => 'member',    'name' => __( '會員分級', 'mydybox-taiwan-for-woocommerce' ),    'path' => 'mydybox-member-pro/mydybox-member-pro.php' ],
+			[ 'id' => 'group_buy', 'name' => __( '拼團購買', 'mydybox-taiwan-for-woocommerce' ),   'path' => 'mydybox-groupbuy-pro/mydybox-groupbuy-pro.php' ],
 		] );
 
 		$extension_tab_ids = apply_filters( 'mydybox_extension_tab_ids', [ 'member', 'group_buy' ] );
@@ -354,10 +354,10 @@ class Settings_Page {
 							<div class="ts-ext-list">
 								<?php
 								$ext_list = [
-									[ 'n' => '行銷助手 Pro',  'p' => 'taiwan-store-marketing/taiwan-store-marketing.php' ],
-									[ 'n' => '通知助手 Pro',  'p' => 'taiwan-store-notifier/taiwan-store-notifier.php' ],
-									[ 'n' => '會員分級 Pro',  'p' => 'taiwan-store-member/taiwan-store-member.php' ],
-									[ 'n' => '拼團購買 Pro',  'p' => 'taiwan-store-group-buy/taiwan-store-group-buy.php' ],
+									[ 'n' => '行銷助手 Pro',  'p' => 'mydybox-marketing-pro/mydybox-marketing-pro.php' ],
+									[ 'n' => '通知助手 Pro',  'p' => 'mydybox-notifier-pro/mydybox-notifier-pro.php' ],
+									[ 'n' => '會員分級 Pro',  'p' => 'mydybox-member-pro/mydybox-member-pro.php' ],
+									[ 'n' => '拼團購買 Pro',  'p' => 'mydybox-groupbuy-pro/mydybox-groupbuy-pro.php' ],
 								];
 								foreach ( $ext_list as $e ) :
 									$active = is_plugin_active( $e['p'] );
@@ -789,22 +789,22 @@ class Settings_Page {
 					// can be filtered to point each card at the right product page.
 					$ext_showcase = apply_filters( 'mydybox_pro_extensions', [
 						[ 'name' => 'Mydybox 行銷助手 Pro',
-							'path' => 'taiwan-store-marketing/taiwan-store-marketing.php',
+							'path' => 'mydybox-marketing-pro/mydybox-marketing-pro.php',
 							'icon' => 'megaphone', 'tab' => 'marketing',
 							'purchase_url' => '#',
 							'desc' => [ '<strong>進階行銷規則：</strong>滿額折扣、贈品、買一送一（BOGO）、加價購、分類促銷。', '<strong>視覺行銷工具：</strong>全站活動橫幅、購物車進度條、限時倒數計時器。' ] ],
 						[ 'name' => 'Mydybox 通知助手 Pro',
-							'path' => 'taiwan-store-notifier/taiwan-store-notifier.php',
+							'path' => 'mydybox-notifier-pro/mydybox-notifier-pro.php',
 							'icon' => 'testimonial', 'tab' => 'notifier',
 							'purchase_url' => '#',
 							'desc' => [ '<strong>物流追蹤：</strong>支援 7-11 / 全家 / 黑貓狀態同步。', '<strong>全通路推播：</strong>自訂 LINE / SMS 訊息範本，內建測試發送中心。' ] ],
 						[ 'name' => 'Mydybox 會員分級 Pro',
-							'path' => 'taiwan-store-member/taiwan-store-member.php',
+							'path' => 'mydybox-member-pro/mydybox-member-pro.php',
 							'icon' => 'awards', 'tab' => 'member',
 							'purchase_url' => '#',
 							'desc' => [ '<strong>消費累積等級：</strong>依累積消費自動升等（一般 / 銀卡 / 金卡 / VIP 白金）。', '<strong>點數制度：</strong>每筆訂單完成後累積點數，My Account 顯示等級徽章。' ] ],
 						[ 'name' => 'Mydybox 拼團購買 Pro',
-							'path' => 'taiwan-store-group-buy/taiwan-store-group-buy.php',
+							'path' => 'mydybox-groupbuy-pro/mydybox-groupbuy-pro.php',
 							'icon' => 'groups', 'tab' => 'group_buy',
 							'purchase_url' => '#',
 							'desc' => [ '<strong>人數門檻優惠：</strong>設定達標人數後啟用優惠價，商品頁即時顯示拼團進度條。', '<strong>活動管理：</strong>後台統一管理拼團活動，支援截止時間與達標通知。' ] ],
