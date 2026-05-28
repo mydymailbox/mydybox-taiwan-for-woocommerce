@@ -363,7 +363,7 @@ class Settings_Page {
 									$active = is_plugin_active( $e['p'] );
 									?>
 									<div class="ts-ext-item">
-										<span class="ts-ext-name">Taiwan Store <?php echo esc_html( $e['n'] ); ?></span>
+										<span class="ts-ext-name">Mydybox <?php echo esc_html( $e['n'] ); ?></span>
 										<?php if ( $active ) : ?>
 											<span class="ts-badge ts-badge--active ts-badge--dot"><?php esc_html_e( 'Running', 'mydybox-taiwan-for-woocommerce' ); ?></span>
 										<?php else : ?>
@@ -707,7 +707,7 @@ class Settings_Page {
 					<div class="ts-help-hero">
 						<div class="ts-help-hero-text">
 							<h2>👋 <?php esc_html_e( '需要什麼幫助？', 'mydybox-taiwan-for-woocommerce' ); ?></h2>
-							<p><?php esc_html_e( '歡迎使用 Taiwan Store 系列外掛。我們提供專為台灣電商設計的一站式在地化工具，讓您的 WooCommerce 商店更符合台灣買家的使用習慣。', 'mydybox-taiwan-for-woocommerce' ); ?></p>
+							<p><?php esc_html_e( '歡迎使用 Mydybox 系列外掛。我們提供專為台灣電商設計的一站式在地化工具，讓您的 WooCommerce 商店更符合台灣買家的使用習慣。', 'mydybox-taiwan-for-woocommerce' ); ?></p>
 						</div>
 					</div>
 
@@ -785,29 +785,37 @@ class Settings_Page {
 					</h3>
 
 					<?php
-					$ext_showcase = [
-						[ 'name' => 'Taiwan Store: 行銷助手 Pro',
+					// Paid extensions are sold separately on the author's site. `purchase_url`
+					// can be filtered to point each card at the right product page.
+					$ext_showcase = apply_filters( 'mydybox_pro_extensions', [
+						[ 'name' => 'Mydybox 行銷助手 Pro',
 							'path' => 'taiwan-store-marketing/taiwan-store-marketing.php',
 							'icon' => 'megaphone', 'tab' => 'marketing',
+							'purchase_url' => '#',
 							'desc' => [ '<strong>進階行銷規則：</strong>滿額折扣、贈品、買一送一（BOGO）、加價購、分類促銷。', '<strong>視覺行銷工具：</strong>全站活動橫幅、購物車進度條、限時倒數計時器。' ] ],
-						[ 'name' => 'Taiwan Store: 通知助手 Pro',
+						[ 'name' => 'Mydybox 通知助手 Pro',
 							'path' => 'taiwan-store-notifier/taiwan-store-notifier.php',
 							'icon' => 'testimonial', 'tab' => 'notifier',
+							'purchase_url' => '#',
 							'desc' => [ '<strong>物流追蹤：</strong>支援 7-11 / 全家 / 黑貓狀態同步。', '<strong>全通路推播：</strong>自訂 LINE / SMS 訊息範本，內建測試發送中心。' ] ],
-						[ 'name' => 'Taiwan Store: 會員分級 Pro',
+						[ 'name' => 'Mydybox 會員分級 Pro',
 							'path' => 'taiwan-store-member/taiwan-store-member.php',
 							'icon' => 'awards', 'tab' => 'member',
+							'purchase_url' => '#',
 							'desc' => [ '<strong>消費累積等級：</strong>依累積消費自動升等（一般 / 銀卡 / 金卡 / VIP 白金）。', '<strong>點數制度：</strong>每筆訂單完成後累積點數，My Account 顯示等級徽章。' ] ],
-						[ 'name' => 'Taiwan Store: 拼團購買 Pro',
+						[ 'name' => 'Mydybox 拼團購買 Pro',
 							'path' => 'taiwan-store-group-buy/taiwan-store-group-buy.php',
 							'icon' => 'groups', 'tab' => 'group_buy',
+							'purchase_url' => '#',
 							'desc' => [ '<strong>人數門檻優惠：</strong>設定達標人數後啟用優惠價，商品頁即時顯示拼團進度條。', '<strong>活動管理：</strong>後台統一管理拼團活動，支援截止時間與達標通知。' ] ],
-					];
+					] );
 					?>
 					<div class="ts-help-grid">
 						<?php foreach ( $ext_showcase as $ext ) :
-							$is_active = is_plugin_active( $ext['path'] );
-							$card_class = $is_active ? 'ts-help-card ts-help-card--active' : 'ts-help-card ts-help-card--inactive';
+							$is_active   = is_plugin_active( $ext['path'] );
+							$card_class  = $is_active ? 'ts-help-card ts-help-card--active' : 'ts-help-card ts-help-card--inactive';
+							$buy_url     = ! empty( $ext['purchase_url'] ) ? $ext['purchase_url'] : '#';
+							$has_buy_url = $buy_url && '#' !== $buy_url;
 							?>
 							<div class="<?php echo esc_attr( $card_class ); ?>">
 								<div class="ts-help-card-header">
@@ -815,9 +823,9 @@ class Settings_Page {
 									<div>
 										<h2><?php echo esc_html( $ext['name'] ); ?></h2>
 										<?php if ( $is_active ) : ?>
-											<span class="ts-badge ts-badge--active ts-badge--dot">已啟用</span>
+											<span class="ts-badge ts-badge--active ts-badge--dot"><?php esc_html_e( '已啟用', 'mydybox-taiwan-for-woocommerce' ); ?></span>
 										<?php else : ?>
-											<span class="ts-badge ts-badge--inactive">擴充外掛</span>
+											<span class="ts-badge ts-badge--premium"><?php esc_html_e( '付費購買', 'mydybox-taiwan-for-woocommerce' ); ?></span>
 										<?php endif; ?>
 									</div>
 								</div>
@@ -827,9 +835,11 @@ class Settings_Page {
 									<?php endforeach; ?>
 								</div>
 								<?php if ( $is_active ) : ?>
-									<a href="<?php echo esc_url( admin_url( 'admin.php?page=mydybox-taiwan-for-woocommerce&tab=' . $ext['tab'] ) ); ?>" class="button button-secondary button-small">前往設定</a>
+									<a href="<?php echo esc_url( admin_url( 'admin.php?page=mydybox-taiwan-for-woocommerce&tab=' . $ext['tab'] ) ); ?>" class="button button-secondary button-small"><?php esc_html_e( '前往設定', 'mydybox-taiwan-for-woocommerce' ); ?></a>
+								<?php elseif ( $has_buy_url ) : ?>
+									<a href="<?php echo esc_url( $buy_url ); ?>" target="_blank" rel="noopener" class="button button-secondary button-small"><?php esc_html_e( '前往購買', 'mydybox-taiwan-for-woocommerce' ); ?> <span class="dashicons dashicons-external" style="font-size:14px;width:14px;height:14px;vertical-align:text-bottom;"></span></a>
 								<?php else : ?>
-									<a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>" class="button button-secondary button-small">安裝並啟用</a>
+									<span class="button button-secondary button-small" style="opacity:.7;cursor:default;" aria-disabled="true"><?php esc_html_e( '敬請期待', 'mydybox-taiwan-for-woocommerce' ); ?></span>
 								<?php endif; ?>
 							</div>
 						<?php endforeach; ?>
